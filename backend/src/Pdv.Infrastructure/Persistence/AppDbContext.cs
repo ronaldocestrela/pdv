@@ -18,6 +18,7 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

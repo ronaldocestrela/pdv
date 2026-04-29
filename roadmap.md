@@ -91,18 +91,23 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 ## 📊 Fase 3 — Estoque
 
 ### Backend
-- Entidade: StockMovement
-- Command: AddStock
+- Entidade: StockMovement (`Type` IN/OUT, `Quantity`, `CreatedAtUtc`, `Reason` opcional)
+- Command: AddStock (`AddStockCommand` / `POST /api/stock/adjust`)
+- Query: histórico `GET /api/stock/movements` (filtro opcional `variationId`, `take`)
 
 ### Regras
-- Sem estoque negativo
-- Histórico obrigatório
+- Entrada via AddStock: incrementa `StockQuantity` e grava movimento IN (histórico obrigatório)
+- Sem estoque negativo em entradas (quantidade sempre positiva)
+- Edição direta de `stockQuantity` em variação (`PUT /api/variations/{id}`) permanece; não gera `StockMovement` (compatibilidade Fase 2)
 
 ### Frontend
-- Tela de ajuste de estoque
+- Tela **Estoque** (`/stock`) — entrada de estoque + tabela de histórico; permissões `stock.adjust` / `stock.view`
 
-### ✅ Entrega
-- Controle de estoque confiável
+### ✅ Entrega (**concluída**)
+- API + UI ponta a ponta; policies `stock.adjust` e `stock.view`
+- Referência Stitch: [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md); tokens em `pdvTheme.css`
+
+**Validação rápida (manual):** usuário com `stock.adjust` + `product.view` → **Estoque** → selecionar produto/variação → registrar entrada → histórico atualiza.
 
 ---
 

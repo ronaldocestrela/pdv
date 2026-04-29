@@ -8,4 +8,6 @@ export const PERMISSIONS = {
   variationUpdate: 'variation.update',
   variationDelete: 'variation.delete',
   variationView: 'variation.view',
+  stockAdjust: 'stock.adjust',
+  stockView: 'stock.view',
 } as const;

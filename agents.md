@@ -189,6 +189,10 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 
 (O claim `variation.view` existe para consistência futura; leituras de variações ocorrem via `GET /api/products/{id}`.)
 
+### Stock (Fase 3)
+- `POST /api/stock/adjust` — `{ productVariationId, quantity, reason | null }` (policy `stock.adjust`)
+- `GET /api/stock/movements` — query opcional `variationId`, `take` (default 100, máx. 500) (policy `stock.view`)
+
 ### Sales
 - POST /sales
 - GET /sales
@@ -218,12 +222,12 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - Home (`/`)
 - **Produtos** (`/products`) — Fase 2; catálogo + CRUD; link para variações
 - **Variações do produto** (`/products/:productId/variations`) — Fase 2; CRUD de variações (estoque, barcode opcional)
+- **Estoque** (`/stock`) — Fase 3; entrada de estoque + histórico; `stock.adjust` / `stock.view`
 - PDV
-- Estoque
 - Relatórios
 - Gestão de usuários/roles
 
-Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md).
+Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md).
 
 ### PDV
 - Busca de produtos
@@ -237,6 +241,7 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 
 - Controladas por ação (JWT claims espelham `KnownPermissions`)
 - Produtos/variações (Fase 2): `product.view`, `product.create`, `product.update`, `product.delete`; `variation.create`, `variation.update`, `variation.delete`; `variation.view` reservado
+- Estoque (Fase 3): `stock.adjust`, `stock.view`
 - Helpers: `usePermission` / `can('product.create')` etc.
 
 ---

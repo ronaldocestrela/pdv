@@ -8,6 +8,16 @@ public sealed record ProductVariationDto(int Id, int ProductId, string Name, str
 
 public sealed record ProductDetailDto(int Id, string Name, bool IsActive, IReadOnlyList<ProductVariationDto> Variations);
 
+public sealed record StockMovementListItemDto(
+    int Id,
+    int ProductVariationId,
+    string ProductName,
+    string VariationName,
+    string Type,
+    int Quantity,
+    DateTime CreatedAtUtc,
+    string? Reason);
+
 public interface IProductRepository
 {
     Task<IReadOnlyList<ProductSummaryDto>> ListSummariesAsync(CancellationToken cancellationToken = default);
@@ -30,6 +40,13 @@ public interface IProductRepository
 
     /// <summary>Returns true if another variation already uses this barcode.</summary>
     Task<bool> IsBarcodeTakenAsync(string barcode, int? excludeVariationId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<StockMovementListItemDto>> ListStockMovementsAsync(
+        int? productVariationId,
+        int take,
+        CancellationToken cancellationToken = default);
+
+    void AddStockMovement(StockMovement movement);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

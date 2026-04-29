@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Pdv.Application.Abstractions;
 using Pdv.Domain.Entities;
+using Pdv.Domain.Enums;
 using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
@@ -77,6 +78,35 @@ public sealed class ProductRepository : IProductRepository
             q = q.Where(v => v.Id != excludeVariationId.Value);
         return await q.AnyAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<StockMovementListItemDto>> ListStockMovementsAsync(
+        int? productVariationId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        var q = _db.StockMovements.AsNoTracking().AsQueryable();
+        if (productVariationId.HasValue)
+            q = q.Where(m => m.ProductVariationId == productVariationId.Value);
+
+        var cappedTake = Math.Clamp(take, 1, 500);
+
+        return await q
+            .OrderByDescending(m => m.CreatedAtUtc)
+            .Take(cappedTake)
+            .Select(m => new StockMovementListItemDto(
+                m.Id,
+                m.ProductVariationId,
+                m.ProductVariation.Product.Name,
+                m.ProductVariation.Name,
+                m.Type == StockMovementType.In ? "IN" : "OUT",
+                m.Quantity,
+                m.CreatedAtUtc,
+                m.Reason))
+            .ToListAsync(cancellationToken);
+    }
+
+    public void AddStockMovement(StockMovement movement) =>
+        _db.StockMovements.Add(movement);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _db.SaveChangesAsync(cancellationToken);

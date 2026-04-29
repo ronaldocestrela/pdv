@@ -1,5 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth';
+import { usePermission } from '../hooks/usePermission';
+import { PERMISSIONS } from '../constants/permissions';
 import '../pages/pdvTheme.css';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -8,6 +10,8 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 export function AppShell() {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const { can } = usePermission();
+  const showStock = can(PERMISSIONS.stockView) || can(PERMISSIONS.stockAdjust);
 
   return (
     <div className="pdv-theme pdv-app">
@@ -20,6 +24,11 @@ export function AppShell() {
           <NavLink className={linkClass} to="/products">
             Produtos
           </NavLink>
+          {showStock && (
+            <NavLink className={linkClass} to="/stock">
+              Estoque
+            </NavLink>
+          )}
         </nav>
         <div style={{ marginTop: 'auto', padding: '1rem 1.25rem' }}>
           <button
