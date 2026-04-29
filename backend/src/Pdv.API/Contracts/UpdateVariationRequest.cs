@@ -1,3 +1,3 @@
 namespace Pdv.API.Contracts;
 
-public sealed record UpdateVariationRequest(string Name, string? Barcode, int StockQuantity);
+public sealed record UpdateVariationRequest(string Name, string? Barcode, int StockQuantity, decimal UnitPrice);

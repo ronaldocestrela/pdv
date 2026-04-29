@@ -11,6 +11,7 @@ export interface ProductVariationDto {
   name: string;
   barcode: string | null;
   stockQuantity: number;
+  unitPrice: number;
 }
 
 export interface ProductDetailDto {

@@ -10,4 +10,6 @@ export const PERMISSIONS = {
   variationView: 'variation.view',
   stockAdjust: 'stock.adjust',
   stockView: 'stock.view',
+  saleCreate: 'sale.create',
+  saleView: 'sale.view',
 } as const;

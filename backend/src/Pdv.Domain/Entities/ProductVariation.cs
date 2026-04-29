@@ -9,4 +9,5 @@ public sealed class ProductVariation
     public string Name { get; set; } = string.Empty;
     public string? Barcode { get; set; }
     public int StockQuantity { get; set; }
+    public decimal UnitPrice { get; set; }
 }

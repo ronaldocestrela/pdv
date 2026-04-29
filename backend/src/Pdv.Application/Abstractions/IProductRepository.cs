@@ -4,7 +4,7 @@ namespace Pdv.Application.Abstractions;
 
 public sealed record ProductSummaryDto(int Id, string Name, bool IsActive, int VariationCount);
 
-public sealed record ProductVariationDto(int Id, int ProductId, string Name, string? Barcode, int StockQuantity);
+public sealed record ProductVariationDto(int Id, int ProductId, string Name, string? Barcode, int StockQuantity, decimal UnitPrice);
 
 public sealed record ProductDetailDto(int Id, string Name, bool IsActive, IReadOnlyList<ProductVariationDto> Variations);
 

@@ -6,6 +6,7 @@ import { HomePage } from './pages/Home';
 import { ProductsPage } from './pages/ProductsPage';
 import { ProductVariationsPage } from './pages/ProductVariationsPage';
 import { StockAdjustPage } from './pages/StockAdjustPage';
+import { PdvPage } from './pages/PdvPage';
 import './App.css';
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:productId/variations" element={<ProductVariationsPage />} />
           <Route path="stock" element={<StockAdjustPage />} />
+          <Route path="pdv" element={<PdvPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

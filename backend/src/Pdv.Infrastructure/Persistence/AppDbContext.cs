@@ -20,6 +20,10 @@ public sealed class AppDbContext : DbContext
     public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
+    public DbSet<Sale> Sales => Set<Sale>();
+    public DbSet<SaleItem> SaleItems => Set<SaleItem>();
+    public DbSet<CashFlow> CashFlows => Set<CashFlow>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

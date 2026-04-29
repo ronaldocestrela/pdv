@@ -6,7 +6,11 @@ import { PERMISSIONS } from '../constants/permissions';
 import * as productsApi from '../services/products';
 import type { ProductDetailDto, ProductVariationDto } from '../types/products';
 
-type VariationForm = { name: string; barcode: string; stockQuantity: number };
+type VariationForm = { name: string; barcode: string; stockQuantity: number; unitPrice: number };
+
+function formatBRL(value: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+}
 
 function hasAnyVariationPermission(): boolean {
   return [
@@ -22,7 +26,7 @@ export function ProductVariationsPage() {
   const id = Number(productId);
   const navigate = useNavigate();
   const [detail, setDetail] = useState<ProductDetailDto | null>(null);
-  const [loading, setLoading] = useState(() => hasAnyVariationPermission());
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<{ mode: 'create' | 'edit'; variation?: ProductVariationDto } | null>(null);
   const [deleting, setDeleting] = useState<ProductVariationDto | null>(null);
@@ -116,6 +120,9 @@ export function ProductVariationsPage() {
               <tr>
                 <th>Nome</th>
                 <th>Código de barras</th>
+                <th className="num" style={{ width: '8rem' }}>
+                  Preço
+                </th>
                 <th style={{ width: '7rem' }}>Estoque</th>
                 <th style={{ width: '10rem' }}>Ações</th>
               </tr>
@@ -125,6 +132,7 @@ export function ProductVariationsPage() {
                 <tr key={v.id}>
                   <td>{v.name}</td>
                   <td>{v.barcode ?? '—'}</td>
+                  <td className="num">{formatBRL(v.unitPrice)}</td>
                   <td className="num">{v.stockQuantity}</td>
                   <td>
                     {canUpdate && (
@@ -203,6 +211,7 @@ function VariationModal({
       name: initial?.name ?? '',
       barcode: initial?.barcode ?? '',
       stockQuantity: initial?.stockQuantity ?? 0,
+      unitPrice: initial?.unitPrice ?? 0,
     },
   });
 
@@ -211,6 +220,7 @@ function VariationModal({
       name: initial?.name ?? '',
       barcode: initial?.barcode ?? '',
       stockQuantity: initial?.stockQuantity ?? 0,
+      unitPrice: initial?.unitPrice ?? 0,
     });
   }, [initial, reset]);
 
@@ -225,12 +235,14 @@ function VariationModal({
           name: values.name,
           barcode,
           stockQuantity: values.stockQuantity,
+          unitPrice: values.unitPrice,
         });
       } else if (initial) {
         await productsApi.updateVariation(initial.id, {
           name: values.name,
           barcode,
           stockQuantity: values.stockQuantity,
+          unitPrice: values.unitPrice,
         });
       }
       await onSaved();
@@ -251,6 +263,16 @@ function VariationModal({
           <div className="pdv-field">
             <label htmlFor="v-bc">Código de barras (opcional)</label>
             <input id="v-bc" type="text" {...register('barcode')} />
+          </div>
+          <div className="pdv-field">
+            <label htmlFor="v-price">Preço unitário (R$)</label>
+            <input
+              id="v-price"
+              type="number"
+              min={0}
+              step="0.01"
+              {...register('unitPrice', { valueAsNumber: true, min: 0 })}
+            />
           </div>
           <div className="pdv-field">
             <label htmlFor="v-stock">Estoque</label>

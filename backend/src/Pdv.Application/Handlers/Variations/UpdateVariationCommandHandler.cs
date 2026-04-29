@@ -28,6 +28,7 @@ public sealed class UpdateVariationCommandHandler : IRequestHandler<UpdateVariat
         v.Name = request.Name.Trim();
         v.Barcode = barcode;
         v.StockQuantity = request.StockQuantity;
+        v.UnitPrice = request.UnitPrice;
 
         await _products.SaveChangesAsync(cancellationToken);
         return Unit.Value;

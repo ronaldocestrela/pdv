@@ -12,6 +12,7 @@ export function AppShell() {
   const navigate = useNavigate();
   const { can } = usePermission();
   const showStock = can(PERMISSIONS.stockView) || can(PERMISSIONS.stockAdjust);
+  const showPdv = can(PERMISSIONS.saleCreate) || can(PERMISSIONS.saleView);
 
   return (
     <div className="pdv-theme pdv-app">
@@ -24,6 +25,11 @@ export function AppShell() {
           <NavLink className={linkClass} to="/products">
             Produtos
           </NavLink>
+          {showPdv && (
+            <NavLink className={linkClass} to="/pdv">
+              PDV
+            </NavLink>
+          )}
           {showStock && (
             <NavLink className={linkClass} to="/stock">
               Estoque

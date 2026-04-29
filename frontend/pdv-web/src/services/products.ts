@@ -37,6 +37,7 @@ export async function createVariation(body: {
   name: string;
   barcode: string | null;
   stockQuantity: number;
+  unitPrice: number;
 }): Promise<number> {
   const { data } = await api.post<{ id: number }>('/api/variations', body);
   return data.id;
@@ -44,7 +45,7 @@ export async function createVariation(body: {
 
 export async function updateVariation(
   id: number,
-  body: { name: string; barcode: string | null; stockQuantity: number },
+  body: { name: string; barcode: string | null; stockQuantity: number; unitPrice: number },
 ): Promise<void> {
   await api.put(`/api/variations/${id}`, body);
 }

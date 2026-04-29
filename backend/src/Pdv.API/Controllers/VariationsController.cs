@@ -24,7 +24,7 @@ public sealed class VariationsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateVariationRequest request, CancellationToken cancellationToken)
     {
         var id = await _mediator.Send(
-            new CreateVariationCommand(request.ProductId, request.Name, request.Barcode, request.StockQuantity),
+            new CreateVariationCommand(request.ProductId, request.Name, request.Barcode, request.StockQuantity, request.UnitPrice),
             cancellationToken);
         return Created($"/api/variations/{id}", new IdResponse(id));
     }
@@ -35,7 +35,7 @@ public sealed class VariationsController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVariationRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(
-            new UpdateVariationCommand(id, request.Name, request.Barcode, request.StockQuantity),
+            new UpdateVariationCommand(id, request.Name, request.Barcode, request.StockQuantity, request.UnitPrice),
             cancellationToken);
         return NoContent();
     }

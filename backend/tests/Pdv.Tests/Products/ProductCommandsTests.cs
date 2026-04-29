@@ -39,6 +39,7 @@ public sealed class ProductCommandsTests
             Name = "A",
             Barcode = "789",
             StockQuantity = 1,
+            UnitPrice = 0,
         });
         await ctx.SaveChangesAsync();
 
@@ -46,7 +47,7 @@ public sealed class ProductCommandsTests
         var handler = new CreateVariationCommandHandler(repo);
 
         var act = async () => await handler.Handle(
-            new CreateVariationCommand(productId, "B", "789", 2),
+            new CreateVariationCommand(productId, "B", "789", 2, 0m),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<FluentValidation.ValidationException>();
@@ -65,6 +66,7 @@ public sealed class ProductCommandsTests
             Name = "V",
             Barcode = null,
             StockQuantity = 0,
+            UnitPrice = 0,
         });
         await ctx.SaveChangesAsync();
 

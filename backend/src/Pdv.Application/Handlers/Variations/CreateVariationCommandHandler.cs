@@ -31,6 +31,7 @@ public sealed class CreateVariationCommandHandler : IRequestHandler<CreateVariat
             Name = request.Name.Trim(),
             Barcode = barcode,
             StockQuantity = request.StockQuantity,
+            UnitPrice = request.UnitPrice,
         };
 
         _products.AddVariation(v);

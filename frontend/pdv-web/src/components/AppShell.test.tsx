@@ -50,4 +50,28 @@ describe('AppShell', () => {
     const nav = screen.getByRole('navigation', { name: /principal/i });
     expect(within(nav).getByRole('link', { name: /^estoque$/i })).toHaveAttribute('href', '/stock');
   });
+
+  it('mostra PDV quando há permissão sale.create', () => {
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.saleCreate, PERMISSIONS.productView],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/pdv']}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="pdv" element={<div>PDV página</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole('navigation', { name: /principal/i });
+    expect(within(nav).getByRole('link', { name: /^pdv$/i })).toHaveAttribute('href', '/pdv');
+  });
 });

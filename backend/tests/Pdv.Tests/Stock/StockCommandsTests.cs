@@ -25,6 +25,7 @@ public sealed class StockCommandsTests
             Name = "P",
             Barcode = null,
             StockQuantity = 5,
+            UnitPrice = 0,
         });
         await ctx.SaveChangesAsync();
         var vid = ctx.ProductVariations.First().Id;
@@ -68,6 +69,7 @@ public sealed class StockCommandsTests
             ProductId = pid,
             Name = "V",
             StockQuantity = 0,
+            UnitPrice = 0,
         });
         await ctx.SaveChangesAsync();
         var vid = ctx.ProductVariations.First().Id;

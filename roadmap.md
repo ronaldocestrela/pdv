@@ -141,8 +141,11 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 - Cartão
 - PIX
 
-### ✅ Entrega
-- Venda completa funcionando
+### ✅ Entrega (**concluída**)
+- `CreateSale` + entidades `Sale`, `SaleItem`, `CashFlow`; baixa de estoque + `StockMovement` OUT + entrada no caixa; policies `sale.create` / `sale.view`
+- UI **PDV** em `/pdv` com tokens Stitch (`pdvTheme.css`); referência [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md)
+
+**Validação rápida (manual):** usuário com `sale.create` + `product.view` → **PDV** → montar carrinho → escolher pagamento → **Finalizar venda** → estoque e últimas vendas atualizam.
 
 ---
 

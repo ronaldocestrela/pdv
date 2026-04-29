@@ -34,7 +34,7 @@ public sealed class ProductRepository : IProductRepository
                 p.IsActive,
                 Variations = p.Variations
                     .OrderBy(v => v.Name)
-                    .Select(v => new ProductVariationDto(v.Id, v.ProductId, v.Name, v.Barcode, v.StockQuantity))
+                    .Select(v => new ProductVariationDto(v.Id, v.ProductId, v.Name, v.Barcode, v.StockQuantity, v.UnitPrice))
                     .ToList(),
             })
             .FirstOrDefaultAsync(cancellationToken);
