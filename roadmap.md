@@ -160,8 +160,12 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 ### Frontend
 - Tela de relatórios
 
-### ✅ Entrega
-- Visão gerencial básica
+### ✅ Entrega (**concluída**)
+- API `GET /api/reports/*` + CQRS + policies `report.view` / `cashflow.view`
+- UI **Relatórios** em `/reports`; permissões espelhadas no frontend (`PERMISSIONS`)
+- Referência Stitch: [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md); tokens em `pdvTheme.css`
+
+**Validação rápida (manual):** usuário com `report.view` (+ `cashflow.view` para fluxo de caixa) → **Relatórios** no menu → ajustar período → **Atualizar período** → KPI + tabelas; **Atualizar estoque** para listagem de variações.
 
 ---
 

@@ -197,11 +197,11 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - `POST /api/sales` — `{ items: [{ productVariationId, quantity }], paymentMethod }` — `paymentMethod`: `cash` \| `card` \| `pix`; preço unitário é o cadastrado na variação (`GET /api/products/{id}` → `variations[].unitPrice`) (policy `sale.create`)
 - `GET /api/sales` — query opcional `take` (policy `sale.view`)
 
-### Reports
-- GET /reports/sales
-- GET /reports/top-products
-- GET /reports/cashflow
-- GET /reports/stock
+### Reports (Fase 5)
+- `GET /api/reports/sales` — query `fromUtc`, `toUtc` (policy `report.view`) → `{ saleCount, totalAmount }`
+- `GET /api/reports/top-products` — query `fromUtc`, `toUtc`, `take` (default 20, máx. 100) (policy `report.view`)
+- `GET /api/reports/cashflow` — query `fromUtc`, `toUtc`, `take` (default 100, máx. 500) (policy `cashflow.view`)
+- `GET /api/reports/stock` — query `take` (default 500, máx. 500) (policy `report.view`)
 
 ---
 
@@ -224,10 +224,10 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - **Variações do produto** (`/products/:productId/variations`) — Fase 2; CRUD de variações (preço unitário, estoque, barcode opcional)
 - **Estoque** (`/stock`) — Fase 3; entrada de estoque + histórico; `stock.adjust` / `stock.view`
 - **PDV** (`/pdv`) — Fase 4; busca, carrinho, pagamento (dinheiro/cartão/PIX); `sale.create` / `sale.view`; requer `product.view` para catálogo
-- Relatórios
+- **Relatórios** (`/reports`) — Fase 5; vendas por período, top produtos, fluxo de caixa, estoque atual; `report.view` / `cashflow.view` conforme seções visíveis
 - Gestão de usuários/roles
 
-Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md).
+Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md), [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md).
 
 ### PDV
 - Busca de produtos
@@ -243,6 +243,7 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 - Produtos/variações (Fase 2): `product.view`, `product.create`, `product.update`, `product.delete`; `variation.create`, `variation.update`, `variation.delete`; `variation.view` reservado
 - Estoque (Fase 3): `stock.adjust`, `stock.view`
 - Vendas / PDV (Fase 4): `sale.create`, `sale.view`
+- Relatórios (Fase 5): `report.view`, `cashflow.view`
 - Helpers: `usePermission` / `can('product.create')` etc.
 
 ---

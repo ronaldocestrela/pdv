@@ -74,4 +74,28 @@ describe('AppShell', () => {
     const nav = screen.getByRole('navigation', { name: /principal/i });
     expect(within(nav).getByRole('link', { name: /^pdv$/i })).toHaveAttribute('href', '/pdv');
   });
+
+  it('mostra Relatórios quando há permissão report.view', () => {
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.reportView],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/reports']}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="reports" element={<div>Relatórios página</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole('navigation', { name: /principal/i });
+    expect(within(nav).getByRole('link', { name: /^relatórios$/i })).toHaveAttribute('href', '/reports');
+  });
 });

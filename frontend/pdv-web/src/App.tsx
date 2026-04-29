@@ -7,6 +7,7 @@ import { ProductsPage } from './pages/ProductsPage';
 import { ProductVariationsPage } from './pages/ProductVariationsPage';
 import { StockAdjustPage } from './pages/StockAdjustPage';
 import { PdvPage } from './pages/PdvPage';
+import { ReportsPage } from './pages/ReportsPage';
 import './App.css';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="products/:productId/variations" element={<ProductVariationsPage />} />
           <Route path="stock" element={<StockAdjustPage />} />
           <Route path="pdv" element={<PdvPage />} />
+          <Route path="reports" element={<ReportsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

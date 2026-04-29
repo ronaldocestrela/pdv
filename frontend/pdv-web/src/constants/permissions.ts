@@ -12,4 +12,6 @@ export const PERMISSIONS = {
   stockView: 'stock.view',
   saleCreate: 'sale.create',
   saleView: 'sale.view',
+  reportView: 'report.view',
+  cashflowView: 'cashflow.view',
 } as const;
