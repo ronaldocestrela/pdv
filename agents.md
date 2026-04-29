@@ -287,7 +287,18 @@ Uma feature só está pronta se:
 
 ---
 
-## 15. Observações finais
+## 15. Layout do repositório (Fase 0)
+
+Após a fundação, o código vive em:
+
+- `backend/` — solução .NET (`Pdv.sln`): Domain, Application, Infrastructure, API; testes em `tests/Pdv.Tests`
+- `frontend/pdv-web/` — React + Vite + TypeScript (`services/`, `hooks/`, `store/`)
+
+Execução e variáveis de ambiente: ver [`README.md`](README.md) na raiz do projeto.
+
+---
+
+## 16. Observações finais
 
 - Sistema focado em performance de PDV
 - UX deve ser rápida e com poucos cliques

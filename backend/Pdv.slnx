@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pdv.API/Pdv.API.csproj" />
+    <Project Path="src/Pdv.Application/Pdv.Application.csproj" />
+    <Project Path="src/Pdv.Domain/Pdv.Domain.csproj" />
+    <Project Path="src/Pdv.Infrastructure/Pdv.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pdv.Tests/Pdv.Tests.csproj" />
+  </Folder>
+</Solution>

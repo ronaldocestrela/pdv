@@ -1,0 +1,16 @@
+# Build outputs
+**/bin/
+**/obj/
+**/dist/
+**/node_modules/
+
+# IDE / OS
+.idea/
+.vscode/
+*.user
+.DS_Store
+
+# Env
+.env
+.env.local
+frontend/pdv-web/.env

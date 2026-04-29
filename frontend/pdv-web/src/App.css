@@ -1,0 +1,24 @@
+.pdv-shell {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+.card {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+  border-radius: 8px;
+}
+
+[data-status='ok'] {
+  color: #0a7;
+}
+
+[data-status='error'] {
+  color: #c00;
+}

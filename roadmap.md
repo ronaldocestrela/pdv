@@ -31,6 +31,8 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 - Backend e frontend rodando
 - Conexão com banco funcionando
 
+**Implementação:** ver [`README.md`](README.md) na raiz (`backend/`, `frontend/pdv-web/`).
+
 ---
 
 ## 🔐 Fase 1 — Autenticação + Autorização
