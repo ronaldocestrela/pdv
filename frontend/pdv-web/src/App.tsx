@@ -1,7 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AppShell } from './components/AppShell';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login';
 import { HomePage } from './pages/Home';
+import { ProductsPage } from './pages/ProductsPage';
+import { ProductVariationsPage } from './pages/ProductVariationsPage';
 import './App.css';
 
 export default function App() {
@@ -10,13 +13,16 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/"
           element={
             <ProtectedRoute>
-              <HomePage />
+              <AppShell />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<HomePage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="products/:productId/variations" element={<ProductVariationsPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

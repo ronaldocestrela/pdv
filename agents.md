@@ -169,18 +169,25 @@ Fluxo:
 
 ## 7. Endpoints (exemplos)
 
+Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization: Bearer <JWT>` exceto onde indicado.
+
 ### Auth
-- POST /auth/login
-- POST /auth/refresh
+- `POST /auth/login`
+- `POST /auth/refresh`
 
-### Products
-- POST /products
-- GET /products
-- PUT /products/{id}
+### Products (Fase 2)
+- `GET /api/products` — listagem (policy `product.view`)
+- `GET /api/products/{id}` — detalhe com variações (policy `product.view`)
+- `POST /api/products` — corpo `{ name, isActive }` (policy `product.create`)
+- `PUT /api/products/{id}` — `{ name, isActive }` (policy `product.update`)
+- `DELETE /api/products/{id}` — (policy `product.delete`)
 
-### Variations
-- POST /variations
-- PUT /variations/{id}
+### Variations (Fase 2)
+- `POST /api/variations` — `{ productId, name, barcode | null, stockQuantity }` (policy `variation.create`)
+- `PUT /api/variations/{id}` — `{ name, barcode | null, stockQuantity }` (policy `variation.update`)
+- `DELETE /api/variations/{id}` — (policy `variation.delete`)
+
+(O claim `variation.view` existe para consistência futura; leituras de variações ocorrem via `GET /api/products/{id}`.)
 
 ### Sales
 - POST /sales
@@ -207,12 +214,16 @@ Fluxo:
 ```
 
 ### Telas
-- Login
+- Login (`/login`)
+- Home (`/`)
+- **Produtos** (`/products`) — Fase 2; catálogo + CRUD; link para variações
+- **Variações do produto** (`/products/:productId/variations`) — Fase 2; CRUD de variações (estoque, barcode opcional)
 - PDV
-- Produtos
 - Estoque
 - Relatórios
 - Gestão de usuários/roles
+
+Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md).
 
 ### PDV
 - Busca de produtos
@@ -224,11 +235,9 @@ Fluxo:
 
 ## 9. Permissões (Frontend)
 
-- Controladas por ação
-- Exemplo:
-```
-if (can('product.create')) { ... }
-```
+- Controladas por ação (JWT claims espelham `KnownPermissions`)
+- Produtos/variações (Fase 2): `product.view`, `product.create`, `product.update`, `product.delete`; `variation.create`, `variation.update`, `variation.delete`; `variation.view` reservado
+- Helpers: `usePermission` / `can('product.create')` etc.
 
 ---
 

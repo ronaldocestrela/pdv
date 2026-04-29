@@ -1,0 +1,304 @@
+/* Alinhado à referência Stitch Fase 2 — ver docs/design/stitch-phase2-pdv-ui.md */
+:root {
+  --pdv-navy: #091426;
+  --pdv-surface: #fbf8fa;
+  --pdv-card: #ffffff;
+  --pdv-border: #c5c6cd;
+  --pdv-text: #1b1b1d;
+  --pdv-muted: #45474c;
+  --pdv-action: #0058be;
+  --pdv-action-hover: #2170e4;
+  --pdv-danger: #ba1a1a;
+  --pdv-radius: 8px;
+  --pdv-sidebar-w: 260px;
+}
+
+.pdv-theme {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  color: var(--pdv-text);
+  background: var(--pdv-surface);
+}
+
+.pdv-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.pdv-sidebar {
+  width: var(--pdv-sidebar-w);
+  flex-shrink: 0;
+  background: var(--pdv-navy);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0;
+}
+
+.pdv-sidebar__brand {
+  padding: 0 1.25rem 1.25rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.pdv-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pdv-sidebar__link {
+  display: block;
+  padding: 0.65rem 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  border-left: 4px solid transparent;
+}
+
+.pdv-sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pdv-sidebar__link--active {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--pdv-action);
+  color: #fff;
+}
+
+.pdv-main {
+  flex: 1;
+  padding: 1.5rem 1.75rem;
+  max-width: 1200px;
+}
+
+.pdv-main__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.pdv-main__header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.pdv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.pdv-btn--primary {
+  background: var(--pdv-action);
+  color: #fff;
+}
+
+.pdv-btn--primary:hover:not(:disabled) {
+  background: var(--pdv-action-hover);
+}
+
+.pdv-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pdv-btn--ghost {
+  background: transparent;
+  color: var(--pdv-text);
+  border: 1px solid var(--pdv-border);
+}
+
+.pdv-btn--ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.pdv-btn--danger {
+  background: transparent;
+  color: var(--pdv-danger);
+  border: 1px solid color-mix(in srgb, var(--pdv-danger) 40%, transparent);
+}
+
+.pdv-btn--sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+}
+
+.pdv-card {
+  background: var(--pdv-card);
+  border: 1px solid color-mix(in srgb, var(--pdv-border) 70%, transparent);
+  border-radius: var(--pdv-radius);
+  overflow: hidden;
+}
+
+.pdv-table-wrap {
+  overflow-x: auto;
+}
+
+.pdv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pdv-table thead {
+  background: var(--pdv-navy);
+  color: #fff;
+}
+
+.pdv-table th,
+.pdv-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.pdv-table tbody tr {
+  border-bottom: 1px solid color-mix(in srgb, var(--pdv-border) 50%, transparent);
+}
+
+.pdv-table tbody tr:hover {
+  background: #f5f3f4;
+}
+
+.pdv-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pdv-chip {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pdv-chip--ok {
+  background: color-mix(in srgb, #0a7 12%, transparent);
+  color: #065f46;
+}
+
+.pdv-chip--off {
+  background: color-mix(in srgb, var(--pdv-muted) 15%, transparent);
+  color: var(--pdv-muted);
+}
+
+.pdv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 20, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.pdv-modal {
+  background: var(--pdv-card);
+  border-radius: var(--pdv-radius);
+  width: 100%;
+  max-width: 420px;
+  padding: 1.25rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+.pdv-modal h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.pdv-field {
+  margin-bottom: 1rem;
+}
+
+.pdv-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pdv-muted);
+  margin-bottom: 0.35rem;
+}
+
+.pdv-field input[type='text'],
+.pdv-field input[type='number'] {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--pdv-border);
+  border-radius: 6px;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.pdv-field input:focus {
+  outline: none;
+  border-color: var(--pdv-action);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pdv-action) 25%, transparent);
+}
+
+.pdv-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pdv-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.pdv-breadcrumb {
+  font-size: 0.8125rem;
+  color: var(--pdv-muted);
+  margin-bottom: 0.75rem;
+}
+
+.pdv-breadcrumb a {
+  color: var(--pdv-action);
+  text-decoration: none;
+}
+
+.pdv-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.pdv-error {
+  color: var(--pdv-danger);
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0;
+}
+
+.pdv-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.pdv-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--pdv-muted);
+}

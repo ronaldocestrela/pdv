@@ -16,6 +16,9 @@ public sealed class AppDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

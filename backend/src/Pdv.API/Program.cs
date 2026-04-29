@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Pdv.Infrastructure;
 using Pdv.Infrastructure.Persistence;
 using Pdv.Infrastructure.Seed;
 using Pdv.Infrastructure.Services;
+using Pdv.Application.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,9 +48,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permission in KnownPermissions.All)
+        options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
+});
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 
 var app = builder.Build();
 

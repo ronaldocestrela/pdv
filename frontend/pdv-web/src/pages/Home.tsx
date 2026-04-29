@@ -1,20 +1,28 @@
+import { Link } from 'react-router-dom';
 import { useApiHealth } from '../hooks';
-import { useAuthStore } from '../store/auth';
+import { PERMISSIONS } from '../constants/permissions';
+import { can } from '../hooks/usePermission';
 
 export function HomePage() {
   const { status, detail } = useApiHealth();
-  const logout = useAuthStore((s) => s.logout);
+  const showProducts = can(PERMISSIONS.productView);
 
   return (
-    <main className="pdv-shell">
-      <header className="home-header">
-        <h1>PDV + Estoque</h1>
-        <button type="button" className="logout-btn" onClick={() => logout()}>
-          Sair
-        </button>
+    <>
+      <header className="pdv-main__header" style={{ marginBottom: '0.5rem' }}>
+        <h1>Início</h1>
       </header>
-      <p className="muted">Fase 1 — autenticação</p>
-      <section className="card">
+      <p className="muted" style={{ marginTop: 0 }}>
+        Fase 2 — produtos e variações disponíveis na barra lateral.
+      </p>
+      {showProducts && (
+        <p style={{ marginTop: '0.75rem' }}>
+          <Link className="pdv-breadcrumb" style={{ fontSize: '1rem' }} to="/products">
+            Ir para Produtos →
+          </Link>
+        </p>
+      )}
+      <section className="card" style={{ marginTop: '1.25rem' }}>
         <h2>API</h2>
         <p>
           Status:{' '}
@@ -25,6 +33,6 @@ export function HomePage() {
           </strong>
         </p>
       </section>
-    </main>
+    </>
   );
 }

@@ -11,15 +11,31 @@ public static class DbSeeder
 {
     public static async Task ApplyAsync(AppDbContext db, SeedOptions options, IPasswordHasher passwordHasher, ILogger logger, CancellationToken cancellationToken = default)
     {
-        if (await db.Permissions.AnyAsync(cancellationToken) is false)
-        {
-            foreach (var name in PermissionCatalog.All.Distinct(StringComparer.Ordinal))
-                db.Permissions.Add(new Permission { Name = name });
-            await db.SaveChangesAsync(cancellationToken);
-        }
+        await EnsurePermissionsAsync(db, logger, cancellationToken);
 
         await EnsureRolesAndLinksAsync(db, logger, cancellationToken);
         await EnsureSuperAdminAsync(db, options, passwordHasher, logger, cancellationToken);
+    }
+
+    private static async Task EnsurePermissionsAsync(AppDbContext db, ILogger logger, CancellationToken ct)
+    {
+        var existing = await db.Permissions.Select(p => p.Name).ToListAsync(ct);
+        var set = existing.ToHashSet(StringComparer.Ordinal);
+        var added = 0;
+        foreach (var name in PermissionCatalog.All.Distinct(StringComparer.Ordinal))
+        {
+            if (set.Contains(name))
+                continue;
+            db.Permissions.Add(new Permission { Name = name });
+            set.Add(name);
+            added++;
+        }
+
+        if (added > 0)
+        {
+            await db.SaveChangesAsync(ct);
+            logger.LogInformation("Added {Count} permission(s).", added);
+        }
     }
 
     private static async Task EnsureRolesAndLinksAsync(AppDbContext db, ILogger logger, CancellationToken ct)

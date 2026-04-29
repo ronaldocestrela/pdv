@@ -68,22 +68,23 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 - Entidades:
   - Product
   - ProductVariation
-- Commands:
-  - CreateProduct
-  - UpdateProduct
-  - CreateVariation
-  - UpdateVariation
+- CQRS completo:
+  - Produtos: Create, Update, Delete; queries de listagem e detalhe (com variações)
+  - Variações: Create, Update, Delete
 
 ### Regras
-- Estoque por variação
-- Barcode opcional
+- Estoque por variação (`StockQuantity`)
+- Barcode opcional (único quando preenchido)
 
 ### Frontend
-- Tela de produtos
-- Tela de variações
+- Tela **Catálogo de produtos** (`/products`) — listagem + CRUD
+- Tela **Variações do produto** (`/products/:productId/variations`) — CRUD por produto
 
-### ✅ Entrega
-- CRUD de produtos funcionando
+### ✅ Entrega (**concluída**)
+- CRUD ponta a ponta de produtos e variações com permissões no backend (`product.*`, `variation.*`) e uso de `can()` no frontend
+- Referência Stitch documentada em [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md); UI alinhada ao layout/tokens Stitch (`pdvTheme.css`)
+
+**Validação rápida (manual):** login com usuário Super Admin ou role com permissões Fase 2 → **Produtos** no menu → CRUD produto → **Gerenciar variações** → CRUD variação (estoque/barcode opcional).
 
 ---
 

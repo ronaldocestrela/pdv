@@ -1,21 +1,10 @@
+using Pdv.Application.Security;
+
 namespace Pdv.Infrastructure.Seed;
 
 internal static class PermissionCatalog
 {
-    public static readonly IReadOnlyList<string> All = new[]
-    {
-        "product.create",
-        "product.update",
-        "product.view",
-        "sale.create",
-        "sale.view",
-        "stock.adjust",
-        "stock.view",
-        "report.view",
-        "cashflow.view",
-        "user.manage",
-        "role.manage",
-    };
+    public static readonly IReadOnlyList<string> All = KnownPermissions.All;
 }
 
 internal static class RoleNames

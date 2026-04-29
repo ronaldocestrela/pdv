@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Pdv.Application\Pdv.Application.csproj" />
     <ProjectReference Include="..\..\src\Pdv.Domain\Pdv.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Infrastructure\Pdv.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
