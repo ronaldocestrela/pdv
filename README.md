@@ -6,7 +6,7 @@ Sistema de PDV com estoque — [.NET 8](backend/) + [React + Vite](frontend/pdv-
 
 - [.NET SDK 8](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/) (recomendado 20.19+ ou 22 LTS)
-- SQL Server (local ou container) para aplicar migrations
+- SQL Server só é necessário se `Database:UseInMemory` estiver `false`. Em desenvolvimento o padrão é **`Database:UseInMemory: true`** (EF Core InMemory), sem precisar de instância SQL para subir a API localmente.
 
 ## Backend
 
@@ -25,6 +25,9 @@ dotnet run --project src/Pdv.API/Pdv.API.csproj --launch-profile http
 Health check: `GET http://localhost:5190/api/health`
 
 ### Banco de dados
+
+- **`Database:UseInMemory`** (`true`/`false`): em **`appsettings.Development.json`** está `true` por padrão — a API usa o provider **EF Core InMemory** (`EnsureCreated`), sem SQL Server nem `dotnet ef database update`.
+- Com **`UseInMemory: false`**, configure `ConnectionStrings:DefaultConnection` e aplique migrations:
 
 1. Ajuste `ConnectionStrings:DefaultConnection` em `backend/src/Pdv.API/appsettings.json` (ou use User Secrets / variáveis de ambiente).
 
@@ -52,9 +55,20 @@ npm install
 npm run dev
 ```
 
-Por padrão o Vite usa `http://localhost:5173`. O backend aceita CORS para essa origem (ver `appsettings.json`).
+Por padrão o Vite usa `http://localhost:1234`. O backend aceita CORS para essa origem (ver `appsettings.json`).
+
+### Autenticação (Fase 1)
+
+- Endpoints: `POST /api/auth/login`, `POST /api/auth/refresh` (JWT + refresh token no banco).
+- Seed inicial (`Seed` em `appsettings.json`): permissões base, role Super Admin e usuário definido por `SuperAdminEmail` / `SuperAdminPassword`.
+- Na subida, a API aplica migrations e executa o seed (veja `backend/src/Pdv.API/Program.cs`).
 
 ## Fase 0 (entrega)
 
 - Solução em camadas com MediatR, FluentValidation, EF Core + migration inicial
 - Cliente HTTP (`axios`) + store (`zustand`) e hook de health check no frontend
+
+## Fase 1 (entrega)
+
+- Entidades User / Role / Permission, login JWT, refresh token, seed Super Admin
+- Frontend: tela de login (referência visual: [`frontend/pdv-web/docs/STITCH_LOGIN.md`](frontend/pdv-web/docs/STITCH_LOGIN.md)), rotas protegidas, `can()` / `usePermission()`, sessão com `zustand` persist

@@ -1,5 +1,15 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using Pdv.API.Middleware;
 using Pdv.Application;
+using Pdv.Application.Abstractions;
 using Pdv.Infrastructure;
+using Pdv.Infrastructure.Persistence;
+using Pdv.Infrastructure.Seed;
+using Pdv.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +18,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                      ?? ["http://localhost:5173"];
+                      ?? ["http://localhost:1234"];
         policy.WithOrigins(origins)
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -17,17 +27,54 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddMediatR(cfg =>
+
+var jwtOpts = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+              ?? throw new InvalidOperationException("Jwt configuration section missing.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(Pdv.Application.DependencyInjection).Assembly);
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtOpts.Issuer,
+        ValidAudience = jwtOpts.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOpts.Key)),
+        ClockSkew = TimeSpan.FromMinutes(2),
+    };
 });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (app.Configuration.GetValue("Database:UseInMemory", false))
+    {
+        await db.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        await db.Database.MigrateAsync();
+    }
+
+    var seed = scope.ServiceProvider.GetRequiredService<IOptions<SeedOptions>>().Value;
+    var pwd = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    var lf = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    await DbSeeder.ApplyAsync(db, seed, pwd, lf.CreateLogger(nameof(DbSeeder)), CancellationToken.None);
+}
+
+app.UseMiddleware<ValidationExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

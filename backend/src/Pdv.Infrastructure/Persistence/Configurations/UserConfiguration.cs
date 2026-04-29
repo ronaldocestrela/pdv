@@ -1,0 +1,29 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Pdv.Domain.Entities;
+
+namespace Pdv.Infrastructure.Persistence.Configurations;
+
+public sealed class UserConfiguration : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> builder)
+    {
+        builder.ToTable("Users");
+        builder.HasKey(e => e.Id);
+
+        builder.Property(e => e.Email).HasMaxLength(256).IsRequired();
+        builder.HasIndex(e => e.Email).IsUnique();
+
+        builder.Property(e => e.PasswordHash).HasMaxLength(512).IsRequired();
+
+        builder.Property(e => e.RefreshToken).HasMaxLength(512);
+        builder.Property(e => e.RefreshTokenExpiresAtUtc);
+
+        builder.Property(e => e.IsActive).IsRequired();
+
+        builder.HasMany(e => e.UserRoles)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

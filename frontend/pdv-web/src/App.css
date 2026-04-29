@@ -4,6 +4,31 @@
   padding: 0 1rem;
 }
 
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.logout-btn {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.logout-btn:hover {
+  background: color-mix(in srgb, CanvasText 8%, transparent);
+}
+
 .muted {
   opacity: 0.75;
 }

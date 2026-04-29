@@ -1,26 +1,24 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoginPage } from './pages/Login';
+import { HomePage } from './pages/Home';
 import './App.css';
-import { useApiHealth } from './hooks';
 
-function App() {
-  const { status, detail } = useApiHealth();
-
+export default function App() {
   return (
-    <main className="pdv-shell">
-      <h1>PDV + Estoque</h1>
-      <p className="muted">Fase 0 — fundação</p>
-      <section className="card">
-        <h2>API</h2>
-        <p>
-          Status:{' '}
-          <strong data-status={status}>
-            {status === 'loading' && 'Carregando…'}
-            {status === 'ok' && `OK (${detail})`}
-            {status === 'error' && `Erro: ${detail}`}
-          </strong>
-        </p>
-      </section>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
