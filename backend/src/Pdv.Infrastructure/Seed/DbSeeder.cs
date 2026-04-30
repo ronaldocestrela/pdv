@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Pdv.Application.Abstractions;
+using Pdv.Application.Security;
 using Pdv.Domain.Entities;
 using Pdv.Infrastructure.Persistence;
 
@@ -40,10 +41,10 @@ public static class DbSeeder
 
     private static async Task EnsureRolesAndLinksAsync(AppDbContext db, ILogger logger, CancellationToken ct)
     {
-        var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == RoleNames.SuperAdmin, ct);
+        var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == KnownRoles.SuperAdmin, ct);
         if (role is null)
         {
-            role = new Role { Name = RoleNames.SuperAdmin };
+            role = new Role { Name = KnownRoles.SuperAdmin };
             db.Roles.Add(role);
             await db.SaveChangesAsync(ct);
         }
@@ -68,7 +69,7 @@ public static class DbSeeder
         await db.SaveChangesAsync(ct);
 
         var totalLinks = await db.RolePermissions.CountAsync(r => r.RoleId == role.Id, ct);
-        logger.LogInformation("Role '{Role}' linked to {Count} permissions.", RoleNames.SuperAdmin, totalLinks);
+        logger.LogInformation("Role '{Role}' linked to {Count} permissions.", KnownRoles.SuperAdmin, totalLinks);
     }
 
     private static async Task EnsureSuperAdminAsync(
@@ -84,7 +85,7 @@ public static class DbSeeder
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Email == email, ct);
 
-        var superRole = await db.Roles.AsNoTracking().FirstAsync(r => r.Name == RoleNames.SuperAdmin, ct);
+        var superRole = await db.Roles.AsNoTracking().FirstAsync(r => r.Name == KnownRoles.SuperAdmin, ct);
 
         if (user is null)
         {
@@ -102,7 +103,7 @@ public static class DbSeeder
             return;
         }
 
-        if (user.UserRoles.All(ur => ur.Role.Name != RoleNames.SuperAdmin))
+        if (user.UserRoles.All(ur => ur.Role.Name != KnownRoles.SuperAdmin))
         {
             db.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = superRole.Id });
             await db.SaveChangesAsync(ct);

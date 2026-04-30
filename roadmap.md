@@ -174,14 +174,19 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 ### Backend
 - CRUD de roles
 - Atribuição de permissões
-- Atribuição de roles a usuários
+- Criação de usuários e atribuição de roles
 
 ### Frontend
-- Tela de usuários
+- Tela de usuários (criação + roles)
 - Tela de roles
 
-### ✅ Entrega
-- Sistema administrável
+### ✅ Entrega (**concluída**)
+- API CQRS: `GET /api/permissions`, `GET|POST|PUT|DELETE /api/roles`, `PUT /api/roles/{id}/permissions`, `GET /api/users`, `POST /api/users`, `PUT /api/users/{id}/roles`; policies `user.manage`, `role.manage`, `admin.roles.read` (JWT com claim `permission`)
+- UI **Usuários** (`/users`) e **Roles** (`/roles`); `PERMISSIONS.userManage` / `PERMISSIONS.roleManage` no menu
+- Referência Stitch: [`docs/design/stitch-phase6-users-roles-ui.md`](docs/design/stitch-phase6-users-roles-ui.md); tokens em `pdvTheme.css`
+- Regras: role **Super Admin** não renomeável, não excluível, permissões não editáveis manualmente (mantidas pelo seed)
+
+**Validação rápida (manual):** Super Admin → **Usuários** → **Novo usuário** (e-mail, senha ≥6, ativo) → **Criar usuário** → atribuir roles → **Salvar roles** → em **Roles**, CRUD/permissões conforme necessário → usuário alvo faz login ou refresh para ver claims atualizados.
 
 ---
 

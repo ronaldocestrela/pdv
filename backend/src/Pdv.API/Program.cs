@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
+using Pdv.API.Controllers;
 using Pdv.API.Middleware;
 using Pdv.Application;
 using Pdv.Application.Abstractions;
@@ -53,6 +54,11 @@ builder.Services.AddAuthorization(options =>
 {
     foreach (var permission in KnownPermissions.All)
         options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
+
+    options.AddPolicy(PermissionsController.AdminRolesReadPolicy, policy =>
+        policy.RequireAssertion(ctx =>
+            ctx.User.HasClaim("permission", KnownPermissions.RoleManage) ||
+            ctx.User.HasClaim("permission", KnownPermissions.UserManage)));
 });
 
 builder.Services.AddControllers()

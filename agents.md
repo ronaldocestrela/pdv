@@ -203,6 +203,22 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - `GET /api/reports/cashflow` — query `fromUtc`, `toUtc`, `take` (default 100, máx. 500) (policy `cashflow.view`)
 - `GET /api/reports/stock` — query `take` (default 500, máx. 500) (policy `report.view`)
 
+### Permissões — catálogo (Fase 6)
+- `GET /api/permissions` — lista nomes de permissões no banco (policy composta `admin.roles.read`: claim `role.manage` **ou** `user.manage`)
+
+### Roles (Fase 6)
+- `GET /api/roles` — listagem com permissões por role (policy `admin.roles.read`)
+- `GET /api/roles/{id}` — detalhe (policy `admin.roles.read`)
+- `POST /api/roles` — `{ name }` (policy `role.manage`)
+- `PUT /api/roles/{id}` — `{ name }` (policy `role.manage`); role **Super Admin** não altera nome
+- `DELETE /api/roles/{id}` — (policy `role.manage`); **Super Admin** não pode ser excluída
+- `PUT /api/roles/{id}/permissions` — `{ permissionNames: string[] }` substitui o conjunto (policy `role.manage`); **Super Admin** não permite edição manual de permissões
+
+### Users — administração (Fase 6)
+- `GET /api/users` — usuários com `roleIds` (policy `user.manage`)
+- `POST /api/users` — `{ email, password, isActive? }` cria usuário com senha hasheada; senha mín. 6 caracteres (policy `user.manage`)
+- `PUT /api/users/{id}/roles` — `{ roleIds: number[] }` substitui roles do usuário (policy `user.manage`)
+
 ---
 
 ## 8. Frontend
@@ -225,9 +241,10 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - **Estoque** (`/stock`) — Fase 3; entrada de estoque + histórico; `stock.adjust` / `stock.view`
 - **PDV** (`/pdv`) — Fase 4; busca, carrinho, pagamento (dinheiro/cartão/PIX); `sale.create` / `sale.view`; requer `product.view` para catálogo
 - **Relatórios** (`/reports`) — Fase 5; vendas por período, top produtos, fluxo de caixa, estoque atual; `report.view` / `cashflow.view` conforme seções visíveis
-- Gestão de usuários/roles
+- **Usuários** (`/users`) — Fase 6; criar usuário (e-mail, senha, ativo), listagem e atribuição de roles; `user.manage`
+- **Roles** (`/roles`) — Fase 6; CRUD de roles e atribuição de permissões (`role.manage`); leitura de lista/detalhe também com `user.manage` (somente leitura na UI sem `role.manage`)
 
-Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md), [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md).
+Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md), [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md), [`docs/design/stitch-phase6-users-roles-ui.md`](docs/design/stitch-phase6-users-roles-ui.md).
 
 ### PDV
 - Busca de produtos
@@ -244,6 +261,7 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 - Estoque (Fase 3): `stock.adjust`, `stock.view`
 - Vendas / PDV (Fase 4): `sale.create`, `sale.view`
 - Relatórios (Fase 5): `report.view`, `cashflow.view`
+- Administração (Fase 6): `user.manage`, `role.manage` (policy extra no backend: `admin.roles.read` para `GET /api/permissions`, `GET /api/roles`, `GET /api/roles/{id}` quando o usuário tem `user.manage` ou `role.manage`)
 - Helpers: `usePermission` / `can('product.create')` etc.
 
 ---

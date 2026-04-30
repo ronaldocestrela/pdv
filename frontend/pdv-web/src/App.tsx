@@ -8,6 +8,8 @@ import { ProductVariationsPage } from './pages/ProductVariationsPage';
 import { StockAdjustPage } from './pages/StockAdjustPage';
 import { PdvPage } from './pages/PdvPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { RolesPage } from './pages/RolesPage';
+import { UsersPage } from './pages/UsersPage';
 import './App.css';
 
 export default function App() {
@@ -28,6 +30,8 @@ export default function App() {
           <Route path="stock" element={<StockAdjustPage />} />
           <Route path="pdv" element={<PdvPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="roles" element={<RolesPage />} />
+          <Route path="users" element={<UsersPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

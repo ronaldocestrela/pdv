@@ -14,4 +14,6 @@ export const PERMISSIONS = {
   saleView: 'sale.view',
   reportView: 'report.view',
   cashflowView: 'cashflow.view',
+  userManage: 'user.manage',
+  roleManage: 'role.manage',
 } as const;

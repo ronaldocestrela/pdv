@@ -98,4 +98,54 @@ describe('AppShell', () => {
     const nav = screen.getByRole('navigation', { name: /principal/i });
     expect(within(nav).getByRole('link', { name: /^relatórios$/i })).toHaveAttribute('href', '/reports');
   });
+
+  it('mostra Usuários e Roles quando há permissão user.manage', () => {
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.userManage],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/users']}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="users" element={<div>Usuários página</div>} />
+            <Route path="roles" element={<div>Roles</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole('navigation', { name: /principal/i });
+    expect(within(nav).getByRole('link', { name: /^usuários$/i })).toHaveAttribute('href', '/users');
+    expect(within(nav).getByRole('link', { name: /^roles$/i })).toHaveAttribute('href', '/roles');
+  });
+
+  it('mostra Roles quando há permissão role.manage', () => {
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.roleManage],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/roles']}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="roles" element={<div>Roles página</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const nav = screen.getByRole('navigation', { name: /principal/i });
+    expect(within(nav).getByRole('link', { name: /^roles$/i })).toHaveAttribute('href', '/roles');
+  });
 });
