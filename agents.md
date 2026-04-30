@@ -244,7 +244,7 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 - **Usuários** (`/users`) — Fase 6; criar usuário (e-mail, senha, ativo), listagem e atribuição de roles; `user.manage`
 - **Roles** (`/roles`) — Fase 6; CRUD de roles e atribuição de permissões (`role.manage`); leitura de lista/detalhe também com `user.manage` (somente leitura na UI sem `role.manage`)
 
-Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md), [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md), [`docs/design/stitch-phase6-users-roles-ui.md`](docs/design/stitch-phase6-users-roles-ui.md).
+Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs/design/stitch-phase2-pdv-ui.md), [`docs/design/stitch-phase3-stock-ui.md`](docs/design/stitch-phase3-stock-ui.md), [`docs/design/stitch-phase4-pdv-ui.md`](docs/design/stitch-phase4-pdv-ui.md), [`docs/design/stitch-phase5-reports-ui.md`](docs/design/stitch-phase5-reports-ui.md), [`docs/design/stitch-phase6-users-roles-ui.md`](docs/design/stitch-phase6-users-roles-ui.md), [`docs/design/stitch-phase7-tests-ui.md`](docs/design/stitch-phase7-tests-ui.md) (QA / mapa cenário ↔ teste).
 
 ### PDV
 - Busca de produtos

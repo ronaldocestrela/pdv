@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.14" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.4.2" />
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Pdv.API\Pdv.API.csproj" />
     <ProjectReference Include="..\..\src\Pdv.Application\Pdv.Application.csproj" />
     <ProjectReference Include="..\..\src\Pdv.Domain\Pdv.Domain.csproj" />
     <ProjectReference Include="..\..\src\Pdv.Infrastructure\Pdv.Infrastructure.csproj" />

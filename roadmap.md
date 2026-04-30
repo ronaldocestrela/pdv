@@ -201,8 +201,14 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 ### Regra
 - Nenhuma feature sem teste
 
-### ✅ Entrega
-- Base confiável
+### ✅ Entrega (**concluída**)
+- Integração HTTP com `WebApplicationFactory` sobre a API (`Pdv.Tests/Integration`): `Auth`, `Stock`, `Sales` + host de testes in-memory isolado (`PdvWebApplicationFactory`, `Program` partial em `Pdv.API`, HTTPS redirect omitido em `Testing`, nome de DB InMemory opcional via `Database:InMemoryDatabaseName`).
+- Frontend: Vitest cobrindo **Login**, **ProtectedRoute**, **Estoque** e fluxos extras do **PDV** (`LoginPage.test.tsx`, `ProtectedRoute.test.tsx`, `StockAdjustPage.test.tsx`, testes expandidos em `PdvPage.test.tsx`).
+- Referência Stitch / rastreabilidade QA: [`docs/design/stitch-phase7-tests-ui.md`](docs/design/stitch-phase7-tests-ui.md).
+
+**Validação rápida (manual):**
+- `cd backend && dotnet test tests/Pdv.Tests/Pdv.Tests.csproj`
+- `cd frontend/pdv-web && npm test`
 
 ---
 

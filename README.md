@@ -61,6 +61,15 @@ dotnet run --project src/Pdv.API/Pdv.API.csproj --launch-profile http
 
 Health check: `GET http://localhost:5190/api/health`
 
+### Testes
+
+```bash
+cd backend
+dotnet test tests/Pdv.Tests/Pdv.Tests.csproj
+```
+
+Inclui testes de comandos/handlers e integração HTTP da API (`WebApplicationFactory`). Ver [`docs/design/stitch-phase7-tests-ui.md`](docs/design/stitch-phase7-tests-ui.md).
+
 ### Banco de dados
 
 - **`Database:UseInMemory`** (`true`/`false`): em **`appsettings.Development.json`** está `true` por padrão — a API usa o provider **EF Core InMemory** (`EnsureCreated`), sem SQL Server nem `dotnet ef database update`.
@@ -93,6 +102,13 @@ npm run dev
 ```
 
 Por padrão o Vite usa `http://localhost:1234`. O backend aceita CORS para essa origem (ver `appsettings.json`).
+
+### Testes (Vitest)
+
+```bash
+cd frontend/pdv-web
+npm test
+```
 
 ### Autenticação (Fase 1)
 

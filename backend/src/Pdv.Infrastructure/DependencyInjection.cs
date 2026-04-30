@@ -43,7 +43,9 @@ public static class DependencyInjection
         {
             if (configuration.GetValue("Database:UseInMemory", false))
             {
-                options.UseInMemoryDatabase("PdvInMemory");
+                var inMemoryName = configuration["Database:InMemoryDatabaseName"];
+                options.UseInMemoryDatabase(
+                    string.IsNullOrWhiteSpace(inMemoryName) ? "PdvInMemory" : inMemoryName);
             }
             else
             {

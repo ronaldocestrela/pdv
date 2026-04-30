@@ -89,7 +89,11 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 
 app.UseMiddleware<ValidationExceptionHandlingMiddleware>();
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
