@@ -16,6 +16,8 @@ public sealed class ProductVariationConfiguration : IEntityTypeConfiguration<Pro
         builder.Property(e => e.StockQuantity).IsRequired();
         builder.Property(e => e.UnitPrice).HasPrecision(18, 2).IsRequired();
 
+        builder.HasIndex(e => e.ProductId);
+
         builder.HasIndex(e => e.Barcode)
             .IsUnique()
             .HasFilter("[Barcode] IS NOT NULL");

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { can } from '../hooks/usePermission';
 import { PERMISSIONS } from '../constants/permissions';
 import * as productsApi from '../services/products';
 import * as salesApi from '../services/sales';
 import type { ProductDetailDto, ProductSummaryDto } from '../types/products';
 import type { PaymentMethodDto, SaleListItemDto } from '../types/sales';
+import { getApiErrorMessage } from '../utils/apiError';
 
 type CartLine = {
   productVariationId: number;
@@ -12,6 +13,7 @@ type CartLine = {
   variationName: string;
   quantity: number;
   unitPrice: number;
+  stockQuantity: number;
 };
 
 function formatBRL(value: number): string {
@@ -22,6 +24,7 @@ export function PdvPage() {
   const canFinalize = can(PERMISSIONS.saleCreate);
   const canViewSalesList = can(PERMISSIONS.saleView);
   const canCatalog = can(PERMISSIONS.productView);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [products, setProducts] = useState<ProductSummaryDto[]>([]);
   const [search, setSearch] = useState('');
@@ -110,6 +113,74 @@ export function PdvPage() {
     void loadDetail(selectedProductId);
   }, [selectedProductId, loadDetail]);
 
+  const finalizeSale = useCallback(async () => {
+    if (!canFinalize) return;
+    if (cart.length === 0) {
+      setError('Adicione itens ao carrinho.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const result = await salesApi.createSale({
+        items: cart.map((l) => ({
+          productVariationId: l.productVariationId,
+          quantity: l.quantity,
+        })),
+        paymentMethod,
+      });
+      setNotice(`Venda #${result.saleId} registrada — total ${formatBRL(result.totalAmount)}.`);
+      setCart([]);
+      await loadProducts();
+      if (typeof selectedProductId === 'number') {
+        await loadDetail(selectedProductId);
+      }
+      await loadRecentSales();
+    } catch (err) {
+      setError(
+        getApiErrorMessage(
+          err,
+          'Não foi possível finalizar a venda. Verifique estoque e tente novamente.',
+        ),
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    canFinalize,
+    cart,
+    paymentMethod,
+    loadProducts,
+    selectedProductId,
+    loadDetail,
+    loadRecentSales,
+  ]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if (!canFinalize || cart.length === 0 || submitting) return;
+        e.preventDefault();
+        void finalizeSale();
+        return;
+      }
+      if (e.key === 'Escape') {
+        setSearch((s) => (s ? '' : s));
+        return;
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const t = e.target as HTMLElement | null;
+        const tag = t?.tagName;
+        if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [canFinalize, cart.length, submitting, finalizeSale]);
+
   const paymentLabel = (p: PaymentMethodDto) =>
     p === 'cash' ? 'Dinheiro' : p === 'card' ? 'Cartão' : 'PIX';
 
@@ -153,6 +224,7 @@ export function PdvPage() {
             variationName: v.name,
             quantity: qtyToAdd,
             unitPrice: price,
+            stockQuantity: v.stockQuantity,
           },
         ];
       }
@@ -163,7 +235,7 @@ export function PdvPage() {
         return prev;
       }
       const next = [...prev];
-      next[idx] = { ...row, quantity: nextQty };
+      next[idx] = { ...row, quantity: nextQty, stockQuantity: v.stockQuantity, unitPrice: price };
       return next;
     });
 
@@ -172,14 +244,23 @@ export function PdvPage() {
 
   const updateQty = (variationKey: number, delta: number) => {
     if (!canFinalize) return;
+    const line = cart.find((l) => l.productVariationId === variationKey);
+    if (!line) return;
+    const nextQty = line.quantity + delta;
+    if (nextQty <= 0) {
+      setError(null);
+      setCart((prev) => prev.filter((l) => l.productVariationId !== variationKey));
+      return;
+    }
+    if (nextQty > line.stockQuantity) {
+      setError(
+        `Estoque insuficiente para "${line.variationName}" (disponível: ${line.stockQuantity}).`,
+      );
+      return;
+    }
+    setError(null);
     setCart((prev) =>
-      prev
-        .map((line) => {
-          if (line.productVariationId !== variationKey) return line;
-          const q = line.quantity + delta;
-          return q <= 0 ? null : { ...line, quantity: q };
-        })
-        .filter(Boolean) as CartLine[],
+      prev.map((l) => (l.productVariationId === variationKey ? { ...l, quantity: nextQty } : l)),
     );
   };
 
@@ -193,37 +274,6 @@ export function PdvPage() {
     setCart([]);
     setNotice(null);
     setError(null);
-  };
-
-  const finalizeSale = async () => {
-    if (!canFinalize) return;
-    if (cart.length === 0) {
-      setError('Adicione itens ao carrinho.');
-      return;
-    }
-    setSubmitting(true);
-    setError(null);
-    setNotice(null);
-    try {
-      const result = await salesApi.createSale({
-        items: cart.map((l) => ({
-          productVariationId: l.productVariationId,
-          quantity: l.quantity,
-        })),
-        paymentMethod,
-      });
-      setNotice(`Venda #${result.saleId} registrada — total ${formatBRL(result.totalAmount)}.`);
-      setCart([]);
-      await loadProducts();
-      if (typeof selectedProductId === 'number') {
-        await loadDetail(selectedProductId);
-      }
-      await loadRecentSales();
-    } catch {
-      setError('Não foi possível finalizar a venda. Verifique estoque e tente novamente.');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   if (!canFinalize && !canViewSalesList) {
@@ -253,14 +303,21 @@ export function PdvPage() {
         <div>
           <h1>PDV — Checkout</h1>
           <p style={{ margin: '0.25rem 0 0', color: 'var(--pdv-muted, #45474c)', fontSize: '0.9rem' }}>
-            Busca, carrinho e finalização (Fase 4). Referência Stitch:{' '}
+            Busca, carrinho e finalização. Atalhos: <kbd>/</kbd> foca a busca ·{' '}
+            <kbd>Ctrl</kbd>+<kbd>Enter</kbd> finaliza · <kbd>Esc</kbd> limpa a busca. Referência Stitch:{' '}
             <code style={{ fontSize: '0.85rem' }}>docs/design/stitch-phase4-pdv-ui.md</code>
           </p>
         </div>
       </div>
 
-      {notice && <p className="pdv-empty" style={{ color: 'var(--pdv-secondary, #0058be)' }}>{notice}</p>}
-      {error && <p className="pdv-error">{error}</p>}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {notice && (
+          <p className="pdv-empty" style={{ color: 'var(--pdv-secondary, #0058be)' }}>
+            {notice}
+          </p>
+        )}
+        {error && <p className="pdv-error">{error}</p>}
+      </div>
 
       <div
         style={{
@@ -278,9 +335,11 @@ export function PdvPage() {
           <div className="pdv-field">
             <label htmlFor="pdv-search">Buscar</label>
             <input
+              ref={searchInputRef}
               id="pdv-search"
               type="search"
               placeholder="Nome do produto…"
+              autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               disabled={loadingProducts}

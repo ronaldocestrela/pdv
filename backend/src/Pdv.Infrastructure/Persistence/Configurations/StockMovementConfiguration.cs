@@ -18,6 +18,7 @@ public sealed class StockMovementConfiguration : IEntityTypeConfiguration<StockM
 
         builder.HasIndex(e => e.CreatedAtUtc);
         builder.HasIndex(e => e.ProductVariationId);
+        builder.HasIndex(e => new { e.ProductVariationId, e.CreatedAtUtc });
 
         builder.HasOne(e => e.ProductVariation)
             .WithMany()

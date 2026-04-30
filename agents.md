@@ -171,6 +171,8 @@ Fluxo:
 
 Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization: Bearer <JWT>` exceto onde indicado.
 
+Erros: respostas **Problem Details** (`application/problem+json`); ver [`docs/api-errors.md`](docs/api-errors.md).
+
 ### Auth
 - `POST /auth/login`
 - `POST /auth/refresh`

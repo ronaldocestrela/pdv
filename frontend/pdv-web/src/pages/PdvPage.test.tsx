@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import axios from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PdvPage } from './PdvPage';
 import { useAuthStore } from '../store/auth';
@@ -126,6 +127,109 @@ describe('PdvPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /adicionar ao carrinho/i }));
 
     expect(await screen.findByText(/estoque insuficiente/i)).toBeInTheDocument();
+  });
+
+  it('finaliza com Ctrl+Enter quando há itens no carrinho', async () => {
+    createSaleMock.mockResolvedValue({ saleId: 9, totalAmount: 29.9 });
+
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/pdv']}>
+        <Routes>
+          <Route path="/pdv" element={<PdvPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByLabelText(/^produto$/i)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/^produto$/i), { target: { value: '1' } });
+    await waitFor(() => expect(screen.getByLabelText(/^variação$/i)).not.toBeDisabled());
+    fireEvent.change(screen.getByLabelText(/^variação$/i), { target: { value: '10' } });
+    fireEvent.click(screen.getByRole('button', { name: /adicionar ao carrinho/i }));
+
+    fireEvent.keyDown(document, { key: 'Enter', ctrlKey: true, bubbles: true });
+
+    await waitFor(() => {
+      expect(createSaleMock).toHaveBeenCalled();
+    });
+  });
+
+  it('impede incrementar quantidade no carrinho acima do estoque', async () => {
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/pdv']}>
+        <Routes>
+          <Route path="/pdv" element={<PdvPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByLabelText(/^produto$/i)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/^produto$/i), { target: { value: '1' } });
+    await waitFor(() => expect(screen.getByLabelText(/^variação$/i)).not.toBeDisabled());
+    fireEvent.change(screen.getByLabelText(/^variação$/i), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText(/^qtd\.$/i), { target: { value: '5' } });
+    fireEvent.click(screen.getByRole('button', { name: /adicionar ao carrinho/i }));
+
+    const cartHeading = screen.getByRole('heading', { name: /^carrinho$/i });
+    const cartCard = cartHeading.parentElement!;
+    fireEvent.click(within(cartCard).getByRole('button', { name: /^\+$/i }));
+
+    expect(await screen.findByText(/estoque insuficiente/i)).toBeInTheDocument();
+  });
+
+  it('mostra detail da API quando createSale retorna erro ProblemDetails', async () => {
+    const err = new axios.AxiosError('bad', 'ERR_BAD_REQUEST', undefined, undefined, {
+      status: 400,
+      data: { detail: 'Estoque insuficiente na linha.', title: 'Validation failed', status: 400 },
+      statusText: 'Bad Request',
+      headers: {},
+      config: {} as never,
+    });
+    createSaleMock.mockRejectedValue(err);
+
+    useAuthStore.getState().setSession({
+      accessToken: 't',
+      refreshToken: 'r',
+      userId: 1,
+      email: 'a@b.com',
+      permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/pdv']}>
+        <Routes>
+          <Route path="/pdv" element={<PdvPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByLabelText(/^produto$/i)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/^produto$/i), { target: { value: '1' } });
+    await waitFor(() => expect(screen.getByLabelText(/^variação$/i)).not.toBeDisabled());
+    fireEvent.change(screen.getByLabelText(/^variação$/i), { target: { value: '10' } });
+    fireEvent.click(screen.getByRole('button', { name: /adicionar ao carrinho/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: /finalizar venda/i }));
+
+    expect(await screen.findByText(/Estoque insuficiente na linha/i)).toBeInTheDocument();
   });
 
   it('mostra erro quando createSale falha', async () => {

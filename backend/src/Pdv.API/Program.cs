@@ -88,7 +88,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     await DbSeeder.ApplyAsync(db, seed, pwd, lf.CreateLogger(nameof(DbSeeder)), CancellationToken.None);
 }
 
-app.UseMiddleware<ValidationExceptionHandlingMiddleware>();
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<ApiExceptionHandlingMiddleware>();
 if (!app.Environment.IsEnvironment("Testing"))
 {
     app.UseHttpsRedirection();

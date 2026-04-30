@@ -219,8 +219,17 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 - Tratamento de erros
 - Logs básicos
 
-### ✅ Entrega
-- Sistema pronto para uso real
+### ✅ Entrega (**concluída**)
+- API: middleware `CorrelationIdMiddleware` + `ApiExceptionHandlingMiddleware` (RFC 7807 `application/problem+json`, logs por requisição, `X-Correlation-Id`).
+- Leitura: índices EF em `Sales.CreatedAtUtc`, `ProductVariations.ProductId`, composto `StockMovements (ProductVariationId, CreatedAtUtc)` — migration `Phase8_ReadIndexes`.
+- PDV (UI): atalhos `/`, `Ctrl+Enter`, `Esc`; carrinho respeita estoque nos botões ±; mensagens de erro a partir de ProblemDetails (`getApiErrorMessage`).
+- Documentação de erros: [`docs/api-errors.md`](docs/api-errors.md).
+- Testes: integração `ProblemDetailsIntegrationTests`; Vitest em `apiError.test.ts` e cenários extras em `PdvPage.test.tsx`.
+
+**Validação rápida (manual):**
+- `cd backend && dotnet test tests/Pdv.Tests/Pdv.Tests.csproj`
+- `cd frontend/pdv-web && npm test`
+- Operação: PDV → resposta 400 em validação deve ser JSON Problem Details com `code: validation`; respostas incluem `X-Correlation-Id`.
 
 ---
 

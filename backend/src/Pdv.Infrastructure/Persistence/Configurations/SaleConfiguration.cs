@@ -15,6 +15,8 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.Property(e => e.TotalAmount).HasPrecision(18, 2).IsRequired();
         builder.Property(e => e.PaymentMethod).HasConversion<int>().IsRequired();
 
+        builder.HasIndex(e => e.CreatedAtUtc);
+
         builder.HasMany(e => e.Items)
             .WithOne(i => i.Sale)
             .HasForeignKey(i => i.SaleId)
