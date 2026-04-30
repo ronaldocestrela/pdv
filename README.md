@@ -6,7 +6,44 @@ Sistema de PDV com estoque — [.NET 8](backend/) + [React + Vite](frontend/pdv-
 
 - [.NET SDK 8](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/) (recomendado 20.19+ ou 22 LTS)
+- [Docker](https://docs.docker.com/get-docker/) + Docker Compose (opcional — stack completo com SQL Server e frontend estático)
 - SQL Server só é necessário se `Database:UseInMemory` estiver `false`. Em desenvolvimento o padrão é **`Database:UseInMemory: true`** (EF Core InMemory), sem precisar de instância SQL para subir a API localmente.
+
+## Docker (API + SQL Server + frontend)
+
+Na raiz do repositório:
+
+1. Copie as variáveis e ajuste segredos:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   O arquivo **[`.env`](.env)** (gitignored) concentra credenciais e segredos:
+
+   | Variável | Uso |
+   |----------|-----|
+   | `MSSQL_SA_PASSWORD` | Senha do usuário `sa` no SQL Server (política forte: maiúscula, minúscula, número e símbolo). Deve ser a mesma usada em `ConnectionStrings__DefaultConnection` (o Compose preenche a connection string com este valor). |
+   | `JWT_KEY` | Chave simétrica do JWT (use valor longo; não compartilhe em produção). |
+   | `SEED_SUPERADMIN_PASSWORD` | Senha inicial do usuário seed (`SEED_SUPERADMIN_EMAIL`). |
+   | `VITE_API_URL` | URL da API **como o navegador a alcança** (ex.: `http://localhost:5190`). É embutida no build do frontend. |
+   | `CORS_ORIGIN` | Origem do frontend permitida na API (ex.: `http://localhost:8080`). Se mudar `WEB_PORT`, atualize também `CORS_ORIGIN`. |
+
+   Portas padrão: API `5190`, web `8080`, SQL `1433` (`API_PORT`, `WEB_PORT`, `SQL_PORT`).
+
+2. Subir tudo:
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. URLs úteis:
+
+   - Frontend: `http://localhost:8080` (ajuste se `WEB_PORT` for outro)
+   - API / health: `http://localhost:5190/api/health`
+   - Na primeira subida a API aplica **migrations** e roda o **seed** (ver `backend/src/Pdv.API/Program.cs`).
+
+Arquivos relacionados: [`docker-compose.yml`](docker-compose.yml), [`backend/Dockerfile`](backend/Dockerfile), [`frontend/pdv-web/Dockerfile`](frontend/pdv-web/Dockerfile).
 
 ## Backend
 

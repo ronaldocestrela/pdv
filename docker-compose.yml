@@ -1,0 +1,57 @@
+name: pdv
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "${SQL_PORT:-1433}:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 45s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5190
+      Database__UseInMemory: "false"
+      ConnectionStrings__DefaultConnection: Server=db,1433;Database=${SQL_DATABASE:-PdvDb};User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER:-pdv-local}
+      Jwt__Audience: ${JWT_AUDIENCE:-pdv-web}
+      Seed__SuperAdminEmail: ${SEED_SUPERADMIN_EMAIL:-admin@local}
+      Seed__SuperAdminPassword: ${SEED_SUPERADMIN_PASSWORD}
+      Cors__AllowedOrigins__0: ${CORS_ORIGIN}
+    ports:
+      - "${API_PORT:-5190}:5190"
+
+  web:
+    build:
+      context: ./frontend/pdv-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  mssql_data:
