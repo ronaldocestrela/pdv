@@ -319,15 +319,7 @@ export function PdvPage() {
         {error && <p className="pdv-error">{error}</p>}
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) minmax(320px, 400px)',
-          gap: '1.25rem',
-          alignItems: 'start',
-          maxWidth: '1400px',
-        }}
-      >
+      <div className="pdv-pdv-layout">
         <div className="pdv-card" style={{ marginBottom: 0 }}>
           <h2 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.05rem', fontWeight: 600 }}>
             Produtos
@@ -386,7 +378,7 @@ export function PdvPage() {
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="pdv-subgrid-price-qty">
             <div className="pdv-field" style={{ marginBottom: 0 }}>
               <span id="pdv-price-label">Preço unitário (catálogo)</span>
               <div

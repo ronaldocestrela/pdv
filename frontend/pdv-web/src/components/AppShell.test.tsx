@@ -1,6 +1,6 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { AppShell } from '../components/AppShell';
 import { useAuthStore } from '../store/auth';
 import { PERMISSIONS } from '../constants/permissions';
@@ -147,5 +147,41 @@ describe('AppShell', () => {
 
     const nav = screen.getByRole('navigation', { name: /principal/i });
     expect(within(nav).getByRole('link', { name: /^roles$/i })).toHaveAttribute('href', '/roles');
+  });
+
+  it('em layout estreito exibe botão de menu e alterna aria-expanded', () => {
+    const prevMatchMedia = window.matchMedia;
+    window.matchMedia = (query: string) =>
+      ({
+        matches: query.includes('899px'),
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }) as MediaQueryList;
+
+    try {
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route index element={<div>Início</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      const menuBtn = screen.getByRole('button', { name: /menu/i });
+      expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
+      fireEvent.click(menuBtn);
+      expect(menuBtn).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.click(screen.getByRole('button', { name: /fechar menu de navegação/i }));
+      expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
+    } finally {
+      window.matchMedia = prevMatchMedia;
+    }
   });
 });

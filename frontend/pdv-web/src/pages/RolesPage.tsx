@@ -138,7 +138,7 @@ export function RolesPage() {
         <div className="pdv-card" style={{ marginBottom: '1rem', padding: '1rem 1.25rem' }}>
           <h2 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.05rem', fontWeight: 600 }}>Nova role</h2>
           <div className="pdv-toolbar" style={{ flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-            <div className="pdv-field" style={{ marginBottom: 0, minWidth: 220, flex: '1 1 200px' }}>
+            <div className="pdv-field" style={{ marginBottom: 0, flex: '1 1 12rem', minWidth: 0 }}>
               <label htmlFor="role-new-name">Nome</label>
               <input
                 id="role-new-name"
@@ -154,7 +154,7 @@ export function RolesPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 280px) 1fr', gap: '1rem', alignItems: 'start' }}>
+      <div className="pdv-master-detail">
         <div className="pdv-card pdv-table-wrap" style={{ marginBottom: 0 }}>
           <h2 style={{ margin: 0, padding: '1rem 1.25rem', fontSize: '1.05rem', fontWeight: 600 }}>Roles</h2>
           {loading && roles.length === 0 ? (
@@ -196,7 +196,7 @@ export function RolesPage() {
               <h2 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.05rem', fontWeight: 600 }}>Detalhe</h2>
               {canMutate ? (
                 <div className="pdv-toolbar" style={{ flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem', alignItems: 'flex-end' }}>
-                  <div className="pdv-field" style={{ marginBottom: 0, minWidth: 220, flex: '1 1 220px' }}>
+                  <div className="pdv-field" style={{ marginBottom: 0, flex: '1 1 12rem', minWidth: 0 }}>
                     <label htmlFor="role-edit-name">Nome</label>
                     <input
                       id="role-edit-name"
@@ -223,16 +223,7 @@ export function RolesPage() {
                 </p>
               ) : (
                 <>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                      gap: '0.5rem 1rem',
-                      maxHeight: 'min(420px, 50vh)',
-                      overflowY: 'auto',
-                      padding: '0.25rem 0',
-                    }}
-                  >
+                  <div className="pdv-perm-grid">
                     {catalog.map((p) => (
                       <label key={p} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.875rem' }}>
                         <input

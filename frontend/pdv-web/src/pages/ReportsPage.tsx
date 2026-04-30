@@ -138,8 +138,8 @@ export function ReportsPage() {
 
       <div className="pdv-card" style={{ marginBottom: '1rem', padding: '1rem 1.25rem' }}>
         <h2 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.05rem', fontWeight: 600 }}>Período</h2>
-        <div className="pdv-toolbar">
-          <div className="pdv-field" style={{ marginBottom: 0, minWidth: 200 }}>
+        <div className="pdv-toolbar pdv-toolbar--fluid" style={{ flexWrap: 'wrap', alignItems: 'flex-end', gap: '0.75rem' }}>
+          <div className="pdv-field">
             <label htmlFor="rep-from">De (UTC)</label>
             <input
               id="rep-from"
@@ -148,7 +148,7 @@ export function ReportsPage() {
               onChange={(e) => setFromUtc(e.target.value)}
             />
           </div>
-          <div className="pdv-field" style={{ marginBottom: 0, minWidth: 200 }}>
+          <div className="pdv-field">
             <label htmlFor="rep-to">Até (UTC)</label>
             <input
               id="rep-to"

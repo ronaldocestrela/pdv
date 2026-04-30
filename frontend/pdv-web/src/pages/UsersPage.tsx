@@ -118,7 +118,7 @@ export function UsersPage() {
       <div className="pdv-card" style={{ marginBottom: '1rem', padding: '1rem 1.25rem' }}>
         <h2 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.05rem', fontWeight: 600 }}>Novo usuário</h2>
         <div className="pdv-toolbar" style={{ flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-          <div className="pdv-field" style={{ marginBottom: 0, minWidth: 200, flex: '1 1 200px' }}>
+          <div className="pdv-field" style={{ marginBottom: 0, flex: '1 1 12rem', minWidth: 0 }}>
             <label htmlFor="user-new-email">E-mail</label>
             <input
               id="user-new-email"
@@ -129,7 +129,7 @@ export function UsersPage() {
               placeholder="email@empresa.com"
             />
           </div>
-          <div className="pdv-field" style={{ marginBottom: 0, minWidth: 160, flex: '1 1 160px' }}>
+          <div className="pdv-field" style={{ marginBottom: 0, flex: '1 1 10rem', minWidth: 0 }}>
             <label htmlFor="user-new-password">Senha (mín. 6 caracteres)</label>
             <input
               id="user-new-password"
@@ -154,7 +154,7 @@ export function UsersPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 320px) 1fr', gap: '1rem', alignItems: 'start' }}>
+      <div className="pdv-master-detail">
         <div className="pdv-card pdv-table-wrap">
           <h2 style={{ margin: 0, padding: '1rem 1.25rem', fontSize: '1.05rem', fontWeight: 600 }}>Usuários</h2>
           {loading && users.length === 0 ? (
