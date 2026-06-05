@@ -7,15 +7,16 @@ using Pdv.Application.Security;
 
 namespace Pdv.Application.Handlers.Roles;
 
-public sealed class SetRolePermissionsCommandHandler : IRequestHandler<SetRolePermissionsCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="SetRolePermissionsCommandHandler"/> class.
+/// </summary>
+public sealed class SetRolePermissionsCommandHandler(IRoleRepository roles) : IRequestHandler<SetRolePermissionsCommand, Unit>
 {
-    private readonly IRoleRepository _roles;
+    private readonly IRoleRepository _roles = roles;
 
-    public SetRolePermissionsCommandHandler(IRoleRepository roles)
-    {
-        _roles = roles;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="SetRolePermissions"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(SetRolePermissionsCommand request, CancellationToken cancellationToken)
     {
         var role = await _roles.GetTrackedByIdAsync(request.RoleId, cancellationToken);

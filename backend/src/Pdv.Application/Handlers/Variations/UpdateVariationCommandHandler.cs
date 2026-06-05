@@ -6,15 +6,16 @@ using Pdv.Application.Commands.Variations;
 
 namespace Pdv.Application.Handlers.Variations;
 
-public sealed class UpdateVariationCommandHandler : IRequestHandler<UpdateVariationCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="UpdateVariationCommandHandler"/> class.
+/// </summary>
+public sealed class UpdateVariationCommandHandler(IProductRepository products) : IRequestHandler<UpdateVariationCommand, Unit>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public UpdateVariationCommandHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="UpdateVariation"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(UpdateVariationCommand request, CancellationToken cancellationToken)
     {
         var v = await _products.GetTrackedVariationByIdAsync(request.Id, cancellationToken);

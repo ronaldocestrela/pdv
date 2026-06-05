@@ -6,6 +6,9 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
     public const string HeaderName = "X-Correlation-Id";
     public const string ItemKey = "CorrelationId";
 
+    /// <summary>
+    /// Intercepts and processes the HTTP request context.
+    /// </summary>
     public async Task InvokeAsync(HttpContext context)
     {
         var id = context.Request.Headers[HeaderName].FirstOrDefault();

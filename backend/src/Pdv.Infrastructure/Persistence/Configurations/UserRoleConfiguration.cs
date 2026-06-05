@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
         builder.ToTable("UserRoles");

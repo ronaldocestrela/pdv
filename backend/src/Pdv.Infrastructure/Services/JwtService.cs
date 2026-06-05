@@ -21,14 +21,12 @@ public sealed class JwtOptions
     public int RefreshTokenDays { get; set; } = 7;
 }
 
-public sealed class JwtService : IJwtService
+/// <summary>
+/// Initializes a new instance of the <see cref="JwtService"/> class.
+/// </summary>
+public sealed class JwtService(IOptions<JwtOptions> options) : IJwtService
 {
-    private readonly JwtOptions _options;
-
-    public JwtService(IOptions<JwtOptions> options)
-    {
-        _options = options.Value;
-    }
+    private readonly JwtOptions _options = options.Value;
 
     public (string AccessToken, DateTime ExpiresAtUtc) CreateAccessToken(User user)
     {
@@ -67,12 +65,18 @@ public sealed class JwtService : IJwtService
         return (handler.WriteToken(token), expiresAt);
     }
 
+    /// <summary>
+    /// Executes the GenerateRefreshToken operation.
+    /// </summary>
     public string GenerateRefreshToken()
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
         return Convert.ToBase64String(bytes);
     }
 
+    /// <summary>
+    /// Retrieves data from the system.
+    /// </summary>
     public DateTime GetRefreshTokenExpiresAtUtc()
     {
         return DateTime.UtcNow.AddDays(_options.RefreshTokenDays);

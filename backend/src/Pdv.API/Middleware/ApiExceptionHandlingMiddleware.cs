@@ -9,7 +9,10 @@ namespace Pdv.API.Middleware;
 /// <summary>
 /// RFC 7807 <see cref="ProblemDetails"/> for failures, request timing logs, and correlation id.
 /// </summary>
-public sealed class ApiExceptionHandlingMiddleware
+public sealed class ApiExceptionHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ApiExceptionHandlingMiddleware> logger,
+    IHostEnvironment environment)
 {
     public const string ValidationProblemType = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
     public const string UnexpectedProblemType = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
@@ -20,20 +23,13 @@ public sealed class ApiExceptionHandlingMiddleware
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ApiExceptionHandlingMiddleware> _logger;
-    private readonly IHostEnvironment _environment;
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ApiExceptionHandlingMiddleware> _logger = logger;
+    private readonly IHostEnvironment _environment = environment;
 
-    public ApiExceptionHandlingMiddleware(
-        RequestDelegate next,
-        ILogger<ApiExceptionHandlingMiddleware> logger,
-        IHostEnvironment environment)
-    {
-        _next = next;
-        _logger = logger;
-        _environment = environment;
-    }
-
+    /// <summary>
+    /// Intercepts and processes the HTTP request context.
+    /// </summary>
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = context.Items.TryGetValue(CorrelationIdMiddleware.ItemKey, out var cid)

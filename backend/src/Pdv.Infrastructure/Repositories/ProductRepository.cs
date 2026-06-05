@@ -6,15 +6,16 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class ProductRepository : IProductRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="ProductRepository"/> class.
+/// </summary>
+public sealed class ProductRepository(AppDbContext db) : IProductRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public ProductRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<ProductSummaryDto>> ListSummariesAsync(CancellationToken cancellationToken = default)
     {
         return await _db.Products.AsNoTracking()
@@ -23,6 +24,9 @@ public sealed class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public async Task<ProductDetailDto?> GetDetailByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var row = await _db.Products.AsNoTracking()
@@ -45,31 +49,55 @@ public sealed class ProductRepository : IProductRepository
         return new ProductDetailDto(row.Id, row.Name, row.IsActive, row.Variations);
     }
 
+    /// <summary>
+    /// Executes the ProductExistsAsync operation.
+    /// </summary>
     public Task<bool> ProductExistsAsync(int productId, CancellationToken cancellationToken = default) =>
         _db.Products.AsNoTracking().AnyAsync(p => p.Id == productId, cancellationToken);
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<Product?> GetTrackedByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return _db.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void Add(Product product) =>
         _db.Products.Add(product);
 
+    /// <summary>
+    /// Removes the specified entity from the database context.
+    /// </summary>
     public void Remove(Product product) =>
         _db.Products.Remove(product);
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<ProductVariation?> GetTrackedVariationByIdAsync(int variationId, CancellationToken cancellationToken = default)
     {
         return _db.ProductVariations.FirstOrDefaultAsync(v => v.Id == variationId, cancellationToken);
     }
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void AddVariation(ProductVariation variation) =>
         _db.ProductVariations.Add(variation);
 
+    /// <summary>
+    /// Removes the specified entity from the database context.
+    /// </summary>
     public void RemoveVariation(ProductVariation variation) =>
         _db.ProductVariations.Remove(variation);
 
+    /// <summary>
+    /// Executes the IsBarcodeTakenAsync operation.
+    /// </summary>
     public async Task<bool> IsBarcodeTakenAsync(string barcode, int? excludeVariationId, CancellationToken cancellationToken = default)
     {
         var trimmed = barcode.Trim();
@@ -105,9 +133,15 @@ public sealed class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void AddStockMovement(StockMovement movement) =>
         _db.StockMovements.Add(movement);
 
+    /// <summary>
+    /// Persists all tracked changes in this database context.
+    /// </summary>
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _db.SaveChangesAsync(cancellationToken);
 }

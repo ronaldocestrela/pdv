@@ -7,15 +7,16 @@ using Pdv.Application.Security;
 
 namespace Pdv.Application.Handlers.Roles;
 
-public sealed class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="DeleteRoleCommandHandler"/> class.
+/// </summary>
+public sealed class DeleteRoleCommandHandler(IRoleRepository roles) : IRequestHandler<DeleteRoleCommand, Unit>
 {
-    private readonly IRoleRepository _roles;
+    private readonly IRoleRepository _roles = roles;
 
-    public DeleteRoleCommandHandler(IRoleRepository roles)
-    {
-        _roles = roles;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="DeleteRole"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
     {
         var role = await _roles.GetTrackedByIdAsync(request.Id, cancellationToken);

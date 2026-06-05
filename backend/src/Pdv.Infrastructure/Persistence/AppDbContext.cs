@@ -6,19 +6,19 @@ using System.Linq.Expressions;
 
 namespace Pdv.Infrastructure.Persistence;
 
-public sealed class AppDbContext : DbContext
+/// <summary>
+/// Initializes a new instance of the <see cref="AppDbContext"/> class.
+/// </summary>
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext) : DbContext(options)
 {
-    private readonly ITenantContext _tenantContext;
+    private readonly ITenantContext _tenantContext = tenantContext;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AppDbContext"/> class.
+    /// </summary>
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : this(options, new Services.SystemTenantContext())
     {
-    }
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
-        : base(options)
-    {
-        _tenantContext = tenantContext;
     }
 
     public DbSet<User> Users => Set<User>();
@@ -50,12 +50,18 @@ public sealed class AppDbContext : DbContext
         }
     }
 
+    /// <summary>
+    /// Executes the SaveChangesAsync operation.
+    /// </summary>
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyTenantScope();
         return base.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Executes the SaveChanges operation.
+    /// </summary>
     public override int SaveChanges()
     {
         ApplyTenantScope();

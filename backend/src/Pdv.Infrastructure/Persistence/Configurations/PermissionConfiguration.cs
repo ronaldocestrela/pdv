@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.ToTable("Permissions");

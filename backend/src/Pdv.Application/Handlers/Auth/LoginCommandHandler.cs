@@ -5,22 +5,18 @@ using Pdv.Application.Commands.Auth;
 
 namespace Pdv.Application.Handlers.Auth;
 
-public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, TokenResponseDto?>
+public sealed class LoginCommandHandler(
+    IUserRepository users,
+    IPasswordHasher passwordHasher,
+    IJwtService jwt) : IRequestHandler<LoginCommand, TokenResponseDto?>
 {
-    private readonly IUserRepository _users;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtService _jwt;
+    private readonly IUserRepository _users = users;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly IJwtService _jwt = jwt;
 
-    public LoginCommandHandler(
-        IUserRepository users,
-        IPasswordHasher passwordHasher,
-        IJwtService jwt)
-    {
-        _users = users;
-        _passwordHasher = passwordHasher;
-        _jwt = jwt;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="Login"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<TokenResponseDto?> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await _users.GetWithPermissionsByEmailAsync(request.Email.Trim(), cancellationToken);

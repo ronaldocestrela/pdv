@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Sales;
 
 public sealed class CreateSaleCommandValidator : AbstractValidator<CreateSaleCommand>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CreateSaleCommandValidator"/> class.
+    /// </summary>
     public CreateSaleCommandValidator()
     {
         RuleFor(x => x.Items)

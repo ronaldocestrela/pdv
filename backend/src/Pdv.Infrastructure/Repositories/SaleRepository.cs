@@ -5,24 +5,34 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class SaleRepository : ISaleRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="SaleRepository"/> class.
+/// </summary>
+public sealed class SaleRepository(AppDbContext db) : ISaleRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public SaleRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void Add(Sale sale) =>
         _db.Sales.Add(sale);
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void AddItem(SaleItem item) =>
         _db.SaleItems.Add(item);
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void AddCashFlow(CashFlow cashFlow) =>
         _db.CashFlows.Add(cashFlow);
 
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<SaleListItemDto>> ListRecentAsync(int take, CancellationToken cancellationToken = default)
     {
         var capped = Math.Clamp(take, 1, 500);

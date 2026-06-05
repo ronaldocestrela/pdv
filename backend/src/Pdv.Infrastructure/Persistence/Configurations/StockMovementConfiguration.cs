@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<StockMovement> builder)
     {
         builder.ToTable("StockMovements");

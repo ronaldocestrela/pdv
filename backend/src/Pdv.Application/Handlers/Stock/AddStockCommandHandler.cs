@@ -8,15 +8,16 @@ using Pdv.Domain.Enums;
 
 namespace Pdv.Application.Handlers.Stock;
 
-public sealed class AddStockCommandHandler : IRequestHandler<AddStockCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="AddStockCommandHandler"/> class.
+/// </summary>
+public sealed class AddStockCommandHandler(IProductRepository products) : IRequestHandler<AddStockCommand, Unit>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public AddStockCommandHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="AddStock"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(AddStockCommand request, CancellationToken cancellationToken)
     {
         var v = await _products.GetTrackedVariationByIdAsync(request.ProductVariationId, cancellationToken);

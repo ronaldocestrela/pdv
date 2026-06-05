@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Reports;
 
 public sealed class GetCashFlowReportQueryValidator : AbstractValidator<GetCashFlowReportQuery>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GetCashFlowReportQueryValidator"/> class.
+    /// </summary>
     public GetCashFlowReportQueryValidator()
     {
         RuleFor(x => x.ToUtc).GreaterThanOrEqualTo(x => x.FromUtc).WithMessage("toUtc must be >= fromUtc.");

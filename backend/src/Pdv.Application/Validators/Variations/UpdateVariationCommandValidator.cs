@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Variations;
 
 public sealed class UpdateVariationCommandValidator : AbstractValidator<UpdateVariationCommand>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateVariationCommandValidator"/> class.
+    /// </summary>
     public UpdateVariationCommandValidator()
     {
         RuleFor(x => x.Id).GreaterThan(0);

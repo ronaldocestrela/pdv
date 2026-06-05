@@ -7,15 +7,16 @@ using Pdv.Domain.Entities;
 
 namespace Pdv.Application.Handlers.Users;
 
-public sealed class SetUserRolesCommandHandler : IRequestHandler<SetUserRolesCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="SetUserRolesCommandHandler"/> class.
+/// </summary>
+public sealed class SetUserRolesCommandHandler(IUserAdminRepository users) : IRequestHandler<SetUserRolesCommand, Unit>
 {
-    private readonly IUserAdminRepository _users;
+    private readonly IUserAdminRepository _users = users;
 
-    public SetUserRolesCommandHandler(IUserAdminRepository users)
-    {
-        _users = users;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="SetUserRoles"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(SetUserRolesCommand request, CancellationToken cancellationToken)
     {
         var user = await _users.GetTrackedWithRolesAsync(request.UserId, cancellationToken);

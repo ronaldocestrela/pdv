@@ -4,15 +4,16 @@ using Pdv.Application.Queries.Products;
 
 namespace Pdv.Application.Handlers.Products;
 
-public sealed class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, IReadOnlyList<ProductSummaryDto>>
+/// <summary>
+/// Initializes a new instance of the <see cref="GetProductsQueryHandler"/> class.
+/// </summary>
+public sealed class GetProductsQueryHandler(IProductRepository products) : IRequestHandler<GetProductsQuery, IReadOnlyList<ProductSummaryDto>>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public GetProductsQueryHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="GetProducts"/> to retrieve the requested data.
+    /// </summary>
     public Task<IReadOnlyList<ProductSummaryDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken) =>
         _products.ListSummariesAsync(cancellationToken);
 }

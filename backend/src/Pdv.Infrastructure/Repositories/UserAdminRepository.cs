@@ -5,15 +5,16 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class UserAdminRepository : IUserAdminRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="UserAdminRepository"/> class.
+/// </summary>
+public sealed class UserAdminRepository(AppDbContext db) : IUserAdminRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public UserAdminRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<UserAdminDto>> ListUsersWithRolesAsync(CancellationToken cancellationToken = default)
     {
         var users = await _db.Users
@@ -31,6 +32,9 @@ public sealed class UserAdminRepository : IUserAdminRepository
             .ToList();
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<User?> GetTrackedWithRolesAsync(int userId, CancellationToken cancellationToken = default)
     {
         return _db.Users
@@ -38,6 +42,9 @@ public sealed class UserAdminRepository : IUserAdminRepository
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
+    /// <summary>
+    /// Executes the AllRoleIdsExistAsync operation.
+    /// </summary>
     public async Task<bool> AllRoleIdsExistAsync(IReadOnlyList<int> roleIds, CancellationToken cancellationToken = default)
     {
         if (roleIds.Count == 0)
@@ -47,11 +54,20 @@ public sealed class UserAdminRepository : IUserAdminRepository
         return count == distinct.Count;
     }
 
+    /// <summary>
+    /// Executes the EmailExistsAsync operation.
+    /// </summary>
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default) =>
         _db.Users.AnyAsync(u => u.Email == email, cancellationToken);
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void Add(User user) => _db.Users.Add(user);
 
+    /// <summary>
+    /// Persists all tracked changes in this database context.
+    /// </summary>
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _db.SaveChangesAsync(cancellationToken);
 }

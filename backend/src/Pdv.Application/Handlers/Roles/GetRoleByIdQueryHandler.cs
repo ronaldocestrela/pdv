@@ -4,15 +4,16 @@ using Pdv.Application.Queries.Roles;
 
 namespace Pdv.Application.Handlers.Roles;
 
-public sealed class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, RoleAdminDto?>
+/// <summary>
+/// Initializes a new instance of the <see cref="GetRoleByIdQueryHandler"/> class.
+/// </summary>
+public sealed class GetRoleByIdQueryHandler(IRoleRepository roles) : IRequestHandler<GetRoleByIdQuery, RoleAdminDto?>
 {
-    private readonly IRoleRepository _roles;
+    private readonly IRoleRepository _roles = roles;
 
-    public GetRoleByIdQueryHandler(IRoleRepository roles)
-    {
-        _roles = roles;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="GetRoleById"/> to retrieve the requested data.
+    /// </summary>
     public Task<RoleAdminDto?> Handle(GetRoleByIdQuery request, CancellationToken cancellationToken) =>
         _roles.GetRoleByIdAsync(request.Id, cancellationToken);
 }

@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class CashFlowConfiguration : IEntityTypeConfiguration<CashFlow>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<CashFlow> builder)
     {
         builder.ToTable("CashFlows");

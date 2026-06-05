@@ -5,15 +5,16 @@ using Pdv.Domain.Entities;
 
 namespace Pdv.Application.Handlers.Products;
 
-public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateProductCommandHandler"/> class.
+/// </summary>
+public sealed class CreateProductCommandHandler(IProductRepository products) : IRequestHandler<CreateProductCommand, int>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public CreateProductCommandHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="CreateProduct"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         var product = new Product

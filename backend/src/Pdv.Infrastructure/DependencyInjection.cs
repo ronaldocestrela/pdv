@@ -12,6 +12,9 @@ namespace Pdv.Infrastructure;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Creates a new instance in the system.
+    /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IOptions<JwtOptions>>(_ =>

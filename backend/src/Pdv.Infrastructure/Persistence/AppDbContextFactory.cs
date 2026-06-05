@@ -8,6 +8,9 @@ using Pdv.Infrastructure.Services;
 /// <summary>Allows <c>dotnet ef migrations</c> without resolving the full startup pipeline.</summary>
 public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
+    /// <summary>
+    /// Creates a new instance in the system.
+    /// </summary>
     public AppDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();

@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Stock;
 
 public sealed class AddStockCommandValidator : AbstractValidator<AddStockCommand>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddStockCommandValidator"/> class.
+    /// </summary>
     public AddStockCommandValidator()
     {
         RuleFor(x => x.ProductVariationId).GreaterThan(0);

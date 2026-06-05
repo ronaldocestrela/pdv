@@ -5,17 +5,17 @@ using Pdv.Application.Commands.Auth;
 
 namespace Pdv.Application.Handlers.Auth;
 
-public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, TokenResponseDto?>
+/// <summary>
+/// Initializes a new instance of the <see cref="RefreshTokenCommandHandler"/> class.
+/// </summary>
+public sealed class RefreshTokenCommandHandler(IUserRepository users, IJwtService jwt) : IRequestHandler<RefreshTokenCommand, TokenResponseDto?>
 {
-    private readonly IUserRepository _users;
-    private readonly IJwtService _jwt;
+    private readonly IUserRepository _users = users;
+    private readonly IJwtService _jwt = jwt;
 
-    public RefreshTokenCommandHandler(IUserRepository users, IJwtService jwt)
-    {
-        _users = users;
-        _jwt = jwt;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="RefreshToken"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<TokenResponseDto?> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))

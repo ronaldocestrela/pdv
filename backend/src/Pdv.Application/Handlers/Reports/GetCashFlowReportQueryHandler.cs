@@ -4,15 +4,16 @@ using Pdv.Application.Queries.Reports;
 
 namespace Pdv.Application.Handlers.Reports;
 
-public sealed class GetCashFlowReportQueryHandler : IRequestHandler<GetCashFlowReportQuery, IReadOnlyList<CashFlowReportRowDto>>
+/// <summary>
+/// Initializes a new instance of the <see cref="GetCashFlowReportQueryHandler"/> class.
+/// </summary>
+public sealed class GetCashFlowReportQueryHandler(IReportRepository reports) : IRequestHandler<GetCashFlowReportQuery, IReadOnlyList<CashFlowReportRowDto>>
 {
-    private readonly IReportRepository _reports;
+    private readonly IReportRepository _reports = reports;
 
-    public GetCashFlowReportQueryHandler(IReportRepository reports)
-    {
-        _reports = reports;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="GetCashFlowReport"/> to retrieve the requested data.
+    /// </summary>
     public Task<IReadOnlyList<CashFlowReportRowDto>> Handle(GetCashFlowReportQuery request, CancellationToken cancellationToken) =>
         _reports.ListCashFlowsAsync(request.FromUtc, request.ToUtc, request.Take, cancellationToken);
 }

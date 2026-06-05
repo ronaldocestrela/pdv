@@ -7,15 +7,16 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class RoleRepository : IRoleRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="RoleRepository"/> class.
+/// </summary>
+public sealed class RoleRepository(AppDbContext db) : IRoleRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public RoleRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<RoleAdminDto>> ListRolesAsync(CancellationToken cancellationToken = default)
     {
         var roles = await _db.Roles
@@ -33,6 +34,9 @@ public sealed class RoleRepository : IRoleRepository
             .ToList();
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public async Task<RoleAdminDto?> GetRoleByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var r = await _db.Roles
@@ -49,6 +53,9 @@ public sealed class RoleRepository : IRoleRepository
             r.RolePermissions.Select(rp => rp.Permission.Name).Distinct(StringComparer.Ordinal).OrderBy(x => x, StringComparer.Ordinal).ToList());
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<Role?> GetTrackedWithPermissionsAsync(int id, CancellationToken cancellationToken = default)
     {
         return _db.Roles
@@ -57,9 +64,15 @@ public sealed class RoleRepository : IRoleRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<Role?> GetTrackedByIdAsync(int id, CancellationToken cancellationToken = default) =>
         _db.Roles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    /// <summary>
+    /// Executes the SetRolePermissionsByNamesAsync operation.
+    /// </summary>
     public async Task SetRolePermissionsByNamesAsync(int roleId, IReadOnlyList<string> permissionNames, CancellationToken cancellationToken = default)
     {
         var distinctNames = permissionNames.Distinct(StringComparer.Ordinal).ToList();
@@ -88,6 +101,9 @@ public sealed class RoleRepository : IRoleRepository
         await _db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Executes the NameExistsAsync operation.
+    /// </summary>
     public Task<bool> NameExistsAsync(string name, int? excludeRoleId, CancellationToken cancellationToken = default)
     {
         var q = _db.Roles.Where(r => r.Name == name);
@@ -96,10 +112,19 @@ public sealed class RoleRepository : IRoleRepository
         return q.AnyAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Adds a new entity to the database context.
+    /// </summary>
     public void Add(Role role) => _db.Roles.Add(role);
 
+    /// <summary>
+    /// Removes the specified entity from the database context.
+    /// </summary>
     public void Remove(Role role) => _db.Roles.Remove(role);
 
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<string>> ListPermissionNamesAsync(CancellationToken cancellationToken = default)
     {
         return await _db.Permissions
@@ -109,6 +134,9 @@ public sealed class RoleRepository : IRoleRepository
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Persists all tracked changes in this database context.
+    /// </summary>
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _db.SaveChangesAsync(cancellationToken);
 }

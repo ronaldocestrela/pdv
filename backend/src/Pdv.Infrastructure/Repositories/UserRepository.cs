@@ -5,25 +5,32 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class UserRepository : IUserRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="UserRepository"/> class.
+/// </summary>
+public sealed class UserRepository(AppDbContext db) : IUserRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public UserRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<User?> GetWithPermissionsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return BaseQueryWithPermissions().FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<User?> GetWithPermissionsByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return BaseQueryWithPermissions().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public Task<User?> GetWithPermissionsByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         return BaseQueryWithPermissions()
@@ -32,6 +39,9 @@ public sealed class UserRepository : IUserRepository
                 cancellationToken);
     }
 
+    /// <summary>
+    /// Persists all tracked changes in this database context.
+    /// </summary>
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _db.SaveChangesAsync(cancellationToken);
 

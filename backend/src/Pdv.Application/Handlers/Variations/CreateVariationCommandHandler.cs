@@ -7,15 +7,16 @@ using Pdv.Domain.Entities;
 
 namespace Pdv.Application.Handlers.Variations;
 
-public sealed class CreateVariationCommandHandler : IRequestHandler<CreateVariationCommand, int>
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateVariationCommandHandler"/> class.
+/// </summary>
+public sealed class CreateVariationCommandHandler(IProductRepository products) : IRequestHandler<CreateVariationCommand, int>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public CreateVariationCommandHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="CreateVariation"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<int> Handle(CreateVariationCommand request, CancellationToken cancellationToken)
     {
         if (!await _products.ProductExistsAsync(request.ProductId, cancellationToken))

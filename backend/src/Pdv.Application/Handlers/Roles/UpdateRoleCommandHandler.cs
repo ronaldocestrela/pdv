@@ -7,15 +7,16 @@ using Pdv.Application.Security;
 
 namespace Pdv.Application.Handlers.Roles;
 
-public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="UpdateRoleCommandHandler"/> class.
+/// </summary>
+public sealed class UpdateRoleCommandHandler(IRoleRepository roles) : IRequestHandler<UpdateRoleCommand, Unit>
 {
-    private readonly IRoleRepository _roles;
+    private readonly IRoleRepository _roles = roles;
 
-    public UpdateRoleCommandHandler(IRoleRepository roles)
-    {
-        _roles = roles;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="UpdateRole"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
     {
         var role = await _roles.GetTrackedByIdAsync(request.Id, cancellationToken);

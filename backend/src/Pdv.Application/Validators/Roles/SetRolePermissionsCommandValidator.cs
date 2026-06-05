@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Roles;
 
 public sealed class SetRolePermissionsCommandValidator : AbstractValidator<SetRolePermissionsCommand>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SetRolePermissionsCommandValidator"/> class.
+    /// </summary>
     public SetRolePermissionsCommandValidator()
     {
         RuleFor(x => x.RoleId).GreaterThan(0);

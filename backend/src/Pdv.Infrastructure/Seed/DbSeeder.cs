@@ -12,6 +12,9 @@ public static class DbSeeder
 {
     private const int DefaultTenantId = 1;
 
+    /// <summary>
+    /// Executes the ApplyAsync operation.
+    /// </summary>
     public static async Task ApplyAsync(AppDbContext db, SeedOptions options, IPasswordHasher passwordHasher, ILogger logger, CancellationToken cancellationToken = default)
     {
         await EnsurePermissionsAsync(db, logger, cancellationToken);

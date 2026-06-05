@@ -7,17 +7,17 @@ using Pdv.Domain.Entities;
 
 namespace Pdv.Application.Handlers.Users;
 
-public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, int>
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateUserCommandHandler"/> class.
+/// </summary>
+public sealed class CreateUserCommandHandler(IUserAdminRepository users, IPasswordHasher passwordHasher) : IRequestHandler<CreateUserCommand, int>
 {
-    private readonly IUserAdminRepository _users;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IUserAdminRepository _users = users;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
 
-    public CreateUserCommandHandler(IUserAdminRepository users, IPasswordHasher passwordHasher)
-    {
-        _users = users;
-        _passwordHasher = passwordHasher;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="CreateUser"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var email = request.Email.Trim();

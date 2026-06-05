@@ -8,17 +8,17 @@ using Pdv.Domain.Enums;
 
 namespace Pdv.Application.Handlers.Sales;
 
-public sealed class CreateSaleCommandHandler : IRequestHandler<CreateSaleCommand, CreateSaleResultDto>
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateSaleCommandHandler"/> class.
+/// </summary>
+public sealed class CreateSaleCommandHandler(IProductRepository products, ISaleRepository sales) : IRequestHandler<CreateSaleCommand, CreateSaleResultDto>
 {
-    private readonly IProductRepository _products;
-    private readonly ISaleRepository _sales;
+    private readonly IProductRepository _products = products;
+    private readonly ISaleRepository _sales = sales;
 
-    public CreateSaleCommandHandler(IProductRepository products, ISaleRepository sales)
-    {
-        _products = products;
-        _sales = sales;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="CreateSale"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<CreateSaleResultDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
     {
         var merged = MergeQuantities(request.Items);

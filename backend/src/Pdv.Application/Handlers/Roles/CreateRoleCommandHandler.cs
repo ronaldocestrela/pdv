@@ -7,15 +7,16 @@ using Pdv.Domain.Entities;
 
 namespace Pdv.Application.Handlers.Roles;
 
-public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, int>
+/// <summary>
+/// Initializes a new instance of the <see cref="CreateRoleCommandHandler"/> class.
+/// </summary>
+public sealed class CreateRoleCommandHandler(IRoleRepository roles) : IRequestHandler<CreateRoleCommand, int>
 {
-    private readonly IRoleRepository _roles;
+    private readonly IRoleRepository _roles = roles;
 
-    public CreateRoleCommandHandler(IRoleRepository roles)
-    {
-        _roles = roles;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="CreateRole"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<int> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
         var name = request.Name.Trim();

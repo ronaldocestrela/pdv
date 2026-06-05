@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<SaleItem> builder)
     {
         builder.ToTable("SaleItems");

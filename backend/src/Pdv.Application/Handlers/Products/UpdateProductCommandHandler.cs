@@ -6,15 +6,16 @@ using Pdv.Application.Commands.Products;
 
 namespace Pdv.Application.Handlers.Products;
 
-public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, Unit>
+/// <summary>
+/// Initializes a new instance of the <see cref="UpdateProductCommandHandler"/> class.
+/// </summary>
+public sealed class UpdateProductCommandHandler(IProductRepository products) : IRequestHandler<UpdateProductCommand, Unit>
 {
-    private readonly IProductRepository _products;
+    private readonly IProductRepository _products = products;
 
-    public UpdateProductCommandHandler(IProductRepository products)
-    {
-        _products = products;
-    }
-
+    /// <summary>
+    /// Executes the <see cref="UpdateProduct"/> to perform the corresponding business action.
+    /// </summary>
     public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _products.GetTrackedByIdAsync(request.Id, cancellationToken);

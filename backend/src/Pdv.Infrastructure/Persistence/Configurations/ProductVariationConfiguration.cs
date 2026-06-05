@@ -6,6 +6,9 @@ namespace Pdv.Infrastructure.Persistence.Configurations;
 
 public sealed class ProductVariationConfiguration : IEntityTypeConfiguration<ProductVariation>
 {
+    /// <summary>
+    /// Configures database schema rules, keys, and indexes for EF Core.
+    /// </summary>
     public void Configure(EntityTypeBuilder<ProductVariation> builder)
     {
         builder.ToTable("ProductVariations");

@@ -4,15 +4,16 @@ using Pdv.Infrastructure.Persistence;
 
 namespace Pdv.Infrastructure.Repositories;
 
-public sealed class ReportRepository : IReportRepository
+/// <summary>
+/// Initializes a new instance of the <see cref="ReportRepository"/> class.
+/// </summary>
+public sealed class ReportRepository(AppDbContext db) : IReportRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _db = db;
 
-    public ReportRepository(AppDbContext db)
-    {
-        _db = db;
-    }
-
+    /// <summary>
+    /// Retrieves tracking details by ID.
+    /// </summary>
     public async Task<SalesReportDto> GetSalesSummaryAsync(DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default)
     {
         var q = _db.Sales.AsNoTracking().Where(s => s.CreatedAtUtc >= fromUtc && s.CreatedAtUtc <= toUtc);
@@ -71,6 +72,9 @@ public sealed class ReportRepository : IReportRepository
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves a list of DTO summaries.
+    /// </summary>
     public async Task<IReadOnlyList<StockReportRowDto>> ListStockLevelsAsync(int take, CancellationToken cancellationToken = default)
     {
         var capped = Math.Clamp(take, 1, 500);

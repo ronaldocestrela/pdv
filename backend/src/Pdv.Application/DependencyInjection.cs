@@ -8,6 +8,9 @@ namespace Pdv.Application;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Creates a new instance in the system.
+    /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>

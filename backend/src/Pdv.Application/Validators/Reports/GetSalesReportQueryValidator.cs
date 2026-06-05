@@ -5,6 +5,9 @@ namespace Pdv.Application.Validators.Reports;
 
 public sealed class GetSalesReportQueryValidator : AbstractValidator<GetSalesReportQuery>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GetSalesReportQueryValidator"/> class.
+    /// </summary>
     public GetSalesReportQueryValidator()
     {
         RuleFor(x => x.ToUtc).GreaterThanOrEqualTo(x => x.FromUtc).WithMessage("toUtc must be >= fromUtc.");

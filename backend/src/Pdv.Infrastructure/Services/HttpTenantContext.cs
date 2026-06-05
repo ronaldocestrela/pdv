@@ -5,14 +5,12 @@ using Pdv.Application.Security;
 
 namespace Pdv.Infrastructure.Services;
 
-public sealed class HttpTenantContext : ITenantContext
+/// <summary>
+/// Initializes a new instance of the <see cref="HttpTenantContext"/> class.
+/// </summary>
+public sealed class HttpTenantContext(IHttpContextAccessor httpContextAccessor) : ITenantContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public HttpTenantContext(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public int? TenantId
     {
