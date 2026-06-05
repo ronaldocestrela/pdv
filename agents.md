@@ -28,35 +28,38 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 
 ## 3. Arquitetura
 
-### Backend (CQRS)
-Separação clara entre:
-- Commands (escrita)
-- Queries (leitura)
+### Backend (Monolito Modular + CQRS)
+O backend é estruturado como um Monolito Modular composto por contextos delimitados (módulos) independentes. Cada módulo contém internamente suas próprias camadas (Domain, Application, Infrastructure, API Controllers) e isola suas regras de negócio.
 
-Estrutura:
+A estrutura geral de diretórios do backend é:
 ```
 /src
-  /Application
-    /Commands
-    /Queries
-    /Handlers
-    /DTOs
-  /Domain
-    /Entities
-    /Enums
-    /ValueObjects
-  /Infrastructure
-    /Persistence
-    /Repositories
-  /API
-    /Controllers
+  /Pdv.Shared.Kernel       (Abstrações comuns, TenantContext, Exceptions, Behaviors)
+  /Pdv.Modules.Identity    (Autenticação, gerenciamento de Usuários, Roles e Permissões)
+  /Pdv.Modules.Catalog     (Cadastro de Produtos e Variações)
+  /Pdv.Modules.Stock       (Movimentações de Estoque e ajustes)
+  /Pdv.Modules.Sales       (Fluxo de Caixa e finalização de Vendas)
+  /Pdv.Modules.Reports     (Consultas e dashboards de relatórios entre módulos)
+  /Pdv.API                 (Host executável ASP.NET Core)
 ```
 
-### Princípios
-- Cada operação de escrita = 1 Command
-- Cada leitura = 1 Query
-- Handlers NÃO acessam diretamente o banco (usar repositórios)
-- Validações via FluentValidation
+Dentro de cada módulo, a organização segue os princípios de Clean Architecture:
+```
+/Pdv.Modules.[Name]
+  /Controllers          (Pontos de entrada da API HTTP do módulo)
+  /Application          (Commands, Queries, Handlers, DTOs, Validators)
+  /Domain               (Entidades, Enums, Value Objects e regras de negócio)
+  /Infrastructure       (DbContext próprio, mapeamento de tabelas EF, Repositórios)
+```
+
+### Princípios de Comunicação e Design
+- **CQRS:** Separação clara entre Commands (escrita) e Queries (leitura).
+- **Desacoplamento:** Módulos não podem referenciar diretamente a implementação interna de outros módulos.
+- **Comunicação Síncrona:** Feita enviando Queries/Commands do MediatR cujos contratos de dados (DTOs) são compartilhados.
+- **Comunicação Assíncrona:** Feita via Eventos de Integração (MediatR Notifications) para propagar efeitos colaterais de forma reativa (ex: baixar estoque pós-venda).
+- **Banco de Dados:** Cada módulo gerencia seu próprio `DbContext` contendo apenas suas tabelas. No MVP, compartilham o mesmo banco físico (SQL Server), mas com tabelas logicamente delimitadas.
+- **Validações:** Regras de entrada validadas via FluentValidation.
+
 
 ---
 
@@ -338,9 +341,17 @@ Uma feature só está pronta se:
 
 ## 15. Layout do repositório (Fase 0)
 
-Após a fundação, o código vive em:
+Após a migração para a arquitetura modular, o código vive em:
 
-- `backend/` — solução .NET (`Pdv.sln`): Domain, Application, Infrastructure, API; testes em `tests/Pdv.Tests`
+- `backend/` — solução .NET (`Pdv.slnx`):
+  - `src/Pdv.Shared.Kernel`
+  - `src/Pdv.Modules.Identity`
+  - `src/Pdv.Modules.Catalog`
+  - `src/Pdv.Modules.Stock`
+  - `src/Pdv.Modules.Sales`
+  - `src/Pdv.Modules.Reports`
+  - `src/Pdv.API` (Host)
+  - testes em `tests/Pdv.Tests`
 - `frontend/pdv-web/` — React + Vite + TypeScript (`services/`, `hooks/`, `store/`)
 
 Execução e variáveis de ambiente: ver [`README.md`](README.md) na raiz do projeto.

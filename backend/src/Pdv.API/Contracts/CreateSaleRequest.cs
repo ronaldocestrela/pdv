@@ -1,4 +1,4 @@
-using Pdv.Domain.Enums;
+using Pdv.Shared.Kernel.Enums;
 
 namespace Pdv.API.Contracts;
 

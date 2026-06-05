@@ -1,9 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\Pdv.Infrastructure\Pdv.Infrastructure.csproj" />
-    <ProjectReference Include="..\Pdv.Application\Pdv.Application.csproj" />
-    <ProjectReference Include="..\Pdv.Domain\Pdv.Domain.csproj" />
+    <ProjectReference Include="..\Pdv.Shared.Kernel\Pdv.Shared.Kernel.csproj" />
+    <ProjectReference Include="..\Pdv.Modules.Identity\Pdv.Modules.Identity.csproj" />
+    <ProjectReference Include="..\Pdv.Modules.Catalog\Pdv.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\Pdv.Modules.Stock\Pdv.Modules.Stock.csproj" />
+    <ProjectReference Include="..\Pdv.Modules.Sales\Pdv.Modules.Sales.csproj" />
+    <ProjectReference Include="..\Pdv.Modules.Reports\Pdv.Modules.Reports.csproj" />
   </ItemGroup>
 
   <ItemGroup>

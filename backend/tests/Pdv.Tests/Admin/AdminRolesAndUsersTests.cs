@@ -1,14 +1,14 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Pdv.Application.Commands.Roles;
-using Pdv.Application.Commands.Users;
-using Pdv.Application.Handlers.Roles;
-using Pdv.Application.Handlers.Users;
-using Pdv.Application.Security;
-using Pdv.Domain.Entities;
-using Pdv.Infrastructure.Persistence;
-using Pdv.Infrastructure.Repositories;
-using Pdv.Infrastructure.Services;
+using Pdv.Modules.Identity.Application.Commands.Roles;
+using Pdv.Modules.Identity.Application.Commands.Users;
+using Pdv.Modules.Identity.Application.Handlers.Roles;
+using Pdv.Modules.Identity.Application.Handlers.Users;
+using Pdv.Shared.Kernel.Security;
+using Pdv.Modules.Identity.Domain.Entities;
+using Pdv.Modules.Identity.Infrastructure.Persistence;
+using Pdv.Modules.Identity.Infrastructure.Persistence.Repositories;
+using Pdv.Modules.Identity.Infrastructure.Services;
 
 namespace Pdv.Tests.Admin;
 
@@ -102,18 +102,18 @@ public sealed class AdminRolesAndUsersTests
         await act.Should().ThrowAsync<FluentValidation.ValidationException>();
     }
 
-    private static void SeedPermissions(AppDbContext ctx)
+    private static void SeedPermissions(IdentityDbContext ctx)
     {
         foreach (var name in KnownPermissions.All)
             ctx.Permissions.Add(new Permission { Name = name });
         ctx.SaveChanges();
     }
 
-    private static AppDbContext NewDb()
+    private static IdentityDbContext NewDb()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
+        var options = new DbContextOptionsBuilder<IdentityDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        return new AppDbContext(options);
+        return new IdentityDbContext(options, new Pdv.Shared.Kernel.Services.SystemTenantContext());
     }
 }

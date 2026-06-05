@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Moq;
-using Pdv.Application.Abstractions;
-using Pdv.Application.Commands.Auth;
-using Pdv.Application.Handlers.Auth;
-using Pdv.Domain.Entities;
+using Pdv.Modules.Identity.Application.Abstractions;
+using Pdv.Modules.Identity.Application.Commands.Auth;
+using Pdv.Modules.Identity.Application.Handlers.Auth;
+using Pdv.Modules.Identity.Domain.Entities;
 
 namespace Pdv.Tests.Auth;
 

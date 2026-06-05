@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Pdv.Application.Abstractions;
+using Pdv.Modules.Sales.Application.Abstractions;
 
 namespace Pdv.Tests.Integration;
 
@@ -33,6 +33,7 @@ public sealed class SalesIntegrationTests
 
         await IntegrationApiHelper.LoginAsAdminAsync(client);
         var variationId = await IntegrationApiHelper.CreateProductAndVariationAsync(client, stockQuantity: 2, unitPrice: 10m);
+        await IntegrationApiHelper.SyncVariationAsync(factory, variationId);
 
         var sale = await client.PostAsJsonAsync(
             "api/sales",
@@ -54,6 +55,7 @@ public sealed class SalesIntegrationTests
 
         await IntegrationApiHelper.LoginAsAdminAsync(client);
         var variationId = await IntegrationApiHelper.CreateProductAndVariationAsync(client, stockQuantity: 15, unitPrice: 11m);
+        await IntegrationApiHelper.SyncVariationAsync(factory, variationId);
 
         var saleRes = await client.PostAsJsonAsync(
             "api/sales",

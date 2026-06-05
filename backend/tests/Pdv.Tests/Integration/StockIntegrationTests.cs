@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Pdv.Application.Abstractions;
+using Pdv.Modules.Stock.Application.Abstractions;
 
 namespace Pdv.Tests.Integration;
 
@@ -40,6 +40,7 @@ public sealed class StockIntegrationTests
 
         await IntegrationApiHelper.LoginAsAdminAsync(client);
         var variationId = await IntegrationApiHelper.CreateProductAndVariationAsync(client, stockQuantity: 5);
+        await IntegrationApiHelper.SyncVariationAsync(factory, variationId);
 
         var adjust = await client.PostAsJsonAsync(
             "api/stock/adjust",

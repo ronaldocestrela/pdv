@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Pdv.Application.Commands.Products;
-using Pdv.Application.Commands.Variations;
-using Pdv.Application.Handlers.Products;
-using Pdv.Application.Handlers.Variations;
-using Pdv.Domain.Entities;
-using Pdv.Infrastructure.Persistence;
-using Pdv.Infrastructure.Repositories;
+using Pdv.Modules.Catalog.Application.Commands.Products;
+using Pdv.Modules.Catalog.Application.Commands.Variations;
+using Pdv.Modules.Catalog.Application.Handlers.Products;
+using Pdv.Modules.Catalog.Application.Handlers.Variations;
+using Pdv.Modules.Catalog.Domain.Entities;
+using Pdv.Modules.Catalog.Infrastructure.Persistence;
+using Pdv.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
 namespace Pdv.Tests.Products;
 
@@ -16,7 +16,7 @@ public sealed class ProductCommandsTests
     public async Task CreateProduct_Persists()
     {
         await using var ctx = NewDb();
-        var repo = new ProductRepository(ctx);
+        var repo = new CatalogRepository(ctx);
         var handler = new CreateProductCommandHandler(repo);
 
         var id = await handler.Handle(new CreateProductCommand("Camiseta", true), CancellationToken.None);
@@ -43,7 +43,7 @@ public sealed class ProductCommandsTests
         });
         await ctx.SaveChangesAsync();
 
-        var repo = new ProductRepository(ctx);
+        var repo = new CatalogRepository(ctx);
         var handler = new CreateVariationCommandHandler(repo);
 
         var act = async () => await handler.Handle(
@@ -70,7 +70,7 @@ public sealed class ProductCommandsTests
         });
         await ctx.SaveChangesAsync();
 
-        var repo = new ProductRepository(ctx);
+        var repo = new CatalogRepository(ctx);
         var handler = new DeleteProductCommandHandler(repo);
         await handler.Handle(new DeleteProductCommand(p.Id), CancellationToken.None);
 
@@ -78,11 +78,11 @@ public sealed class ProductCommandsTests
         (await ctx.ProductVariations.CountAsync()).Should().Be(0);
     }
 
-    private static AppDbContext NewDb()
+    private static CatalogDbContext NewDb()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
+        var options = new DbContextOptionsBuilder<CatalogDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        return new AppDbContext(options);
+        return new CatalogDbContext(options, new Pdv.Shared.Kernel.Services.SystemTenantContext());
     }
 }

@@ -1,9 +1,13 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Pdv.API/Pdv.API.csproj" />
-    <Project Path="src/Pdv.Application/Pdv.Application.csproj" />
-    <Project Path="src/Pdv.Domain/Pdv.Domain.csproj" />
-    <Project Path="src/Pdv.Infrastructure/Pdv.Infrastructure.csproj" />
+
+    <Project Path="src/Pdv.Shared.Kernel/Pdv.Shared.Kernel.csproj" />
+    <Project Path="src/Pdv.Modules.Identity/Pdv.Modules.Identity.csproj" />
+    <Project Path="src/Pdv.Modules.Catalog/Pdv.Modules.Catalog.csproj" />
+    <Project Path="src/Pdv.Modules.Stock/Pdv.Modules.Stock.csproj" />
+    <Project Path="src/Pdv.Modules.Sales/Pdv.Modules.Sales.csproj" />
+    <Project Path="src/Pdv.Modules.Reports/Pdv.Modules.Reports.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Pdv.Tests/Pdv.Tests.csproj" />

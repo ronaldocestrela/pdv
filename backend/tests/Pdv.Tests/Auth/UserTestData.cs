@@ -1,4 +1,4 @@
-using Pdv.Domain.Entities;
+using Pdv.Modules.Identity.Domain.Entities;
 
 namespace Pdv.Tests.Auth;
 

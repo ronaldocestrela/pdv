@@ -27,9 +27,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Pdv.API\Pdv.API.csproj" />
-    <ProjectReference Include="..\..\src\Pdv.Application\Pdv.Application.csproj" />
-    <ProjectReference Include="..\..\src\Pdv.Domain\Pdv.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Pdv.Infrastructure\Pdv.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Shared.Kernel\Pdv.Shared.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Modules.Identity\Pdv.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Modules.Catalog\Pdv.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Modules.Stock\Pdv.Modules.Stock.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Modules.Sales\Pdv.Modules.Sales.csproj" />
+    <ProjectReference Include="..\..\src\Pdv.Modules.Reports\Pdv.Modules.Reports.csproj" />
   </ItemGroup>
 
 </Project>

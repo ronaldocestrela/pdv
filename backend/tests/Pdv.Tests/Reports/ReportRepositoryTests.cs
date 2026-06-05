@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Pdv.Domain.Entities;
-using Pdv.Domain.Enums;
-using Pdv.Infrastructure.Persistence;
-using Pdv.Infrastructure.Repositories;
+using Pdv.Modules.Reports.Domain.Entities;
+using Pdv.Shared.Kernel.Enums;
+using Pdv.Modules.Reports.Infrastructure.Persistence;
+using Pdv.Modules.Reports.Infrastructure.Repositories;
 
 namespace Pdv.Tests.Reports;
 
@@ -14,9 +14,9 @@ public sealed class ReportRepositoryTests
     {
         await using var ctx = NewDb();
         var mid = new DateTime(2026, 4, 15, 12, 0, 0, DateTimeKind.Utc);
-        ctx.Sales.Add(new Sale { CreatedAtUtc = mid.AddDays(-1), TotalAmount = 10m, PaymentMethod = PaymentMethod.Cash, Items = [] });
-        ctx.Sales.Add(new Sale { CreatedAtUtc = mid, TotalAmount = 20m, PaymentMethod = PaymentMethod.Card, Items = [] });
-        ctx.Sales.Add(new Sale { CreatedAtUtc = mid.AddDays(1), TotalAmount = 99m, PaymentMethod = PaymentMethod.Pix, Items = [] });
+        ctx.Sales.Add(new Sale { CreatedAtUtc = mid.AddDays(-1), TotalAmount = 10m });
+        ctx.Sales.Add(new Sale { CreatedAtUtc = mid, TotalAmount = 20m });
+        ctx.Sales.Add(new Sale { CreatedAtUtc = mid.AddDays(1), TotalAmount = 99m });
         await ctx.SaveChangesAsync();
 
         var sut = new ReportRepository(ctx);
@@ -33,29 +33,28 @@ public sealed class ReportRepositoryTests
     public async Task GetTopProducts_AggregatesByVariation_OrderByQtyDesc()
     {
         await using var ctx = NewDb();
-        ctx.Products.Add(new Product { Name = "Camisa", IsActive = true });
-        await ctx.SaveChangesAsync();
-        var pid = ctx.Products.First().Id;
-
-        ctx.ProductVariations.Add(new ProductVariation { ProductId = pid, Name = "P", StockQuantity = 10, UnitPrice = 5m });
-        ctx.ProductVariations.Add(new ProductVariation { ProductId = pid, Name = "M", StockQuantity = 10, UnitPrice = 10m });
+        var product = new Product { Name = "Camisa", IsActive = true };
+        ctx.Products.Add(product);
         await ctx.SaveChangesAsync();
 
-        var vP = ctx.ProductVariations.First(v => v.Name == "P");
-        var vM = ctx.ProductVariations.First(v => v.Name == "M");
+        var vP = new ProductVariation { Product = product, Name = "P", StockQuantity = 10, UnitPrice = 5m };
+        var vM = new ProductVariation { Product = product, Name = "M", StockQuantity = 10, UnitPrice = 10m };
+        ctx.ProductVariations.Add(vP);
+        ctx.ProductVariations.Add(vM);
+        await ctx.SaveChangesAsync();
 
         var saleDay = new DateTime(2026, 4, 10, 10, 0, 0, DateTimeKind.Utc);
         ctx.Sales.Add(new Sale
         {
             CreatedAtUtc = saleDay,
             TotalAmount = 40m,
-            PaymentMethod = PaymentMethod.Cash,
-            Items =
-            [
-                new SaleItem { ProductVariationId = vP.Id, Quantity = 2, UnitPrice = 5m },
-                new SaleItem { ProductVariationId = vM.Id, Quantity = 3, UnitPrice = 10m },
-            ],
         });
+        await ctx.SaveChangesAsync();
+
+        var sale = ctx.Sales.First();
+
+        ctx.SaleItems.Add(new SaleItem { Sale = sale, ProductVariationId = vP.Id, Quantity = 2, UnitPrice = 5m });
+        ctx.SaleItems.Add(new SaleItem { Sale = sale, ProductVariationId = vM.Id, Quantity = 3, UnitPrice = 10m });
         await ctx.SaveChangesAsync();
 
         var sut = new ReportRepository(ctx);
@@ -94,16 +93,15 @@ public sealed class ReportRepositoryTests
     public async Task ListStockLevels_OrdersByProductThenVariation()
     {
         await using var ctx = NewDb();
-        ctx.Products.Add(new Product { Name = "Zebra", IsActive = true });
-        ctx.Products.Add(new Product { Name = "Alpha", IsActive = true });
+        var zebra = new Product { Name = "Zebra", IsActive = true };
+        var alpha = new Product { Name = "Alpha", IsActive = true };
+        ctx.Products.Add(zebra);
+        ctx.Products.Add(alpha);
         await ctx.SaveChangesAsync();
 
-        var zebraId = ctx.Products.First(p => p.Name == "Zebra").Id;
-        var alphaId = ctx.Products.First(p => p.Name == "Alpha").Id;
-
-        ctx.ProductVariations.Add(new ProductVariation { ProductId = zebraId, Name = "Único", StockQuantity = 1, UnitPrice = 1m });
-        ctx.ProductVariations.Add(new ProductVariation { ProductId = alphaId, Name = "B", StockQuantity = 2, UnitPrice = 1m });
-        ctx.ProductVariations.Add(new ProductVariation { ProductId = alphaId, Name = "A", StockQuantity = 3, UnitPrice = 1m });
+        ctx.ProductVariations.Add(new ProductVariation { Product = zebra, Name = "Único", StockQuantity = 1, UnitPrice = 1m });
+        ctx.ProductVariations.Add(new ProductVariation { Product = alpha, Name = "B", StockQuantity = 2, UnitPrice = 1m });
+        ctx.ProductVariations.Add(new ProductVariation { Product = alpha, Name = "A", StockQuantity = 3, UnitPrice = 1m });
         await ctx.SaveChangesAsync();
 
         var sut = new ReportRepository(ctx);
@@ -113,11 +111,11 @@ public sealed class ReportRepositoryTests
         rows.Where(r => r.ProductName == "Alpha").Select(r => r.VariationName).Should().ContainInOrder("A", "B");
     }
 
-    private static AppDbContext NewDb()
+    private static ReportsDbContext NewDb()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
+        var options = new DbContextOptionsBuilder<ReportsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        return new AppDbContext(options);
+        return new ReportsDbContext(options, new Pdv.Shared.Kernel.Services.SystemTenantContext());
     }
 }
