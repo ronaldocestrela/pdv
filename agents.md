@@ -3,7 +3,7 @@
 ## 1. Visão Geral
 Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 
-- Backend: .NET (Controllers + CQRS com MediatR)
+- Backend: .NET 10 (Controllers + CQRS com MediatR)
 - Banco: SQL Server
 - Frontend: React + Vite (Client-Server)
 - Autenticação: JWT + Refresh Token
@@ -315,6 +315,7 @@ Regra:
 
 ## 13. Diretrizes para Agents/LLM
 
+- Sempre utilizar .NET 10 no backend
 - Sempre seguir CQRS
 - Nunca misturar leitura com escrita
 - Sempre validar regras de negócio
