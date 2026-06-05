@@ -12,20 +12,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por expor as operações de gerenciamento de produtos (CRUD e consulta do catálogo).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="ProductsController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/products")]
-public sealed class ProductsController : ControllerBase
+public sealed class ProductsController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="ProductsController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public ProductsController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Retorna uma lista de resumos de todos os produtos cadastrados para o tenant atual.

@@ -10,20 +10,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável pela geração de relatórios gerenciais e operacionais (Vendas, Produtos mais vendidos, Fluxo de Caixa e Estoque).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="ReportsController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/reports")]
-public sealed class ReportsController : ControllerBase
+public sealed class ReportsController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="ReportsController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public ReportsController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Gera o relatório consolidado de vendas em um período específico.

@@ -8,22 +8,17 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável pelo gerenciamento e consulta do catálogo global de permissões do sistema.
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="PermissionsController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/permissions")]
-public sealed class PermissionsController : ControllerBase
+public sealed class PermissionsController(ISender mediator) : ControllerBase
 {
     public const string AdminRolesReadPolicy = "admin.roles.read";
 
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="PermissionsController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public PermissionsController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Retorna a lista com todas as permissões cadastradas no sistema.

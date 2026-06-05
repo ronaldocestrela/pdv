@@ -10,20 +10,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por expor as operações de gerenciamento de variações de produtos (criação, edição e exclusão).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="VariationsController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/variations")]
-public sealed class VariationsController : ControllerBase
+public sealed class VariationsController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="VariationsController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public VariationsController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Cria uma nova variação para um produto específico no tenant atual.

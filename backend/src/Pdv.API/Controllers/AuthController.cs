@@ -7,20 +7,15 @@ using Pdv.Application.Commands.Auth;
 
 namespace Pdv.API.Controllers;
 
+/// <summary>
+/// Initializes a new instance of the <see cref="AuthController"/> class.
+/// </summary>
+/// <param name="mediator">The mediator sender instance.</param>
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController : ControllerBase
+public sealed class AuthController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AuthController"/> class.
-    /// </summary>
-    /// <param name="mediator">The mediator sender instance.</param>
-    public AuthController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Authenticates a user with credentials and returns JWT and refresh tokens.

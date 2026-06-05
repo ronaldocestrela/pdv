@@ -12,20 +12,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por expor as operações de administração de usuários (listar, criar e definir perfis).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="UsersController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/users")]
-public sealed class UsersController : ControllerBase
+public sealed class UsersController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="UsersController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public UsersController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Retorna a listagem de todos os usuários com suas respectivas roles para o tenant atual.

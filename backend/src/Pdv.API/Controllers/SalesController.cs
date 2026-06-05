@@ -12,20 +12,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por expor as operações de vendas do PDV (criação de vendas e histórico).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="SalesController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/sales")]
-public sealed class SalesController : ControllerBase
+public sealed class SalesController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="SalesController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public SalesController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Registra uma nova venda no PDV, realizando a baixa de estoque, gerando movimentações e lançando entrada no caixa.

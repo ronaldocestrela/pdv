@@ -12,20 +12,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por gerenciar os perfis de acesso (Roles) e suas permissões associadas.
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="RolesController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/roles")]
-public sealed class RolesController : ControllerBase
+public sealed class RolesController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="RolesController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public RolesController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Retorna a lista de todos os perfis de acesso (Roles) cadastrados para o tenant atual.

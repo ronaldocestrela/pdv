@@ -12,20 +12,15 @@ namespace Pdv.API.Controllers;
 /// <summary>
 /// Controller responsável por expor as operações de estoque (ajuste e histórico de movimentações).
 /// </summary>
+/// <remarks>
+/// Inicializa uma nova instância da classe <see cref="StockController"/>.
+/// </remarks>
+/// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
 [ApiController]
 [Route("api/stock")]
-public sealed class StockController : ControllerBase
+public sealed class StockController(ISender mediator) : ControllerBase
 {
-    private readonly ISender _mediator;
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="StockController"/>.
-    /// </summary>
-    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
-    public StockController(ISender mediator)
-    {
-        _mediator = mediator;
-    }
+    private readonly ISender _mediator = mediator;
 
     /// <summary>
     /// Ajusta o estoque de uma variação de produto específica, registrando uma entrada (IN) ou saída (OUT) de produtos.
