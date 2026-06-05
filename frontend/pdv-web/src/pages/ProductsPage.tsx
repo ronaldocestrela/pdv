@@ -8,6 +8,9 @@ import type { ProductSummaryDto } from '../types/products';
 
 type ProductForm = { name: string; isActive: boolean };
 
+/**
+ * TODO: Describe ProductsPage.
+ */
 export function ProductsPage() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<ProductSummaryDto[]>([]);

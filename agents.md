@@ -320,6 +320,8 @@ Regra:
 - Sempre validar regras de negócio
 - Sempre criar testes
 - Atualizar documentação ao final de cada alteração
+- **.NET:** Todas as funções públicas devem possuir um comentário XML `<summary>` descrevendo seu propósito.
+- **Frontend:** Todo código JavaScript/TypeScript deve ter comentários de bloco descrevendo a funcionalidade dos módulos e funções principais.
 
 ---
 

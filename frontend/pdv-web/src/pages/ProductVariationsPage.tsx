@@ -21,6 +21,9 @@ function hasAnyVariationPermission(): boolean {
   ].some((p) => can(p));
 }
 
+/**
+ * TODO: Describe ProductVariationsPage.
+ */
 export function ProductVariationsPage() {
   const { productId } = useParams<{ productId: string }>();
   const id = Number(productId);

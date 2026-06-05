@@ -5,6 +5,9 @@ interface AppState {
   ready: boolean;
 }
 
+/**
+ * TODO: Describe useAppStore.
+ */
 export const useAppStore = create<AppState>(() => ({
   ready: true,
 }));

@@ -6,6 +6,9 @@ import * as rolesApi from '../services/roles';
 import type { UserAdminDto } from '../types/users';
 import type { RoleAdminDto } from '../types/roles';
 
+/**
+ * TODO: Describe UsersPage.
+ */
 export function UsersPage() {
   const canManage = can(PERMISSIONS.userManage);
 

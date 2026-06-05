@@ -20,6 +20,9 @@ function formatBRL(value: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
+/**
+ * TODO: Describe PdvPage.
+ */
 export function PdvPage() {
   const canFinalize = can(PERMISSIONS.saleCreate);
   const canViewSalesList = can(PERMISSIONS.saleView);

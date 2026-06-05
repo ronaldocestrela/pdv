@@ -9,6 +9,9 @@ import type { StockMovementDto } from '../types/stock';
 
 type AdjustForm = { quantity: number; reason: string };
 
+/**
+ * TODO: Describe StockAdjustPage.
+ */
 export function StockAdjustPage() {
   const canAdjust = can(PERMISSIONS.stockAdjust);
   const canViewHistory = can(PERMISSIONS.stockView);

@@ -7,6 +7,9 @@ import type { RoleAdminDto } from '../types/roles';
 
 const SUPER_ADMIN = 'Super Admin';
 
+/**
+ * TODO: Describe RolesPage.
+ */
 export function RolesPage() {
   const canRead = can(PERMISSIONS.roleManage) || can(PERMISSIONS.userManage);
   const canMutate = can(PERMISSIONS.roleManage);

@@ -3,6 +3,9 @@ import { useSyncExternalStore } from 'react';
 /**
  * Subscribes to `window.matchMedia`. SSR / tests: returns `false`.
  */
+/**
+ * TODO: Describe useMediaQuery.
+ */
 export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
     (onChange) => {

@@ -13,11 +13,21 @@ public sealed class AuthController : ControllerBase
 {
     private readonly ISender _mediator;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthController"/> class.
+    /// </summary>
+    /// <param name="mediator">The mediator sender instance.</param>
     public AuthController(ISender mediator)
     {
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Authenticates a user with credentials and returns JWT and refresh tokens.
+    /// </summary>
+    /// <param name="request">The login request containing email and password.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An action result containing the token response DTO if successful; otherwise, Unauthorized.</returns>
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(typeof(TokenResponseDto), StatusCodes.Status200OK)]
@@ -31,6 +41,12 @@ public sealed class AuthController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Refreshes an expired JWT access token using a valid refresh token.
+    /// </summary>
+    /// <param name="request">The refresh request containing the refresh token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An action result containing the new token response DTO if successful; otherwise, Unauthorized.</returns>
     [AllowAnonymous]
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(TokenResponseDto), StatusCodes.Status200OK)]

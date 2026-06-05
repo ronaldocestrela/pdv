@@ -15,6 +15,9 @@ export interface AuthState {
   logout: () => void;
 }
 
+/**
+ * TODO: Describe useAuthStore.
+ */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({

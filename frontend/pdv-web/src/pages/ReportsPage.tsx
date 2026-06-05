@@ -21,6 +21,9 @@ function cashFlowLabel(t: CashFlowReportRowDto['type']): string {
   return t === 0 ? 'Entrada' : 'Saída';
 }
 
+/**
+ * TODO: Describe ReportsPage.
+ */
 export function ReportsPage() {
   const canReports = can(PERMISSIONS.reportView);
   const canCashflow = can(PERMISSIONS.cashflowView);

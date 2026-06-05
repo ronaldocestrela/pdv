@@ -1,6 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/auth';
 
+/**
+ * TODO: Describe ProtectedRoute.
+ */
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((s) => s.accessToken);
   const location = useLocation();

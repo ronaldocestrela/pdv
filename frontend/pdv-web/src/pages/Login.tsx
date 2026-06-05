@@ -10,6 +10,9 @@ type FormValues = {
   password: string;
 };
 
+/**
+ * TODO: Describe LoginPage.
+ */
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();

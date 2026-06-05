@@ -28,6 +28,9 @@ function dateToToUtc(isoDate: string): string {
   return `${isoDate}T23:59:59.999Z`;
 }
 
+/**
+ * TODO: Describe HomePage.
+ */
 export function HomePage() {
   const { status, detail } = useApiHealth();
   const showProducts = can(PERMISSIONS.productView);

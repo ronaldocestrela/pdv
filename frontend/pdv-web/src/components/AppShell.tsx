@@ -11,6 +11,9 @@ const DRAWER_QUERY = '(max-width: 899px)';
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `pdv-sidebar__link${isActive ? ' pdv-sidebar__link--active' : ''}`;
 
+/**
+ * TODO: Describe AppShell.
+ */
 export function AppShell() {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();

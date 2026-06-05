@@ -3,6 +3,9 @@ import { api } from '../services/api';
 
 export type ApiHealthStatus = 'loading' | 'ok' | 'error';
 
+/**
+ * TODO: Describe useApiHealth.
+ */
 export function useApiHealth() {
   const [status, setStatus] = useState<ApiHealthStatus>('loading');
   const [detail, setDetail] = useState<string>('');
