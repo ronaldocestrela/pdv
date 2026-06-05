@@ -11,8 +11,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("Users");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.Email).HasMaxLength(256).IsRequired();
-        builder.HasIndex(e => e.Email).IsUnique();
+        builder.HasIndex(e => new { e.TenantId, e.Email }).IsUnique();
 
         builder.Property(e => e.PasswordHash).HasMaxLength(512).IsRequired();
 
@@ -20,6 +21,8 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(e => e.RefreshTokenExpiresAtUtc);
 
         builder.Property(e => e.IsActive).IsRequired();
+
+        builder.HasIndex(e => e.TenantId);
 
         builder.HasMany(e => e.UserRoles)
             .WithOne(e => e.User)

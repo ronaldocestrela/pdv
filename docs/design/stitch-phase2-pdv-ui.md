@@ -1,5 +1,10 @@
 # Stitch — referência de UI Fase 2 (Produtos / Variações)
 
+## Nota de contexto (multitenancy)
+
+- Nesta fase do projeto, a experiência de tela permanece igual, mas os dados exibidos/resolvidos já seguem escopo por tenant no backend.
+- Sessão de frontend inclui `tenantId`; não há seletor visual de tenant no MVP atual.
+
 Screens geradas via MCP Stitch no projeto existente **Responsive UI Builder** (estilo ERP/POS já alinhado ao PDV).
 
 | Item | Valor |

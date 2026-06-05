@@ -1,5 +1,10 @@
 # Stitch — referência de UI Fase 3 (Estoque / Ajuste + Histórico)
 
+## Nota de contexto (multitenancy)
+
+- A UI permanece com o mesmo layout Stitch, enquanto o backend já aplica isolamento lógico por tenant nas leituras/escritas.
+- Sessão atual opera com 1 tenant por login (sem troca de tenant na tela).
+
 Tela refinada via MCP Stitch (`edit_screens`) no mesmo projeto ERP/POS das fases anteriores.
 
 | Item | Valor |

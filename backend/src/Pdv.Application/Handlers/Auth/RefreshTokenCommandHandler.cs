@@ -49,6 +49,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
             expiresAtUtc,
             permissions,
             user.Id,
-            user.Email);
+            user.Email,
+            user.TenantId);
     }
 }

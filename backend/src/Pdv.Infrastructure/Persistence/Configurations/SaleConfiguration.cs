@@ -11,11 +11,14 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.ToTable("Sales");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.CreatedAtUtc).IsRequired();
         builder.Property(e => e.TotalAmount).HasPrecision(18, 2).IsRequired();
         builder.Property(e => e.PaymentMethod).HasConversion<int>().IsRequired();
 
+        builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.CreatedAtUtc);
+        builder.HasIndex(e => new { e.TenantId, e.CreatedAtUtc });
 
         builder.HasMany(e => e.Items)
             .WithOne(i => i.Sale)

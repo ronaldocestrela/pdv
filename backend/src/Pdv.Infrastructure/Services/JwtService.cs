@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Pdv.Application.Abstractions;
+using Pdv.Application.Security;
 using Pdv.Domain.Entities;
 
 namespace Pdv.Infrastructure.Services;
@@ -36,10 +37,15 @@ public sealed class JwtService : IJwtService
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var permissions = FlattenPermissions(user);
+        var isSuperAdmin = user.UserRoles.Any(ur =>
+            string.Equals(ur.Role.Name, KnownRoles.SuperAdmin, StringComparison.Ordinal));
+
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim("tenant_id", user.TenantId.ToString()),
+            new Claim("is_super_admin", isSuperAdmin.ToString().ToLowerInvariant()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

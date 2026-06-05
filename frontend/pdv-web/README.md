@@ -1,73 +1,40 @@
-# React + TypeScript + Vite
+# Frontend PDV Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação React + TypeScript + Vite para operação do PDV.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20.19+ (ou 22 LTS)
+- npm
 
-## React Compiler
+## Comandos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Ação | Comando |
+|------|---------|
+| Instalar dependências | `npm install` |
+| Rodar em desenvolvimento | `npm run dev` |
+| Build de produção | `npm run build` |
+| Testes | `npm test` |
 
-## Expanding the ESLint configuration
+## Configuração de ambiente
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Use `.env` (ou `.env.local`) com:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- `VITE_API_URL` (default: `http://localhost:5190`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Autenticação e sessão
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Login e refresh em `POST /api/auth/login` e `POST /api/auth/refresh`.
+- Sessão persistida via Zustand (`pdv-auth`).
+- Dados de sessão incluem `accessToken`, `refreshToken`, permissões, usuário e `tenantId`.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Multitenancy (fase atual)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Frontend já está preparado para manter `tenantId` na sessão.
+- Operação MVP atual: 1 tenant por sessão/login.
+- Não há seletor de tenant na UI nesta fase.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Referências de UI
+
+- Login: `docs/STITCH_LOGIN.md`
+- Referências gerais de telas e fluxos: `../../docs/design/`

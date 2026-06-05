@@ -11,6 +11,7 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
         builder.ToTable("SaleItems");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.Quantity).IsRequired();
         builder.Property(e => e.UnitPrice).HasPrecision(18, 2).IsRequired();
 
@@ -19,7 +20,8 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
             .HasForeignKey(e => e.ProductVariationId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(e => e.SaleId);
-        builder.HasIndex(e => e.ProductVariationId);
+        builder.HasIndex(e => e.TenantId);
+        builder.HasIndex(e => new { e.TenantId, e.SaleId });
+        builder.HasIndex(e => new { e.TenantId, e.ProductVariationId });
     }
 }

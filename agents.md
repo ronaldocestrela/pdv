@@ -7,7 +7,7 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 - Banco: SQL Server
 - Frontend: React + Vite (Client-Server)
 - Autenticação: JWT + Refresh Token
-- Modelo: Single-tenant
+- Modelo: Multi-tenant com isolamento lógico (em implantação)
 
 ## 2. Escopo do MVP
 
@@ -66,12 +66,14 @@ Estrutura:
 
 #### User
 - Id
+- TenantId
 - Email
 - PasswordHash
 - IsActive
 
 #### Role
 - Id
+- TenantId
 - Name
 
 #### Permission
@@ -88,11 +90,13 @@ Estrutura:
 
 #### Product
 - Id
+- TenantId
 - Name
 - IsActive
 
 #### ProductVariation
 - Id
+- TenantId
 - ProductId
 - Name (ex: Verde GG)
 - Barcode (opcional)
@@ -100,6 +104,7 @@ Estrutura:
 
 #### StockMovement
 - Id
+- TenantId
 - ProductVariationId
 - Type (IN / OUT)
 - Quantity
@@ -107,12 +112,14 @@ Estrutura:
 
 #### Sale
 - Id
+- TenantId
 - CreatedAt
 - TotalAmount
 - PaymentMethod
 
 #### SaleItem
 - Id
+- TenantId
 - SaleId
 - ProductVariationId
 - Quantity
@@ -120,6 +127,7 @@ Estrutura:
 
 #### CashFlow
 - Id
+- TenantId
 - Type (IN / OUT)
 - Amount
 - Description
@@ -160,10 +168,12 @@ Estrutura:
 
 - JWT para acesso
 - Refresh Token persistido no banco
+- Claims adicionais de contexto: `tenant_id` e `is_super_admin`
 
 Fluxo:
 1. Login → gera JWT + RefreshToken
 2. Expiração → usa refresh token
+3. Sessão inclui `tenantId` na resposta de autenticação
 
 ---
 
@@ -174,8 +184,8 @@ Base URL da API (local): **`/api`**. Todas as rotas abaixo exigem `Authorization
 Erros: respostas **Problem Details** (`application/problem+json`); ver [`docs/api-errors.md`](docs/api-errors.md).
 
 ### Auth
-- `POST /auth/login`
-- `POST /auth/refresh`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
 
 ### Products (Fase 2)
 - `GET /api/products` — listagem (policy `product.view`)
@@ -297,7 +307,7 @@ Regra:
 
 - Integração com gateway (Stone)
 - Impressão térmica
-- Multi-tenant
+- Multi-tenant avançado (troca de tenant em sessão e UX administrativa cross-tenant)
 - NFC-e
 - Offline-first
 

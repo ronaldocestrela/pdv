@@ -1,5 +1,10 @@
 # Stitch — referência Fase 7 (QA / testes e fluxos de UI cobertos)
 
+## Nota de contexto (multitenancy)
+
+- Além dos cenários já listados, a suíte backend também deve evoluir para cobrir isolamento entre tenants (leitura/escrita/relatórios/auth).
+- A fase atual já inclui a base técnica de tenant em sessão (`tenantId`) para progressão desses testes.
+
 A Fase 7 não introduz telas novas no Stitch: os fluxos já seguem tokens e layouts documentados nas fases 1–6 ([stitch-phase2-pdv-ui.md](./stitch-phase2-pdv-ui.md), [stitch-phase3-stock-ui.md](./stitch-phase3-stock-ui.md), [stitch-phase4-pdv-ui.md](./stitch-phase4-pdv-ui.md), [stitch-phase5-reports-ui.md](./stitch-phase5-reports-ui.md), [stitch-phase6-users-roles-ui.md](./stitch-phase6-users-roles-ui.md)).
 
 Este arquivo **documenta correspondência cenário ↔ teste automatizado** e critérios de comportamento/UI verificados, em linha com o MCP Stitch como **fonte de verdade visual** das fases anteriores.

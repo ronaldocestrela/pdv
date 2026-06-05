@@ -6,4 +6,5 @@ public sealed record TokenResponseDto(
     DateTime ExpiresAtUtc,
     IReadOnlyList<string> Permissions,
     int UserId,
-    string Email);
+    string Email,
+    int TenantId);

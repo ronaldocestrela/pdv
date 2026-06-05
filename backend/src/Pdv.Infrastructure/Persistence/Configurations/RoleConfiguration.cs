@@ -11,8 +11,10 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.ToTable("Roles");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.Name).HasMaxLength(128).IsRequired();
-        builder.HasIndex(e => e.Name).IsUnique();
+        builder.HasIndex(e => new { e.TenantId, e.Name }).IsUnique();
+        builder.HasIndex(e => e.TenantId);
 
         builder.HasMany(e => e.UserRoles)
             .WithOne(e => e.Role)

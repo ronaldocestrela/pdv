@@ -11,14 +11,16 @@ public sealed class StockMovementConfiguration : IEntityTypeConfiguration<StockM
         builder.ToTable("StockMovements");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.Type).IsRequired();
         builder.Property(e => e.Quantity).IsRequired();
         builder.Property(e => e.CreatedAtUtc).IsRequired();
         builder.Property(e => e.Reason).HasMaxLength(512);
 
+        builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.CreatedAtUtc);
-        builder.HasIndex(e => e.ProductVariationId);
-        builder.HasIndex(e => new { e.ProductVariationId, e.CreatedAtUtc });
+        builder.HasIndex(e => new { e.TenantId, e.ProductVariationId });
+        builder.HasIndex(e => new { e.TenantId, e.ProductVariationId, e.CreatedAtUtc });
 
         builder.HasOne(e => e.ProductVariation)
             .WithMany()

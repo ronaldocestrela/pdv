@@ -1,5 +1,10 @@
 # Stitch — referência de UI Fase 4 (PDV / Checkout)
 
+## Nota de contexto (multitenancy)
+
+- O design de checkout não muda nesta fase, porém catálogo/carrinho/finalização já são servidos sob escopo de tenant no backend.
+- Sessão de autenticação carrega `tenantId` e define o escopo da operação.
+
 Tela gerada via MCP Stitch (`generate_screen_from_text`) no mesmo projeto ERP/POS das fases anteriores.
 
 | Item | Valor |

@@ -7,6 +7,7 @@ export interface AuthState {
   refreshToken: string | null;
   userId: number | null;
   email: string | null;
+  tenantId: number | null;
   permissions: string[];
   expiresAtUtc: string | null;
   setSession: (data: AuthTokenResponse) => void;
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       userId: null,
       email: null,
+      tenantId: null,
       permissions: [],
       expiresAtUtc: null,
       setSession: (data) =>
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: data.refreshToken,
           userId: data.userId,
           email: data.email,
+          tenantId: data.tenantId ?? null,
           permissions: data.permissions,
           expiresAtUtc: data.expiresAtUtc,
         }),
@@ -38,6 +41,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: null,
           userId: null,
           email: null,
+          tenantId: null,
           permissions: [],
           expiresAtUtc: null,
         }),
@@ -47,6 +51,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: null,
           userId: null,
           email: null,
+          tenantId: null,
           permissions: [],
           expiresAtUtc: null,
         }),
@@ -58,6 +63,7 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: s.refreshToken,
         userId: s.userId,
         email: s.email,
+        tenantId: s.tenantId,
         permissions: s.permissions,
         expiresAtUtc: s.expiresAtUtc,
       }),

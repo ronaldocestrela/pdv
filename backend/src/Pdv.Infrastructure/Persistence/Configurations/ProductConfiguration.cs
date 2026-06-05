@@ -11,8 +11,12 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.ToTable("Products");
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.Name).HasMaxLength(256).IsRequired();
         builder.Property(e => e.IsActive).IsRequired();
+
+        builder.HasIndex(e => e.TenantId);
+        builder.HasIndex(e => new { e.TenantId, e.Name });
 
         builder.HasMany(e => e.Variations)
             .WithOne(e => e.Product)

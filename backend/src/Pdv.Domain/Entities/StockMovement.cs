@@ -2,9 +2,10 @@ using Pdv.Domain.Enums;
 
 namespace Pdv.Domain.Entities;
 
-public sealed class StockMovement
+public sealed class StockMovement : ITenantScoped
 {
     public int Id { get; set; }
+    public int TenantId { get; set; } = 1;
     public int ProductVariationId { get; set; }
     public ProductVariation ProductVariation { get; set; } = null!;
 

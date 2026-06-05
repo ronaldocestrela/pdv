@@ -2,6 +2,18 @@
 
 Sistema de PDV com estoque — [.NET 8](backend/) + [React + Vite](frontend/pdv-web/). Documentação de domínio: [`agents.md`](agents.md), roadmap: [`roadmap.md`](roadmap.md), erros HTTP: [`docs/api-errors.md`](docs/api-errors.md).
 
+## Status atual de multitenancy
+
+O projeto está em transição para **multitenancy com isolamento lógico** (shared database, shared schema).
+
+- Implementado no backend: `TenantId` nas entidades principais de negócio/autenticação.
+- JWT agora inclui claims `tenant_id` e `is_super_admin`.
+- Contexto de tenant por request e filtro global EF Core para entidades tenant-scoped.
+- Migration criada: `StartLogicalMultitenancy` (backfill padrão para tenant `1`).
+- Frontend já persiste `tenantId` na sessão.
+
+Observação: nesta fase do MVP, a UI segue com **1 tenant por sessão/login** (sem seletor de tenant).
+
 ## Pré-requisitos
 
 - [.NET SDK 8](https://dotnet.microsoft.com/download)
@@ -113,8 +125,15 @@ npm test
 ### Autenticação (Fase 1)
 
 - Endpoints: `POST /api/auth/login`, `POST /api/auth/refresh` (JWT + refresh token no banco).
+- Resposta de sessão inclui `tenantId`.
 - Seed inicial (`Seed` em `appsettings.json`): permissões base, role Super Admin e usuário definido por `SuperAdminEmail` / `SuperAdminPassword`.
 - Na subida, a API aplica migrations e executa o seed (veja `backend/src/Pdv.API/Program.cs`).
+
+### Multitenancy (Fase 9 - em andamento)
+
+- Isolamento lógico por `TenantId` em leituras/escritas do backend.
+- Claims de tenant no JWT: `tenant_id`, `is_super_admin`.
+- Base para segregação de dados entre tenants já ativa em infraestrutura.
 
 ## Fase 0 (entrega)
 

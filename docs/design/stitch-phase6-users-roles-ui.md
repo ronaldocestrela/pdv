@@ -1,5 +1,10 @@
 # Stitch — referência de UI Fase 6 (Usuários e Roles)
 
+## Nota de contexto (multitenancy)
+
+- A base visual permanece igual, mas Users/Roles operam em escopo de tenant no backend.
+- Administração cross-tenant é reservada a casos de Super Admin e não exposta como fluxo padrão de UI nesta fase.
+
 Telas geradas via MCP Stitch (`generate_screen_from_text`) no mesmo projeto ERP/POS das fases anteriores.
 
 | Item | Valor |

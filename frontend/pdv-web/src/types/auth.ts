@@ -6,4 +6,5 @@ export interface AuthTokenResponse {
   permissions: string[];
   userId: number;
   email: string;
+  tenantId?: number;
 }

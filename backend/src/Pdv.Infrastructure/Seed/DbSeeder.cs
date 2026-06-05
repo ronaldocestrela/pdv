@@ -10,6 +10,8 @@ namespace Pdv.Infrastructure.Seed;
 /// <summary>Seeds baseline permissions, Super Admin role/user (idempotent for dev).</summary>
 public static class DbSeeder
 {
+    private const int DefaultTenantId = 1;
+
     public static async Task ApplyAsync(AppDbContext db, SeedOptions options, IPasswordHasher passwordHasher, ILogger logger, CancellationToken cancellationToken = default)
     {
         await EnsurePermissionsAsync(db, logger, cancellationToken);
@@ -41,10 +43,12 @@ public static class DbSeeder
 
     private static async Task EnsureRolesAndLinksAsync(AppDbContext db, ILogger logger, CancellationToken ct)
     {
-        var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == KnownRoles.SuperAdmin, ct);
+        var role = await db.Roles.FirstOrDefaultAsync(
+            r => r.TenantId == DefaultTenantId && r.Name == KnownRoles.SuperAdmin,
+            ct);
         if (role is null)
         {
-            role = new Role { Name = KnownRoles.SuperAdmin };
+            role = new Role { TenantId = DefaultTenantId, Name = KnownRoles.SuperAdmin };
             db.Roles.Add(role);
             await db.SaveChangesAsync(ct);
         }
@@ -83,14 +87,16 @@ public static class DbSeeder
 
         var user = await db.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Email == email, ct);
+            .FirstOrDefaultAsync(u => u.TenantId == DefaultTenantId && u.Email == email, ct);
 
-        var superRole = await db.Roles.AsNoTracking().FirstAsync(r => r.Name == KnownRoles.SuperAdmin, ct);
+        var superRole = await db.Roles.AsNoTracking()
+            .FirstAsync(r => r.TenantId == DefaultTenantId && r.Name == KnownRoles.SuperAdmin, ct);
 
         if (user is null)
         {
             user = new User
             {
+                TenantId = DefaultTenantId,
                 Email = email,
                 PasswordHash = passwordHasher.Hash(options.SuperAdminPassword),
                 IsActive = true,

@@ -233,6 +233,28 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 
 ---
 
+## 🏢 Fase 9 — Multitenancy (Isolamento Lógico)
+
+### Objetivo
+- Evoluir de single-tenant para multi-tenant com isolamento lógico por `TenantId`.
+
+### Backend
+- Adicionar `TenantId` nas entidades tenant-scoped.
+- JWT com claims de tenant (`tenant_id`) e privilégio administrativo (`is_super_admin`).
+- Aplicar filtro global por tenant no EF Core.
+- Garantir enforcement em escrita para impedir cross-tenant indevido.
+- Migration de transição com backfill para tenant padrão (`1`).
+
+### Frontend
+- Persistir `tenantId` no estado de autenticação.
+- Manter fase inicial com 1 tenant por sessão/login.
+
+### ✅ Entrega (parcial — **em andamento**)
+- Núcleo técnico implementado (domínio + auth + infraestrutura + migration + seed + sessão frontend).
+- Próximos incrementos: testes de isolamento cross-tenant por cenário de negócio e refinamento de regras administrativas por tenant.
+
+---
+
 ## 📌 Ordem Recomendada
 
 1. Fundação
@@ -250,7 +272,7 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 
 - Integração com gateway de pagamento
 - Impressão térmica
-- Multi-tenant
+- Multi-tenant avançado (troca de tenant em sessão, gestão cross-tenant por UI)
 - NFC-e
 - Offline-first
 

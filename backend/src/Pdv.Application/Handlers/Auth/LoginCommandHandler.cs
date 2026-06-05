@@ -51,6 +51,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, TokenRes
             expiresAtUtc,
             permissions,
             user.Id,
-            user.Email);
+            user.Email,
+            user.TenantId);
     }
 }

@@ -38,6 +38,13 @@ Exemplo resumido:
 
 `code`: `unexpected`. Em **Production**, `detail` é genérico; em **Development**, pode incluir a mensagem da exceção.
 
+## Autenticação/autorização
+
+- `401 Unauthorized`: token ausente, inválido, expirado ou refresh inválido.
+- `403 Forbidden`: usuário autenticado sem permissão suficiente para a policy da rota.
+
+No contexto de multitenancy lógico, o backend também aplica escopo por tenant (`tenant_id` no JWT). Chamadas fora do escopo esperado podem resultar em retorno vazio (leituras filtradas) ou erro de autorização/validação conforme a regra do caso de uso.
+
 ## Cabeçalho de correlação
 
 - Envie opcionalmente `X-Correlation-Id`; a API repete o mesmo valor na resposta.

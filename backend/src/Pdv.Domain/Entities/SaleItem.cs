@@ -1,8 +1,9 @@
 namespace Pdv.Domain.Entities;
 
-public sealed class SaleItem
+public sealed class SaleItem : ITenantScoped
 {
     public int Id { get; set; }
+    public int TenantId { get; set; } = 1;
     public int SaleId { get; set; }
     public Sale Sale { get; set; } = null!;
 

@@ -1,5 +1,10 @@
 # Stitch — referência de UI Fase 5 (Relatórios gerenciais)
 
+## Nota de contexto (multitenancy)
+
+- Os componentes visuais da tela permanecem os mesmos.
+- As consultas de relatórios agora respeitam escopo lógico por `tenantId` (dados filtrados por tenant).
+
 Tela gerada via MCP Stitch (`generate_screen_from_text`) no mesmo projeto ERP/POS das fases anteriores.
 
 | Item | Valor |
