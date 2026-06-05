@@ -9,17 +9,30 @@ using Pdv.Application.Security;
 
 namespace Pdv.API.Controllers;
 
+/// <summary>
+/// Controller responsável por expor as operações de vendas do PDV (criação de vendas e histórico).
+/// </summary>
 [ApiController]
 [Route("api/sales")]
 public sealed class SalesController : ControllerBase
 {
     private readonly ISender _mediator;
 
+    /// <summary>
+    /// Inicializa uma nova instância da classe <see cref="SalesController"/>.
+    /// </summary>
+    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
     public SalesController(ISender mediator)
     {
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Registra uma nova venda no PDV, realizando a baixa de estoque, gerando movimentações e lançando entrada no caixa.
+    /// </summary>
+    /// <param name="request">O objeto contendo os itens da venda (variações e quantidades) e a forma de pagamento.</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>O resultado contendo o identificador da venda criada e o valor total.</returns>
     [HttpPost]
     [Authorize(Policy = KnownPermissions.SaleCreate)]
     [ProducesResponseType(typeof(CreateSaleResultDto), StatusCodes.Status200OK)]
@@ -31,6 +44,12 @@ public sealed class SalesController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Retorna o histórico das últimas vendas cadastradas para o tenant atual.
+    /// </summary>
+    /// <param name="take">Quantidade máxima de registros a retornar (padrão 100).</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>Uma lista contendo informações resumidas das vendas realizadas.</returns>
     [HttpGet]
     [Authorize(Policy = KnownPermissions.SaleView)]
     [ProducesResponseType(typeof(IReadOnlyList<SaleListItemDto>), StatusCodes.Status200OK)]

@@ -7,17 +7,30 @@ using Pdv.Application.Security;
 
 namespace Pdv.API.Controllers;
 
+/// <summary>
+/// Controller responsável por expor as operações de gerenciamento de variações de produtos (criação, edição e exclusão).
+/// </summary>
 [ApiController]
 [Route("api/variations")]
 public sealed class VariationsController : ControllerBase
 {
     private readonly ISender _mediator;
 
+    /// <summary>
+    /// Inicializa uma nova instância da classe <see cref="VariationsController"/>.
+    /// </summary>
+    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
     public VariationsController(ISender mediator)
     {
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Cria uma nova variação para um produto específico no tenant atual.
+    /// </summary>
+    /// <param name="request">O objeto contendo os detalhes da variação (ProductId, nome, preço unitário, estoque inicial, código de barras opcional).</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>O identificador da variação recém-criada.</returns>
     [HttpPost]
     [Authorize(Policy = KnownPermissions.VariationCreate)]
     [ProducesResponseType(typeof(IdResponse), StatusCodes.Status201Created)]
@@ -29,6 +42,13 @@ public sealed class VariationsController : ControllerBase
         return Created($"/api/variations/{id}", new IdResponse(id));
     }
 
+    /// <summary>
+    /// Atualiza os dados de uma variação de produto existente.
+    /// </summary>
+    /// <param name="id">O ID da variação a ser atualizada.</param>
+    /// <param name="request">O objeto contendo os novos dados da variação.</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>204 No Content se atualizado com sucesso.</returns>
     [HttpPut("{id:int}")]
     [Authorize(Policy = KnownPermissions.VariationUpdate)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -40,6 +60,12 @@ public sealed class VariationsController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Exclui uma variação de produto específica com base no seu identificador.
+    /// </summary>
+    /// <param name="id">O ID da variação de produto a ser removida.</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>204 No Content se removido com sucesso.</returns>
     [HttpDelete("{id:int}")]
     [Authorize(Policy = KnownPermissions.VariationDelete)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -49,5 +75,6 @@ public sealed class VariationsController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Wrapper para respostas padronizadas que contêm apenas um identificador.</summary>
     public sealed record IdResponse(int Id);
 }

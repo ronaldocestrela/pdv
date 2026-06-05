@@ -9,17 +9,29 @@ using Pdv.Application.Security;
 
 namespace Pdv.API.Controllers;
 
+/// <summary>
+/// Controller responsável por expor as operações de administração de usuários (listar, criar e definir perfis).
+/// </summary>
 [ApiController]
 [Route("api/users")]
 public sealed class UsersController : ControllerBase
 {
     private readonly ISender _mediator;
 
+    /// <summary>
+    /// Inicializa uma nova instância da classe <see cref="UsersController"/>.
+    /// </summary>
+    /// <param name="mediator">Instância do remetente do MediatR para processamento de CQRS.</param>
     public UsersController(ISender mediator)
     {
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Retorna a listagem de todos os usuários com suas respectivas roles para o tenant atual.
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>Uma lista contendo os dados administrativos dos usuários.</returns>
     [HttpGet]
     [Authorize(Policy = KnownPermissions.UserManage)]
     [ProducesResponseType(typeof(IReadOnlyList<UserAdminDto>), StatusCodes.Status200OK)]
@@ -29,6 +41,12 @@ public sealed class UsersController : ControllerBase
         return Ok(rows);
     }
 
+    /// <summary>
+    /// Cadastra um novo usuário no sistema associado ao tenant atual.
+    /// </summary>
+    /// <param name="request">O objeto contendo o e-mail, senha de acesso e estado de ativação do novo usuário.</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>O identificador do usuário recém-criado.</returns>
     [HttpPost]
     [Authorize(Policy = KnownPermissions.UserManage)]
     [ProducesResponseType(typeof(IdResponse), StatusCodes.Status201Created)]
@@ -41,6 +59,13 @@ public sealed class UsersController : ControllerBase
         return Created($"/api/users/{id}", new IdResponse(id));
     }
 
+    /// <summary>
+    /// Define e atualiza as atribuições de perfis de acesso (Roles) de um usuário específico.
+    /// </summary>
+    /// <param name="id">O ID do usuário a ter as roles atualizadas.</param>
+    /// <param name="request">O objeto contendo a lista com os IDs das novas roles.</param>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>204 No Content se as atribuições forem efetuadas com sucesso.</returns>
     [HttpPut("{id:int}/roles")]
     [Authorize(Policy = KnownPermissions.UserManage)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
