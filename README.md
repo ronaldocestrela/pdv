@@ -1,6 +1,6 @@
 # PDV + Estoque (MVP)
 
-Sistema de PDV com estoque — [.NET 8](backend/) + [React + Vite](frontend/pdv-web/). Documentação de domínio: [`agents.md`](agents.md), roadmap: [`roadmap.md`](roadmap.md), erros HTTP: [`docs/api-errors.md`](docs/api-errors.md).
+Sistema de PDV com estoque — [.NET 10](backend/) + [React + Vite](frontend/pdv-web/). Documentação de domínio: [`agents.md`](agents.md), roadmap: [`roadmap.md`](roadmap.md), erros HTTP: [`docs/api-errors.md`](docs/api-errors.md).
 
 ## Status atual de multitenancy
 
@@ -16,7 +16,7 @@ Observação: nesta fase do MVP, a UI segue com **1 tenant por sessão/login** (
 
 ## Pré-requisitos
 
-- [.NET SDK 8](https://dotnet.microsoft.com/download)
+- [.NET SDK 10](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/) (recomendado 20.19+ ou 22 LTS)
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (opcional — stack completo com SQL Server e frontend estático)
 - SQL Server só é necessário se `Database:UseInMemory` estiver `false`. Em desenvolvimento o padrão é **`Database:UseInMemory: true`** (EF Core InMemory), sem precisar de instância SQL para subir a API localmente.
