@@ -21,6 +21,7 @@ public static class KnownPermissions
     public const string CashflowView = "cashflow.view";
     public const string UserManage = "user.manage";
     public const string RoleManage = "role.manage";
+    public const string TenantManage = "tenant.manage";
 
     public static readonly IReadOnlyList<string> All = new[]
     {
@@ -40,5 +41,6 @@ public static class KnownPermissions
         CashflowView,
         UserManage,
         RoleManage,
+        TenantManage,
     };
 }

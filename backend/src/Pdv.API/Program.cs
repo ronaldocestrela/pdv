@@ -74,6 +74,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAssertion(ctx =>
             ctx.User.HasClaim("permission", KnownPermissions.RoleManage) ||
             ctx.User.HasClaim("permission", KnownPermissions.UserManage)));
+
+    options.AddPolicy(KnownPermissions.TenantManage, policy =>
+        policy.RequireClaim("permission", KnownPermissions.TenantManage));
 });
 
 builder.Services.AddControllers()

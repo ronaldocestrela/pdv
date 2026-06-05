@@ -129,11 +129,15 @@ npm test
 - Seed inicial (`Seed` em `appsettings.json`): permissões base, role Super Admin e usuário definido por `SuperAdminEmail` / `SuperAdminPassword`.
 - Na subida, a API aplica migrations e executa o seed (veja `backend/src/Pdv.API/Program.cs`).
 
-### Multitenancy (Fase 9 - em andamento)
+### Multitenancy (Fase 9 - em andamento / Fase 10 - concluída)
 
 - Isolamento lógico por `TenantId` em leituras/escritas do backend.
 - Claims de tenant no JWT: `tenant_id`, `is_super_admin`.
 - Base para segregação de dados entre tenants já ativa em infraestrutura.
+- **Fase 10:** Cadastro de novos tenants implementado:
+  - `POST /api/tenants/register` (público) — cria empresa + admin inicial.
+  - `GET /api/tenants` / `PUT /api/tenants/{id}/activate` — gestão pelo Super Admin global (permissão `tenant.manage`).
+  - Frontend: tela pública `/register` e link "Criar conta" na tela de login.
 
 ## Fase 0 (entrega)
 

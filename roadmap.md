@@ -255,6 +255,36 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 
 ---
 
+## 🏢 Fase 10 — Cadastro de Tenants
+
+### Objetivo
+- Permitir que novos clientes (tenants) se cadastrem de forma autônoma ou via painel Super Admin.
+
+### Backend
+- Entidade `Tenant` (cross-tenant, sem `ITenantScoped`): `Id`, `Name` (único), `IsActive`, `CreatedAtUtc`.
+- Nova permissão `tenant.manage` em `KnownPermissions`.
+- `CreateTenantCommand` + handler com seed automático (role Super Admin + usuário admin inicial).
+- `SetTenantActiveCommand` — ativar/desativar tenant.
+- `GetTenantsQuery` — listagem para Super Admin.
+- `ITenantRepository` / `TenantRepository` com `IgnoreQueryFilters()` para operações cross-tenant.
+- `ITenantSeedService` / `TenantSeedService` — seed isolado por tenant (roles + permissões + admin).
+- Migration `AddTenantsTable`.
+- `TenantsController`: `POST /api/tenants/register` (público), `POST /api/tenants` (`tenant.manage`), `GET /api/tenants` (`tenant.manage`), `PUT /api/tenants/{id}/activate` (`tenant.manage`).
+
+### Frontend
+- `RegisterTenantPage` (`/register`) — formulário público com validação e feedback.
+- `tenantService.ts` — `registerTenant`, `listTenants`, `setTenantActive`.
+- Link "Criar conta" na tela de Login.
+- Rota pública `/register` adicionada ao `App.tsx`.
+
+### ✅ Entrega (**concluída**)
+- Backend CQRS ponta a ponta com testes de integração (8 cenários cobrindo registro, validação, conflito de nome, login pós-criação, endpoints admin).
+- Frontend: `RegisterTenantPage` com testes Vitest (6 cenários: renderização, validações, sucesso, erro da API).
+
+**Validação rápida (manual):** Acessar `/register` sem login → preencher empresa, e-mail e senha → **Criar conta** → redireciona para `/login` → fazer login com as credenciais → JWT com `tenant_id` do novo tenant.
+
+---
+
 ## 📌 Ordem Recomendada
 
 1. Fundação

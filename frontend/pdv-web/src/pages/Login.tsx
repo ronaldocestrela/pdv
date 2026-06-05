@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { login } from '../services/auth';
 import { isAxiosError } from 'axios';
 import '../styles/Login.css';
@@ -102,7 +102,12 @@ export function LoginPage() {
           Esqueci minha senha
         </button>
 
-        <p className="login-hint">Sistema MVP — Fase 1</p>
+        <p className="login-hint">
+          Não tem conta?{' '}
+          <Link to="/register">Criar conta gratuita</Link>
+        </p>
+
+        <p className="login-hint" style={{ marginTop: '0.5rem' }}>Sistema MVP — Fase 1</p>
       </div>
     </div>
   );

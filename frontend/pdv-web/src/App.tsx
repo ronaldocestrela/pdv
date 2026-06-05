@@ -10,6 +10,7 @@ import { PdvPage } from './pages/PdvPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { RolesPage } from './pages/RolesPage';
 import { UsersPage } from './pages/UsersPage';
+import { RegisterTenantPage } from './pages/RegisterTenantPage';
 import './App.css';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterTenantPage />} />
         <Route
           element={
             <ProtectedRoute>

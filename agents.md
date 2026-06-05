@@ -136,6 +136,12 @@ Dentro de cada módulo, a organização segue os princípios de Clean Architectu
 - Description
 - CreatedAt
 
+#### Tenant
+- Id
+- Name (único, máx. 100 chars)
+- IsActive
+- CreatedAtUtc
+
 ---
 
 ## 5. Regras de Negócio
@@ -234,6 +240,12 @@ Erros: respostas **Problem Details** (`application/problem+json`); ver [`docs/ap
 - `POST /api/users` — `{ email, password, isActive? }` cria usuário com senha hasheada; senha mín. 6 caracteres (policy `user.manage`)
 - `PUT /api/users/{id}/roles` — `{ roleIds: number[] }` substitui roles do usuário (policy `user.manage`)
 
+### Tenants — cadastro e gestão (Fase 10)
+- `POST /api/tenants/register` — `{ name, adminEmail, adminPassword }` auto-registro público (sem auth); cria tenant + role Super Admin + usuário admin
+- `POST /api/tenants` — mesma payload; requer `tenant.manage` (criação via painel Super Admin)
+- `GET /api/tenants` — lista todos os tenants (policy `tenant.manage`)
+- `PUT /api/tenants/{id}/activate` — `{ isActive: bool }` ativa/desativa tenant (policy `tenant.manage`)
+
 ---
 
 ## 8. Frontend
@@ -277,6 +289,7 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 - Vendas / PDV (Fase 4): `sale.create`, `sale.view`
 - Relatórios (Fase 5): `report.view`, `cashflow.view`
 - Administração (Fase 6): `user.manage`, `role.manage` (policy extra no backend: `admin.roles.read` para `GET /api/permissions`, `GET /api/roles`, `GET /api/roles/{id}` quando o usuário tem `user.manage` ou `role.manage`)
+- Tenants (Fase 10): `tenant.manage` (Super Admin global)
 - Helpers: `usePermission` / `can('product.create')` etc.
 
 ---

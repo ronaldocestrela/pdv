@@ -31,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserAdminRepository, UserAdminRepository>();
+        services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<ITenantSeedService, TenantSeedService>();
 
         services.AddDbContext<IdentityDbContext>(options =>
         {
