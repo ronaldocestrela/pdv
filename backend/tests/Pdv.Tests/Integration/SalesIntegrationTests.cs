@@ -78,5 +78,5 @@ public sealed class SalesIntegrationTests
         list!.Should().Contain(s => s.Id == body.SaleId && s.TotalAmount == 33m && s.ItemCount == 1);
     }
 
-    private sealed record SaleCreatedResponse(int SaleId, decimal TotalAmount);
+    private sealed record SaleCreatedResponse(Guid SaleId, decimal TotalAmount);
 }

@@ -24,11 +24,9 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.Permission", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -45,19 +43,17 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -71,11 +67,11 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.RolePermission", b =>
                 {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("RoleId", "PermissionId");
 
@@ -86,11 +82,9 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.Tenant", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -113,11 +107,9 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -139,8 +131,8 @@ namespace Pdv.Modules.Identity.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiresAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -154,11 +146,11 @@ namespace Pdv.Modules.Identity.Migrations
 
             modelBuilder.Entity("Pdv.Modules.Identity.Domain.Entities.UserRole", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId", "RoleId");
 

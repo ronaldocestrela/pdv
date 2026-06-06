@@ -10,14 +10,14 @@ namespace Pdv.Modules.Identity.Application.Handlers.Roles;
 /// <summary>
 /// Initializes a new instance of the <see cref="CreateRoleCommandHandler"/> class.
 /// </summary>
-public sealed class CreateRoleCommandHandler(IRoleRepository roles) : IRequestHandler<CreateRoleCommand, int>
+public sealed class CreateRoleCommandHandler(IRoleRepository roles) : IRequestHandler<CreateRoleCommand, Guid>
 {
     private readonly IRoleRepository _roles = roles;
 
     /// <summary>
     /// Executes the <see cref="CreateRole"/> to perform the corresponding business action.
     /// </summary>
-    public async Task<int> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
         var name = request.Name.Trim();
         if (await _roles.NameExistsAsync(name, null, cancellationToken))

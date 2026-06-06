@@ -9,4 +9,4 @@ namespace Pdv.Modules.Identity.Application.Commands.Tenants;
 /// <param name="AdminEmail">E-mail do primeiro usuário administrador do tenant.</param>
 /// <param name="AdminPassword">Senha inicial do usuário administrador.</param>
 public sealed record CreateTenantCommand(string Name, string AdminEmail, string AdminPassword)
-    : IRequest<int>;
+    : IRequest<Guid>;

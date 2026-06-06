@@ -77,8 +77,9 @@ public sealed class ReportRepositoryTests
     {
         await using var ctx = NewDb();
         var d = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
+        var saleId = Guid.NewGuid();
         ctx.CashFlows.Add(new CashFlow { Type = CashFlowType.In, Amount = 100m, Description = "A", CreatedAtUtc = d.AddHours(-2), SaleId = null });
-        ctx.CashFlows.Add(new CashFlow { Type = CashFlowType.Out, Amount = 10m, Description = "B", CreatedAtUtc = d, SaleId = 1 });
+        ctx.CashFlows.Add(new CashFlow { Type = CashFlowType.Out, Amount = 10m, Description = "B", CreatedAtUtc = d, SaleId = saleId });
         await ctx.SaveChangesAsync();
 
         var sut = new ReportRepository(ctx);

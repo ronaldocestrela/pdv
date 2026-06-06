@@ -2,6 +2,6 @@ namespace Pdv.Shared.Kernel.Abstractions;
 
 public interface ITenantContext
 {
-    int? TenantId { get; }
+    Guid? TenantId { get; }
     bool IsSuperAdmin { get; }
 }

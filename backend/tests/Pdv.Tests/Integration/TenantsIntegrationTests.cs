@@ -30,7 +30,7 @@ public sealed class TenantsIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var body = await response.Content.ReadFromJsonAsync<IntegrationApiHelper.IdDto>(WebJson.Options);
         body.Should().NotBeNull();
-        body!.Id.Should().BeGreaterThan(0);
+        body!.Id.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public sealed class TenantsIntegrationTests
         var body = await login.Content.ReadFromJsonAsync<LoginResponse>(WebJson.Options);
         body.Should().NotBeNull();
         body!.AccessToken.Should().NotBeNullOrWhiteSpace();
-        body.TenantId.Should().BeGreaterThan(0);
+        body.TenantId.Should().NotBeEmpty();
     }
 
     // ─── Endpoint protegido (tenant.manage) ──────────────────────────────────
@@ -182,7 +182,94 @@ public sealed class TenantsIntegrationTests
         deactivate.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
-    private sealed record LoginResponse(string AccessToken, string RefreshToken, int TenantId);
+    // ─── Isolamento de Tenant (Roles e Usuários) ─────────────────────────────
 
-    private sealed record TenantRow(int Id, string Name, bool IsActive, string CreatedAtUtc);
+    [Fact]
+    public async Task Roles_and_Users_are_properly_isolated_between_tenants()
+    {
+        await using var factory = new PdvWebApplicationFactory();
+        var clientA = factory.CreateClient();
+        var clientB = factory.CreateClient();
+        var clientC = factory.CreateClient();
+
+        // 1. Cadastra o Tenant A (id = 1)
+        var registerA = await clientA.PostAsJsonAsync(
+            "api/tenants/register",
+            new { name = "Tenant A", adminEmail = "admin@tenanta.com", adminPassword = "Senha@123" },
+            WebJson.Options);
+        registerA.StatusCode.Should().Be(HttpStatusCode.Created);
+        
+        // 2. Cadastra o Tenant B (id = 2)
+        var registerB = await clientB.PostAsJsonAsync(
+            "api/tenants/register",
+            new { name = "Tenant B", adminEmail = "admin@tenantb.com", adminPassword = "Senha@123" },
+            WebJson.Options);
+        registerB.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        // 3. Cadastra o Tenant C (id = 3)
+        var registerC = await clientC.PostAsJsonAsync(
+            "api/tenants/register",
+            new { name = "Tenant C", adminEmail = "admin@tenantc.com", adminPassword = "Senha@123" },
+            WebJson.Options);
+        registerC.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        // 4. Fazer login como Tenant B Admin (id = 2)
+        var loginBRes = await clientB.PostAsJsonAsync(
+            "api/auth/login",
+            new { email = "admin@tenantb.com", password = "Senha@123" },
+            WebJson.Options);
+        loginBRes.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tokenB = (await loginBRes.Content.ReadFromJsonAsync<LoginResponse>(WebJson.Options))!;
+        clientB.SetBearer(tokenB.AccessToken);
+
+        // 5. Fazer login como Tenant C Admin (id = 3)
+        var loginCRes = await clientC.PostAsJsonAsync(
+            "api/auth/login",
+            new { email = "admin@tenantc.com", password = "Senha@123" },
+            WebJson.Options);
+        loginCRes.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tokenC = (await loginCRes.Content.ReadFromJsonAsync<LoginResponse>(WebJson.Options))!;
+        clientC.SetBearer(tokenC.AccessToken);
+
+        // 6. Listar usuários do Tenant B
+        var usersB = await clientB.GetFromJsonAsync<UserRow[]>("api/users", WebJson.Options);
+        usersB.Should().NotBeNull();
+        usersB!.Should().ContainSingle(u => u.Email == "admin@tenantb.com");
+        usersB.Should().NotContain(u => u.Email == "admin@tenanta.com");
+        usersB.Should().NotContain(u => u.Email == "admin@tenantc.com");
+        usersB.Should().NotContain(u => u.Email == "integration@local");
+
+        // 7. Listar roles do Tenant B
+        var rolesB = await clientB.GetFromJsonAsync<RoleRow[]>("api/roles", WebJson.Options);
+        rolesB.Should().NotBeNull();
+        rolesB!.Should().Contain(r => r.Name == "Super Admin");
+        
+        // Obter o ID da role Super Admin de C para tentar burlar
+        var rolesC = await clientC.GetFromJsonAsync<RoleRow[]>("api/roles", WebJson.Options);
+        var superAdminCId = rolesC!.First(r => r.Name == "Super Admin").Id;
+
+        // 8. Tenant B tenta ler a role do Tenant C individualmente -> deve retornar 404
+        var getRoleCResponse = await clientB.GetAsync($"api/roles/{superAdminCId}");
+        getRoleCResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        // 9. Tenant B tenta associar uma role do Tenant C a um de seus usuários -> deve falhar (400)
+        var userBId = usersB.First(u => u.Email == "admin@tenantb.com").Id;
+        var setRoleResponse = await clientB.PutAsJsonAsync(
+            $"api/users/{userBId}/roles",
+            new { roleIds = new[] { superAdminCId } },
+            WebJson.Options);
+        setRoleResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        // 10. Tenant B tenta acessar gerenciamento de tenants -> deve retornar 403 Forbidden
+        var manageTenantsRes = await clientB.GetAsync("api/tenants");
+        manageTenantsRes.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private sealed record LoginResponse(string AccessToken, string RefreshToken, Guid TenantId);
+
+    private sealed record TenantRow(Guid Id, string Name, bool IsActive, string CreatedAtUtc);
+
+    private sealed record UserRow(Guid Id, string Email, bool IsActive, Guid[] RoleIds);
+
+    private sealed record RoleRow(Guid Id, string Name, string[] Permissions);
 }

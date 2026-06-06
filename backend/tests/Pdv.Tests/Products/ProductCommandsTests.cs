@@ -21,7 +21,7 @@ public sealed class ProductCommandsTests
 
         var id = await handler.Handle(new CreateProductCommand("Camiseta", true), CancellationToken.None);
 
-        id.Should().BeGreaterThan(0);
+        id.Should().NotBeEmpty();
         (await ctx.Products.CountAsync()).Should().Be(1);
     }
 

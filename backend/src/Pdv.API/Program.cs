@@ -76,7 +76,8 @@ builder.Services.AddAuthorization(options =>
             ctx.User.HasClaim("permission", KnownPermissions.UserManage)));
 
     options.AddPolicy(KnownPermissions.TenantManage, policy =>
-        policy.RequireClaim("permission", KnownPermissions.TenantManage));
+        policy.RequireClaim("is_super_admin", "true")
+              .RequireClaim("permission", KnownPermissions.TenantManage));
 });
 
 builder.Services.AddControllers()

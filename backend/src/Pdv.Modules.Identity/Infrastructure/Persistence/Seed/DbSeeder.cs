@@ -9,7 +9,7 @@ namespace Pdv.Modules.Identity.Infrastructure.Persistence.Seed;
 
 public static class DbSeeder
 {
-    private const int DefaultTenantId = 1;
+    private static readonly Guid DefaultTenantId = KnownTenants.HostTenantId;
 
     public static async Task ApplyAsync(
         IdentityDbContext db,
@@ -18,9 +18,28 @@ public static class DbSeeder
         ILogger logger,
         CancellationToken cancellationToken = default)
     {
+        await EnsureHostTenantAsync(db, logger, cancellationToken);
         await EnsurePermissionsAsync(db, logger, cancellationToken);
         await EnsureRolesAndLinksAsync(db, logger, cancellationToken);
         await EnsureSuperAdminAsync(db, options, passwordHasher, logger, cancellationToken);
+    }
+
+    private static async Task EnsureHostTenantAsync(IdentityDbContext db, ILogger logger, CancellationToken ct)
+    {
+        var hostTenant = await db.Tenants.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == DefaultTenantId, ct);
+        if (hostTenant is null)
+        {
+            hostTenant = new Tenant
+            {
+                Id = DefaultTenantId,
+                Name = "Host Tenant",
+                IsActive = true,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            db.Tenants.Add(hostTenant);
+            await db.SaveChangesAsync(ct);
+            logger.LogInformation("Seeded Host Tenant with ID: {Id}", DefaultTenantId);
+        }
     }
 
     private static async Task EnsurePermissionsAsync(IdentityDbContext db, ILogger logger, CancellationToken ct)

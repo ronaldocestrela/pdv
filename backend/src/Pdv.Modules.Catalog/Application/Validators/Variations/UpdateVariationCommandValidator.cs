@@ -10,7 +10,7 @@ public sealed class UpdateVariationCommandValidator : AbstractValidator<UpdateVa
     /// </summary>
     public UpdateVariationCommandValidator()
     {
-        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(256);
         RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
         RuleFor(x => x.UnitPrice).GreaterThanOrEqualTo(0).WithMessage("Preço unitário não pode ser negativo.");

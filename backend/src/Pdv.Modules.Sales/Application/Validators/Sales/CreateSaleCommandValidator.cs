@@ -17,7 +17,7 @@ public sealed class CreateSaleCommandValidator : AbstractValidator<CreateSaleCom
         RuleForEach(x => x.Items).ChildRules(line =>
         {
             line.RuleFor(l => l.ProductVariationId)
-                .GreaterThan(0)
+                .NotEmpty()
                 .WithMessage("Variação inválida.");
 
             line.RuleFor(l => l.Quantity)

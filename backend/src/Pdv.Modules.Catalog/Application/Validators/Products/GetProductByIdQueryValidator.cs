@@ -10,6 +10,6 @@ public sealed class GetProductByIdQueryValidator : AbstractValidator<GetProductB
     /// </summary>
     public GetProductByIdQueryValidator()
     {
-        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id).NotEmpty();
     }
 }

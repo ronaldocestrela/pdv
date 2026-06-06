@@ -10,7 +10,7 @@ public sealed class SetRolePermissionsCommandValidator : AbstractValidator<SetRo
     /// </summary>
     public SetRolePermissionsCommandValidator()
     {
-        RuleFor(x => x.RoleId).GreaterThan(0);
+        RuleFor(x => x.RoleId).NotEmpty();
         RuleFor(x => x.PermissionNames).NotNull();
         RuleForEach(x => x.PermissionNames).NotEmpty().MaximumLength(128);
     }

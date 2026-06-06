@@ -26,7 +26,7 @@ public sealed class CatalogRepository(CatalogDbContext db) : ICatalogRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public async Task<ProductDetailDto?> GetDetailByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ProductDetailDto?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var row = await _db.Products.AsNoTracking()
             .Where(p => p.Id == id)
@@ -51,13 +51,13 @@ public sealed class CatalogRepository(CatalogDbContext db) : ICatalogRepository
     /// <summary>
     /// Executes the ProductExistsAsync operation.
     /// </summary>
-    public Task<bool> ProductExistsAsync(int productId, CancellationToken cancellationToken = default) =>
+    public Task<bool> ProductExistsAsync(Guid productId, CancellationToken cancellationToken = default) =>
         _db.Products.AsNoTracking().AnyAsync(p => p.Id == productId, cancellationToken);
 
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<Product?> GetTrackedByIdAsync(int id, CancellationToken cancellationToken = default)
+    public Task<Product?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _db.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
@@ -77,7 +77,7 @@ public sealed class CatalogRepository(CatalogDbContext db) : ICatalogRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<ProductVariation?> GetTrackedVariationByIdAsync(int variationId, CancellationToken cancellationToken = default)
+    public Task<ProductVariation?> GetTrackedVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default)
     {
         return _db.ProductVariations.FirstOrDefaultAsync(v => v.Id == variationId, cancellationToken);
     }
@@ -97,7 +97,7 @@ public sealed class CatalogRepository(CatalogDbContext db) : ICatalogRepository
     /// <summary>
     /// Executes the IsBarcodeTakenAsync operation.
     /// </summary>
-    public async Task<bool> IsBarcodeTakenAsync(string barcode, int? excludeVariationId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsBarcodeTakenAsync(string barcode, Guid? excludeVariationId, CancellationToken cancellationToken = default)
     {
         var trimmed = barcode.Trim();
         var q = _db.ProductVariations.Where(v => v.Barcode != null && v.Barcode == trimmed);

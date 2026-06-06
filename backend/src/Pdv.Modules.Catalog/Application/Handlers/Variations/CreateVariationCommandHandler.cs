@@ -10,14 +10,14 @@ namespace Pdv.Modules.Catalog.Application.Handlers.Variations;
 /// <summary>
 /// Initializes a new instance of the <see cref="CreateVariationCommandHandler"/> class.
 /// </summary>
-public sealed class CreateVariationCommandHandler(ICatalogRepository products) : IRequestHandler<CreateVariationCommand, int>
+public sealed class CreateVariationCommandHandler(ICatalogRepository products) : IRequestHandler<CreateVariationCommand, Guid>
 {
     private readonly ICatalogRepository _products = products;
 
     /// <summary>
     /// Executes the <see cref="CreateVariation"/> to perform the corresponding business action.
     /// </summary>
-    public async Task<int> Handle(CreateVariationCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateVariationCommand request, CancellationToken cancellationToken)
     {
         if (!await _products.ProductExistsAsync(request.ProductId, cancellationToken))
             throw new ValidationException([new ValidationFailure(nameof(request.ProductId), "Produto não encontrado.")]);

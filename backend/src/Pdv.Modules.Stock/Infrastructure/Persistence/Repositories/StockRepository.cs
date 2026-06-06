@@ -14,7 +14,7 @@ public sealed class StockRepository(StockDbContext db) : IStockRepository
     private readonly StockDbContext _db = db;
 
     public async Task<IReadOnlyList<StockMovementListItemDto>> ListStockMovementsAsync(
-        int? productVariationId,
+        Guid? productVariationId,
         int take,
         CancellationToken cancellationToken = default)
     {
@@ -48,7 +48,7 @@ public sealed class StockRepository(StockDbContext db) : IStockRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<ProductVariation?> GetTrackedVariationByIdAsync(int variationId, CancellationToken cancellationToken = default)
+    public Task<ProductVariation?> GetTrackedVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default)
     {
         return _db.ProductVariations.FirstOrDefaultAsync(v => v.Id == variationId, cancellationToken);
     }

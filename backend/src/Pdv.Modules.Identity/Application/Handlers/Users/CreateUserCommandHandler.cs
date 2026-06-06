@@ -10,7 +10,7 @@ namespace Pdv.Modules.Identity.Application.Handlers.Users;
 /// <summary>
 /// Initializes a new instance of the <see cref="CreateUserCommandHandler"/> class.
 /// </summary>
-public sealed class CreateUserCommandHandler(IUserAdminRepository users, IPasswordHasher passwordHasher) : IRequestHandler<CreateUserCommand, int>
+public sealed class CreateUserCommandHandler(IUserAdminRepository users, IPasswordHasher passwordHasher) : IRequestHandler<CreateUserCommand, Guid>
 {
     private readonly IUserAdminRepository _users = users;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
@@ -18,7 +18,7 @@ public sealed class CreateUserCommandHandler(IUserAdminRepository users, IPasswo
     /// <summary>
     /// Executes the <see cref="CreateUser"/> to perform the corresponding business action.
     /// </summary>
-    public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var email = request.Email.Trim();
         if (await _users.EmailExistsAsync(email, cancellationToken))

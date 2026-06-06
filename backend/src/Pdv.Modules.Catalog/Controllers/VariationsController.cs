@@ -42,10 +42,10 @@ public sealed class VariationsController(ISender mediator) : ControllerBase
     /// <param name="request">O objeto contendo os novos dados da variação.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se atualizado com sucesso.</returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:guid}")]
     [Authorize(Policy = KnownPermissions.VariationUpdate)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateVariationRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateVariationRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(
             new UpdateVariationCommand(id, request.Name, request.Barcode, request.StockQuantity, request.UnitPrice),
@@ -59,10 +59,10 @@ public sealed class VariationsController(ISender mediator) : ControllerBase
     /// <param name="id">O ID da variação de produto a ser removida.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se removido com sucesso.</returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:guid}")]
     [Authorize(Policy = KnownPermissions.VariationDelete)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeleteVariationCommand(id), cancellationToken);
         return NoContent();

@@ -14,5 +14,5 @@ public interface ITenantSeedService
     /// <param name="adminEmail">E-mail do usuário administrador inicial.</param>
     /// <param name="adminPassword">Senha do usuário administrador inicial (em texto claro — será hasheada).</param>
     /// <param name="ct">Token de cancelamento.</param>
-    Task SeedNewTenantAsync(int tenantId, string adminEmail, string adminPassword, CancellationToken ct = default);
+    Task SeedNewTenantAsync(Guid tenantId, string adminEmail, string adminPassword, CancellationToken ct = default);
 }

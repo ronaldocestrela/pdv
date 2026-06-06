@@ -4,9 +4,9 @@ namespace Pdv.Modules.Catalog.Domain.Entities;
 
 public sealed class ProductVariation : ITenantScoped
 {
-    public int Id { get; set; }
-    public int TenantId { get; set; } = 1;
-    public int ProductId { get; set; }
+    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
+    public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
 
     public string Name { get; set; } = string.Empty;

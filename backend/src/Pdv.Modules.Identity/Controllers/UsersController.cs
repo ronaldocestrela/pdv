@@ -59,10 +59,10 @@ public sealed class UsersController(ISender mediator) : ControllerBase
     /// <param name="request">O objeto contendo a lista com os IDs das novas roles.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se as atribuições forem efetuadas com sucesso.</returns>
-    [HttpPut("{id:int}/roles")]
+    [HttpPut("{id:guid}/roles")]
     [Authorize(Policy = KnownPermissions.UserManage)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> SetRoles(int id, [FromBody] SetUserRolesRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> SetRoles(Guid id, [FromBody] SetUserRolesRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SetUserRolesCommand(id, request.RoleIds), cancellationToken);
         return NoContent();

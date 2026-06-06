@@ -1,3 +1,3 @@
 namespace Pdv.Modules.Stock.Controllers.Contracts;
 
-public sealed record AddStockRequest(int ProductVariationId, int Quantity, string? Reason);
+public sealed record AddStockRequest(Guid ProductVariationId, int Quantity, string? Reason);

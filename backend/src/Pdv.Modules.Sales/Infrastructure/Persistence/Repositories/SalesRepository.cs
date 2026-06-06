@@ -48,7 +48,7 @@ public sealed class SalesRepository(SalesDbContext db) : ISaleRepository
             .ToListAsync(cancellationToken);
     }
 
-    public Task<ProductVariation?> GetVariationByIdAsync(int variationId, CancellationToken cancellationToken = default) =>
+    public Task<ProductVariation?> GetVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default) =>
         _db.ProductVariations.FirstOrDefaultAsync(v => v.Id == variationId, cancellationToken);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>

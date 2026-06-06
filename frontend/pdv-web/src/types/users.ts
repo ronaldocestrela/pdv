@@ -1,6 +1,6 @@
 export interface UserAdminDto {
-  id: number;
+  id: string;
   email: string;
   isActive: boolean;
-  roleIds: number[];
+  roleIds: string[];
 }

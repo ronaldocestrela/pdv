@@ -10,7 +10,7 @@ public sealed class AddStockCommandValidator : AbstractValidator<AddStockCommand
     /// </summary>
     public AddStockCommandValidator()
     {
-        RuleFor(x => x.ProductVariationId).GreaterThan(0);
+        RuleFor(x => x.ProductVariationId).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThan(0);
         RuleFor(x => x.Reason)
             .MaximumLength(512)

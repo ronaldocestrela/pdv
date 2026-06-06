@@ -7,7 +7,7 @@ namespace Pdv.Modules.Identity.Domain.Entities;
 public sealed class Tenant
 {
     /// <summary>Identificador único do tenant.</summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>Nome da empresa ou organização.</summary>
     public string Name { get; set; } = string.Empty;

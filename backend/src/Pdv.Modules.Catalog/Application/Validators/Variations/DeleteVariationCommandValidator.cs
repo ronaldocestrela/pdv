@@ -10,6 +10,6 @@ public sealed class DeleteVariationCommandValidator : AbstractValidator<DeleteVa
     /// </summary>
     public DeleteVariationCommandValidator()
     {
-        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id).NotEmpty();
     }
 }

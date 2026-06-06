@@ -2,10 +2,10 @@ using MediatR;
 
 namespace Pdv.Shared.Kernel.Events;
 
-public sealed record SaleFinalizedItemDto(int ProductVariationId, int Quantity);
+public sealed record SaleFinalizedItemDto(Guid ProductVariationId, int Quantity);
 
 public sealed record SaleFinalizedIntegrationEvent(
-    int SaleId,
-    int TenantId,
+    Guid SaleId,
+    Guid TenantId,
     IReadOnlyList<SaleFinalizedItemDto> Items,
     DateTime CreatedAtUtc) : INotification;

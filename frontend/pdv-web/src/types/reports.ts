@@ -6,7 +6,7 @@ export type SalesReportDto = {
 };
 
 export type TopProductReportDto = {
-  productVariationId: number;
+  productVariationId: string;
   productName: string;
   variationName: string;
   quantitySold: number;
@@ -17,16 +17,16 @@ export type TopProductReportDto = {
 export type CashFlowTypeDto = 0 | 1;
 
 export type CashFlowReportRowDto = {
-  id: number;
+  id: string;
   type: CashFlowTypeDto;
   amount: number;
   description: string;
   createdAtUtc: string;
-  saleId: number | null;
+  saleId: string | null;
 };
 
 export type StockReportRowDto = {
-  productVariationId: number;
+  productVariationId: string;
   productName: string;
   variationName: string;
   stockQuantity: number;

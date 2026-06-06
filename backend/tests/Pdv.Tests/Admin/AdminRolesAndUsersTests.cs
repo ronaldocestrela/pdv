@@ -23,7 +23,7 @@ public sealed class AdminRolesAndUsersTests
 
         var create = new CreateRoleCommandHandler(roles);
         var id = await create.Handle(new CreateRoleCommand("Caixa"), CancellationToken.None);
-        id.Should().BeGreaterThan(0);
+        id.Should().NotBeEmpty();
 
         var setPerms = new SetRolePermissionsCommandHandler(roles);
         await setPerms.Handle(new SetRolePermissionsCommand(id, [KnownPermissions.ProductView]), CancellationToken.None);
@@ -81,7 +81,7 @@ public sealed class AdminRolesAndUsersTests
         var handler = new CreateUserCommandHandler(admin, hasher);
 
         var id = await handler.Handle(new CreateUserCommand("novo@x.com", "secret12", true), CancellationToken.None);
-        id.Should().BeGreaterThan(0);
+        id.Should().NotBeEmpty();
 
         var user = await ctx.Users.AsNoTracking().FirstAsync(u => u.Id == id);
         user.Email.Should().Be("novo@x.com");

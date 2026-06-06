@@ -1,6 +1,6 @@
 /** Dados de um tenant retornados pela listagem administrativa. */
 export interface TenantAdminDto {
-  id: number;
+  id: string;
   name: string;
   isActive: boolean;
   createdAtUtc: string;

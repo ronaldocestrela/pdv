@@ -4,7 +4,7 @@ export interface AuthTokenResponse {
   refreshToken: string;
   expiresAtUtc: string;
   permissions: string[];
-  userId: number;
+  userId: string;
   email: string;
-  tenantId?: number;
+  tenantId?: string;
 }

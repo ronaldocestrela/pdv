@@ -19,7 +19,7 @@ public sealed class TenantSeedService(IdentityDbContext db, IPasswordHasher pass
     /// Garante role Super Admin para o tenant, vincula todas as permissões e
     /// cria o usuário administrador inicial com e-mail e senha fornecidos.
     /// </summary>
-    public async Task SeedNewTenantAsync(int tenantId, string adminEmail, string adminPassword, CancellationToken ct = default)
+    public async Task SeedNewTenantAsync(Guid tenantId, string adminEmail, string adminPassword, CancellationToken ct = default)
     {
         // 1. Garante a role Super Admin para o novo tenant
         var superAdminRole = await _db.Roles
@@ -40,8 +40,17 @@ public sealed class TenantSeedService(IdentityDbContext db, IPasswordHasher pass
             .ToListAsync(ct))
             .ToHashSet();
 
-        var allPermissionIds = await _db.Permissions
+        var tenantManagePermission = await _db.Permissions
             .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Name == KnownPermissions.TenantManage, ct);
+
+        var allPermissionIdsQuery = _db.Permissions.AsNoTracking();
+        if (tenantId != KnownTenants.HostTenantId && tenantManagePermission is not null)
+        {
+            allPermissionIdsQuery = allPermissionIdsQuery.Where(p => p.Id != tenantManagePermission.Id);
+        }
+
+        var allPermissionIds = await allPermissionIdsQuery
             .Select(p => p.Id)
             .ToListAsync(ct);
 

@@ -5,8 +5,8 @@ namespace Pdv.Modules.Sales.Domain.Entities;
 
 public sealed class Sale : ITenantScoped
 {
-    public int Id { get; set; }
-    public int TenantId { get; set; } = 1;
+    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public decimal TotalAmount { get; set; }
     public PaymentMethod PaymentMethod { get; set; }

@@ -5,22 +5,22 @@ namespace Pdv.Modules.Reports.Application.Abstractions;
 public sealed record SalesReportDto(int SaleCount, decimal TotalAmount);
 
 public sealed record TopProductReportDto(
-    int ProductVariationId,
+    Guid ProductVariationId,
     string ProductName,
     string VariationName,
     int QuantitySold,
     decimal Revenue);
 
 public sealed record CashFlowReportRowDto(
-    int Id,
+    Guid Id,
     CashFlowType Type,
     decimal Amount,
     string Description,
     DateTime CreatedAtUtc,
-    int? SaleId);
+    Guid? SaleId);
 
 public sealed record StockReportRowDto(
-    int ProductVariationId,
+    Guid ProductVariationId,
     string ProductName,
     string VariationName,
     int StockQuantity);

@@ -339,6 +339,7 @@ Regra:
 - Atualizar documentação ao final de cada alteração
 - **.NET:** Todas as funções públicas devem possuir um comentário XML `<summary>` descrevendo seu propósito.
 - **Frontend:** Todo código JavaScript/TypeScript deve ter comentários de bloco descrevendo a funcionalidade dos módulos e funções principais.
+- **UUIDs/Guids:** Sempre utilizar UUIDs (tipo `Guid` no C# / `string` no TypeScript) para identificadores de todas as entidades do sistema (chaves primárias, estrangeiras e TenantIds). Não utilizar inteiros auto-incrementais para IDs.
 
 ---
 

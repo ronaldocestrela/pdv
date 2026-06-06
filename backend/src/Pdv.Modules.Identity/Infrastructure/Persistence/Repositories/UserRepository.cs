@@ -23,7 +23,7 @@ public sealed class UserRepository(IdentityDbContext db) : IUserRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<User?> GetWithPermissionsByIdAsync(int id, CancellationToken cancellationToken = default)
+    public Task<User?> GetWithPermissionsByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return BaseQueryWithPermissions().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }

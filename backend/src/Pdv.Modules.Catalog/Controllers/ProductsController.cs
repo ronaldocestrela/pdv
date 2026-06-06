@@ -40,11 +40,11 @@ public sealed class ProductsController(ISender mediator) : ControllerBase
     /// <param name="id">O ID do produto a ser pesquisado.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>Os detalhes do produto encontrado ou 404 se não for encontrado.</returns>
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:guid}")]
     [Authorize(Policy = KnownPermissions.ProductView)]
     [ProducesResponseType(typeof(ProductDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
         if (result is null)
@@ -75,10 +75,10 @@ public sealed class ProductsController(ISender mediator) : ControllerBase
     /// <param name="request">O objeto contendo os novos dados do produto.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>Uma resposta 204 No Content se atualizado com sucesso.</returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:guid}")]
     [Authorize(Policy = KnownPermissions.ProductUpdate)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new UpdateProductCommand(id, request.Name, request.IsActive), cancellationToken);
         return NoContent();
@@ -90,10 +90,10 @@ public sealed class ProductsController(ISender mediator) : ControllerBase
     /// <param name="id">O ID do produto a ser deletado.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>Uma resposta 204 No Content se a remoção for concluída com sucesso.</returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:guid}")]
     [Authorize(Policy = KnownPermissions.ProductDelete)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeleteProductCommand(id), cancellationToken);
         return NoContent();

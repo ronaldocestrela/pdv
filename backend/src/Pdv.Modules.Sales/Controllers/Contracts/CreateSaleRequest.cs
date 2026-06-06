@@ -4,7 +4,7 @@ namespace Pdv.Modules.Sales.Controllers.Contracts;
 
 public sealed class CreateSaleRequestItem
 {
-    public int ProductVariationId { get; set; }
+    public Guid ProductVariationId { get; set; }
     public int Quantity { get; set; }
 }
 

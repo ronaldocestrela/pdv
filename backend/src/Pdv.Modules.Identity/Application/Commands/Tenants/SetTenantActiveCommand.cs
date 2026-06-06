@@ -7,4 +7,4 @@ namespace Pdv.Modules.Identity.Application.Commands.Tenants;
 /// </summary>
 /// <param name="TenantId">ID do tenant a ser modificado.</param>
 /// <param name="IsActive">Novo estado de ativação desejado.</param>
-public sealed record SetTenantActiveCommand(int TenantId, bool IsActive) : IRequest;
+public sealed record SetTenantActiveCommand(Guid TenantId, bool IsActive) : IRequest;

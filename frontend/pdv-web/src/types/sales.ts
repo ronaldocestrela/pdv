@@ -2,7 +2,7 @@
 export type PaymentMethodDto = 'cash' | 'card' | 'pix';
 
 export type SaleLinePayload = {
-  productVariationId: number;
+  productVariationId: string;
   quantity: number;
 };
 
@@ -12,12 +12,12 @@ export type CreateSalePayload = {
 };
 
 export type CreateSaleResultDto = {
-  saleId: number;
+  saleId: string;
   totalAmount: number;
 };
 
 export type SaleListItemDto = {
-  id: number;
+  id: string;
   createdAtUtc: string;
   totalAmount: number;
   paymentMethod: PaymentMethodDto;

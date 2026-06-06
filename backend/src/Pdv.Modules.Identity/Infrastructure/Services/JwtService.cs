@@ -35,7 +35,7 @@ public sealed class JwtService(IOptions<JwtOptions> options) : IJwtService
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var permissions = FlattenPermissions(user);
-        var isSuperAdmin = user.UserRoles.Any(ur =>
+        var isSuperAdmin = user.TenantId == KnownTenants.HostTenantId && user.UserRoles.Any(ur =>
             string.Equals(ur.Role.Name, KnownRoles.SuperAdmin, StringComparison.Ordinal));
 
         var claims = new List<Claim>

@@ -26,7 +26,7 @@ public sealed class LoginCommandHandlerTests
         result!.AccessToken.Should().Be("access-token");
         result.RefreshToken.Should().Be("refresh-token");
         result.Email.Should().Be("a@test");
-        result.UserId.Should().Be(1);
+        result.UserId.Should().Be(user.Id);
         result.Permissions.Should().Contain("product.view");
 
         mocks.Users.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

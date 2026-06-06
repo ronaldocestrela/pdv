@@ -3,8 +3,8 @@ using Pdv.Modules.Stock.Domain.Entities;
 namespace Pdv.Modules.Stock.Application.Abstractions;
 
 public sealed record StockMovementListItemDto(
-    int Id,
-    int ProductVariationId,
+    Guid Id,
+    Guid ProductVariationId,
     string ProductName,
     string VariationName,
     string Type,
@@ -15,13 +15,13 @@ public sealed record StockMovementListItemDto(
 public interface IStockRepository
 {
     Task<IReadOnlyList<StockMovementListItemDto>> ListStockMovementsAsync(
-        int? productVariationId,
+        Guid? productVariationId,
         int take,
         CancellationToken cancellationToken = default);
 
     void AddStockMovement(StockMovement movement);
 
-    Task<ProductVariation?> GetTrackedVariationByIdAsync(int variationId, CancellationToken cancellationToken = default);
+    Task<ProductVariation?> GetTrackedVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

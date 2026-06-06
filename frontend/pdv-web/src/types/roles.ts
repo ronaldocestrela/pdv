@@ -1,5 +1,5 @@
 export interface RoleAdminDto {
-  id: number;
+  id: string;
   name: string;
   permissions: string[];
 }

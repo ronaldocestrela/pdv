@@ -40,11 +40,11 @@ public sealed class RolesController(ISender mediator) : ControllerBase
     /// <param name="id">O ID do perfil de acesso.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>O perfil de acesso solicitado ou 404 se não for encontrado.</returns>
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:guid}")]
     [Authorize(Policy = PermissionsController.AdminRolesReadPolicy)]
     [ProducesResponseType(typeof(RoleAdminDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var row = await _mediator.Send(new GetRoleByIdQuery(id), cancellationToken);
         if (row is null)
@@ -74,10 +74,10 @@ public sealed class RolesController(ISender mediator) : ControllerBase
     /// <param name="request">O objeto contendo o novo nome para o perfil.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se atualizado com sucesso.</returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:guid}")]
     [Authorize(Policy = KnownPermissions.RoleManage)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new UpdateRoleCommand(id, request.Name), cancellationToken);
         return NoContent();
@@ -89,10 +89,10 @@ public sealed class RolesController(ISender mediator) : ControllerBase
     /// <param name="id">O ID do perfil de acesso a ser removido.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se removido com sucesso.</returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:guid}")]
     [Authorize(Policy = KnownPermissions.RoleManage)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeleteRoleCommand(id), cancellationToken);
         return NoContent();
@@ -105,10 +105,10 @@ public sealed class RolesController(ISender mediator) : ControllerBase
     /// <param name="request">O objeto contendo a lista com os nomes das novas permissões.</param>
     /// <param name="cancellationToken">Token de cancelamento da operação.</param>
     /// <returns>204 No Content se as permissões forem configuradas com sucesso.</returns>
-    [HttpPut("{id:int}/permissions")]
+    [HttpPut("{id:guid}/permissions")]
     [Authorize(Policy = KnownPermissions.RoleManage)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> SetPermissions(int id, [FromBody] SetRolePermissionsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> SetPermissions(Guid id, [FromBody] SetRolePermissionsRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SetRolePermissionsCommand(id, request.PermissionNames), cancellationToken);
         return NoContent();

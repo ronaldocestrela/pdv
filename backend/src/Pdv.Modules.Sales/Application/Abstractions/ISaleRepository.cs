@@ -4,7 +4,7 @@ using Pdv.Shared.Kernel.Enums;
 namespace Pdv.Modules.Sales.Application.Abstractions;
 
 public sealed record SaleListItemDto(
-    int Id,
+    Guid Id,
     DateTime CreatedAtUtc,
     decimal TotalAmount,
     PaymentMethod PaymentMethod,
@@ -20,7 +20,7 @@ public interface ISaleRepository
 
     Task<IReadOnlyList<SaleListItemDto>> ListRecentAsync(int take, CancellationToken cancellationToken = default);
 
-    Task<ProductVariation?> GetVariationByIdAsync(int variationId, CancellationToken cancellationToken = default);
+    Task<ProductVariation?> GetVariationByIdAsync(Guid variationId, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

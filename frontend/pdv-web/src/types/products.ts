@@ -1,13 +1,13 @@
 export interface ProductSummaryDto {
-  id: number;
+  id: string;
   name: string;
   isActive: boolean;
   variationCount: number;
 }
 
 export interface ProductVariationDto {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   name: string;
   barcode: string | null;
   stockQuantity: number;
@@ -15,7 +15,7 @@ export interface ProductVariationDto {
 }
 
 export interface ProductDetailDto {
-  id: number;
+  id: string;
   name: string;
   isActive: boolean;
   variations: ProductVariationDto[];

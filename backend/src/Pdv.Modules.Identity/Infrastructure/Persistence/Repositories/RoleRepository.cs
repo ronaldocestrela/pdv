@@ -37,7 +37,7 @@ public sealed class RoleRepository(IdentityDbContext db) : IRoleRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public async Task<RoleAdminDto?> GetRoleByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<RoleAdminDto?> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var r = await _db.Roles
             .AsNoTracking()
@@ -56,7 +56,7 @@ public sealed class RoleRepository(IdentityDbContext db) : IRoleRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<Role?> GetTrackedWithPermissionsAsync(int id, CancellationToken cancellationToken = default)
+    public Task<Role?> GetTrackedWithPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _db.Roles
             .Include(x => x.RolePermissions)
@@ -67,13 +67,13 @@ public sealed class RoleRepository(IdentityDbContext db) : IRoleRepository
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<Role?> GetTrackedByIdAsync(int id, CancellationToken cancellationToken = default) =>
+    public Task<Role?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         _db.Roles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     /// <summary>
     /// Executes the SetRolePermissionsByNamesAsync operation.
     /// </summary>
-    public async Task SetRolePermissionsByNamesAsync(int roleId, IReadOnlyList<string> permissionNames, CancellationToken cancellationToken = default)
+    public async Task SetRolePermissionsByNamesAsync(Guid roleId, IReadOnlyList<string> permissionNames, CancellationToken cancellationToken = default)
     {
         var distinctNames = permissionNames.Distinct(StringComparer.Ordinal).ToList();
         var validNames = await _db.Permissions.AsNoTracking()
@@ -104,7 +104,7 @@ public sealed class RoleRepository(IdentityDbContext db) : IRoleRepository
     /// <summary>
     /// Executes the NameExistsAsync operation.
     /// </summary>
-    public Task<bool> NameExistsAsync(string name, int? excludeRoleId, CancellationToken cancellationToken = default)
+    public Task<bool> NameExistsAsync(string name, Guid? excludeRoleId, CancellationToken cancellationToken = default)
     {
         var q = _db.Roles.Where(r => r.Name == name);
         if (excludeRoleId is { } ex)

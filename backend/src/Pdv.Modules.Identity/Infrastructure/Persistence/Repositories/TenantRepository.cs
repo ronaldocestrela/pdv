@@ -41,7 +41,7 @@ public sealed class TenantRepository(IdentityDbContext db) : ITenantRepository
     /// <summary>
     /// Retorna um tenant rastreável pelo ID para operações de escrita, ou null se não encontrado.
     /// </summary>
-    public Task<Tenant?> GetTrackedByIdAsync(int id, CancellationToken ct = default) =>
+    public Task<Tenant?> GetTrackedByIdAsync(Guid id, CancellationToken ct = default) =>
         _db.Tenants.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id, ct);
 
     /// <summary>

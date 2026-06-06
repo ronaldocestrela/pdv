@@ -10,7 +10,7 @@ public sealed class SetUserRolesCommandValidator : AbstractValidator<SetUserRole
     /// </summary>
     public SetUserRolesCommandValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.RoleIds).NotNull();
     }
 }

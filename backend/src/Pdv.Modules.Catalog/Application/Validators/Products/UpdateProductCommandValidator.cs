@@ -10,7 +10,7 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
     /// </summary>
     public UpdateProductCommandValidator()
     {
-        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(256);

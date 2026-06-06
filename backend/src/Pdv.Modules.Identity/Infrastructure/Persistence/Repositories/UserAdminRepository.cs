@@ -35,7 +35,7 @@ public sealed class UserAdminRepository(IdentityDbContext db) : IUserAdminReposi
     /// <summary>
     /// Retrieves tracking details by ID.
     /// </summary>
-    public Task<User?> GetTrackedWithRolesAsync(int userId, CancellationToken cancellationToken = default)
+    public Task<User?> GetTrackedWithRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return _db.Users
             .Include(u => u.UserRoles)
@@ -45,7 +45,7 @@ public sealed class UserAdminRepository(IdentityDbContext db) : IUserAdminReposi
     /// <summary>
     /// Executes the AllRoleIdsExistAsync operation.
     /// </summary>
-    public async Task<bool> AllRoleIdsExistAsync(IReadOnlyList<int> roleIds, CancellationToken cancellationToken = default)
+    public async Task<bool> AllRoleIdsExistAsync(IReadOnlyList<Guid> roleIds, CancellationToken cancellationToken = default)
     {
         if (roleIds.Count == 0)
             return true;

@@ -5,11 +5,11 @@ namespace Pdv.Modules.Reports.Domain.Entities;
 
 public sealed class CashFlow : ITenantScoped
 {
-    public int Id { get; set; }
-    public int TenantId { get; set; } = 1;
+    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
     public CashFlowType Type { get; set; }
     public decimal Amount { get; set; }
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }
-    public int? SaleId { get; set; }
+    public Guid? SaleId { get; set; }
 }

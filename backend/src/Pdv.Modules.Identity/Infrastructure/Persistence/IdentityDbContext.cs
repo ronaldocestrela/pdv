@@ -38,6 +38,9 @@ public sealed class IdentityDbContext : DbContext
         }
     }
 
+    public Guid? CurrentTenantId => _tenantContext.TenantId;
+    public bool CurrentIsSuperAdmin => _tenantContext.IsSuperAdmin;
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyTenantScope();
@@ -83,20 +86,16 @@ public sealed class IdentityDbContext : DbContext
         var tenantIdProperty = Expression.Call(
             typeof(EF),
             nameof(EF.Property),
-            [typeof(int)],
+            [typeof(Guid)],
             parameter,
             Expression.Constant(nameof(ITenantScoped.TenantId)));
 
-        var tenantContextExpr = Expression.Constant(this);
-        var currentTenantExpr = Expression.Property(
-            Expression.Field(tenantContextExpr, "_tenantContext"),
-            nameof(ITenantContext.TenantId));
-        var isSuperAdminExpr = Expression.Property(
-            Expression.Field(tenantContextExpr, "_tenantContext"),
-            nameof(ITenantContext.IsSuperAdmin));
+        var dbContextExpr = Expression.Constant(this);
+        var currentTenantExpr = Expression.Property(dbContextExpr, nameof(CurrentTenantId));
+        var isSuperAdminExpr = Expression.Property(dbContextExpr, nameof(CurrentIsSuperAdmin));
 
-        var hasTenantExpr = Expression.Property(currentTenantExpr, nameof(Nullable<int>.HasValue));
-        var tenantValueExpr = Expression.Call(currentTenantExpr, nameof(Nullable<int>.GetValueOrDefault), Type.EmptyTypes);
+        var hasTenantExpr = Expression.Property(currentTenantExpr, nameof(Nullable<Guid>.HasValue));
+        var tenantValueExpr = Expression.Call(currentTenantExpr, nameof(Nullable<Guid>.GetValueOrDefault), Type.EmptyTypes);
 
         var tenantEqualsExpr = Expression.Equal(tenantIdProperty, tenantValueExpr);
         var scopedFilterExpr = Expression.AndAlso(hasTenantExpr, tenantEqualsExpr);

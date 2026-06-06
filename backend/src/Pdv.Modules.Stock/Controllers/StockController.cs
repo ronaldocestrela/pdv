@@ -48,7 +48,7 @@ public sealed class StockController(ISender mediator) : ControllerBase
     [Authorize(Policy = KnownPermissions.StockView)]
     [ProducesResponseType(typeof(IReadOnlyList<StockMovementListItemDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Movements(
-        [FromQuery] int? variationId,
+        [FromQuery] Guid? variationId,
         [FromQuery] int take = 100,
         CancellationToken cancellationToken = default)
     {

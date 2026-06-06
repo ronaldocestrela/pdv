@@ -10,11 +10,19 @@ using Pdv.Modules.Sales.Infrastructure.Persistence;
 using Pdv.Modules.Sales.Infrastructure.Persistence.Repositories;
 using Pdv.Shared.Kernel.Enums;
 using Pdv.Shared.Kernel.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pdv.Tests.Sales;
 
 public sealed class SalesCommandsTests
 {
+    private static readonly Guid ProductId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private static readonly Guid VariationId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+
     [Fact]
     public async Task CreateSale_DecrementsStock_CreatesOutMovement_AndCashFlowIn()
     {
@@ -25,7 +33,7 @@ public sealed class SalesCommandsTests
         // Seed Sales context variation
         var salesVariation = new ProductVariation
         {
-            Id = 1,
+            Id = VariationId,
             Name = "P",
             StockQuantity = 10,
             UnitPrice = 12.50m
@@ -34,11 +42,11 @@ public sealed class SalesCommandsTests
         await salesCtx.SaveChangesAsync();
 
         // Seed Stock context product and variation
-        var stockProduct = new Pdv.Modules.Stock.Domain.Entities.Product { Id = 1, Name = "P" };
+        var stockProduct = new Pdv.Modules.Stock.Domain.Entities.Product { Id = ProductId, Name = "P" };
         var stockVariation = new Pdv.Modules.Stock.Domain.Entities.ProductVariation
         {
-            Id = 1,
-            ProductId = 1,
+            Id = VariationId,
+            ProductId = ProductId,
             Product = stockProduct,
             Name = "P",
             StockQuantity = 10
@@ -62,11 +70,11 @@ public sealed class SalesCommandsTests
 
         var result = await handler.Handle(
             new CreateSaleCommand(
-                [new CreateSaleLineDto(1, 3)],
+                [new CreateSaleLineDto(VariationId, 3)],
                 PaymentMethod.Cash),
             CancellationToken.None);
 
-        result.SaleId.Should().BeGreaterThan(0);
+        result.SaleId.Should().NotBeEmpty();
         result.TotalAmount.Should().Be(37.50m);
 
         var flows = await salesCtx.CashFlows.AsNoTracking().ToListAsync();
@@ -82,14 +90,14 @@ public sealed class SalesCommandsTests
 
         publishedEvent.Should().NotBeNull();
         publishedEvent!.SaleId.Should().Be(result.SaleId);
-        publishedEvent.Items.Should().ContainSingle(i => i.ProductVariationId == 1 && i.Quantity == 3);
+        publishedEvent.Items.Should().ContainSingle(i => i.ProductVariationId == VariationId && i.Quantity == 3);
 
         // Manually process the integration event using Stock's handler to simulate the integration flow
         var stockRepo = new Pdv.Modules.Stock.Infrastructure.Persistence.Repositories.StockRepository(stockCtx);
         var stockHandler = new Pdv.Modules.Stock.Application.Handlers.Integration.DecrementStockOnSaleFinalized(stockRepo);
         await stockHandler.Handle(publishedEvent, CancellationToken.None);
 
-        var v = await stockCtx.ProductVariations.AsNoTracking().FirstAsync(x => x.Id == 1);
+        var v = await stockCtx.ProductVariations.AsNoTracking().FirstAsync(x => x.Id == VariationId);
         v.StockQuantity.Should().Be(7);
 
         var movements = await stockCtx.StockMovements.AsNoTracking().ToListAsync();
@@ -103,14 +111,14 @@ public sealed class SalesCommandsTests
     {
         var dbName = Guid.NewGuid().ToString();
         await using var salesCtx = NewSalesDb(dbName);
-        var variation = new ProductVariation { Id = 1, Name = "V", StockQuantity = 1, UnitPrice = 10m };
+        var variation = new ProductVariation { Id = VariationId, Name = "V", StockQuantity = 1, UnitPrice = 10m };
         salesCtx.ProductVariations.Add(variation);
         await salesCtx.SaveChangesAsync();
 
         var handler = new CreateSaleCommandHandler(new SalesRepository(salesCtx), Mock.Of<IPublisher>());
 
         var act = async () => await handler.Handle(
-            new CreateSaleCommand([new CreateSaleLineDto(1, 5)], PaymentMethod.Pix),
+            new CreateSaleCommand([new CreateSaleLineDto(VariationId, 5)], PaymentMethod.Pix),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ValidationException>();
@@ -124,16 +132,16 @@ public sealed class SalesCommandsTests
         await using var stockCtx = NewStockDb(dbName);
 
         // Seed Sales context variation
-        var salesVariation = new ProductVariation { Id = 1, Name = "V", StockQuantity = 10, UnitPrice = 10m };
+        var salesVariation = new ProductVariation { Id = VariationId, Name = "V", StockQuantity = 10, UnitPrice = 10m };
         salesCtx.ProductVariations.Add(salesVariation);
         await salesCtx.SaveChangesAsync();
 
         // Seed Stock context product and variation
-        var stockProduct = new Pdv.Modules.Stock.Domain.Entities.Product { Id = 1, Name = "V" };
+        var stockProduct = new Pdv.Modules.Stock.Domain.Entities.Product { Id = ProductId, Name = "V" };
         var stockVariation = new Pdv.Modules.Stock.Domain.Entities.ProductVariation
         {
-            Id = 1,
-            ProductId = 1,
+            Id = VariationId,
+            ProductId = ProductId,
             Product = stockProduct,
             Name = "V",
             StockQuantity = 10
@@ -158,8 +166,8 @@ public sealed class SalesCommandsTests
         await handler.Handle(
             new CreateSaleCommand(
                 [
-                    new CreateSaleLineDto(1, 2),
-                    new CreateSaleLineDto(1, 1),
+                    new CreateSaleLineDto(VariationId, 2),
+                    new CreateSaleLineDto(VariationId, 1),
                 ],
                 PaymentMethod.Card),
             CancellationToken.None);
@@ -169,14 +177,14 @@ public sealed class SalesCommandsTests
         items[0].Quantity.Should().Be(3);
 
         publishedEvent.Should().NotBeNull();
-        publishedEvent!.Items.Should().ContainSingle(i => i.ProductVariationId == 1 && i.Quantity == 3);
+        publishedEvent!.Items.Should().ContainSingle(i => i.ProductVariationId == VariationId && i.Quantity == 3);
 
         // Manually process the integration event using Stock's handler to simulate the integration flow
         var stockRepo = new Pdv.Modules.Stock.Infrastructure.Persistence.Repositories.StockRepository(stockCtx);
         var stockHandler = new Pdv.Modules.Stock.Application.Handlers.Integration.DecrementStockOnSaleFinalized(stockRepo);
         await stockHandler.Handle(publishedEvent, CancellationToken.None);
 
-        var v = await stockCtx.ProductVariations.AsNoTracking().FirstAsync(x => x.Id == 1);
+        var v = await stockCtx.ProductVariations.AsNoTracking().FirstAsync(x => x.Id == VariationId);
         v.StockQuantity.Should().Be(7);
     }
 

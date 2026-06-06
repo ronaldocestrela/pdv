@@ -9,8 +9,8 @@ internal static class UserTestData
         string passwordHash = "HASH_VALUE",
         string permissionName = "product.view")
     {
-        var permission = new Permission { Id = 1, Name = permissionName };
-        var role = new Role { Id = 1, Name = "TestRole" };
+        var permission = new Permission { Id = Guid.NewGuid(), Name = permissionName };
+        var role = new Role { Id = Guid.NewGuid(), Name = "TestRole" };
 
         role.RolePermissions.Add(new RolePermission
         {
@@ -20,7 +20,7 @@ internal static class UserTestData
 
         var user = new User
         {
-            Id = 1,
+            Id = Guid.NewGuid(),
             Email = email,
             PasswordHash = passwordHash,
             IsActive = true,

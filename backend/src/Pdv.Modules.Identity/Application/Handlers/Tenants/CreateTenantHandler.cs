@@ -15,7 +15,7 @@ namespace Pdv.Modules.Identity.Application.Handlers.Tenants;
 public sealed class CreateTenantHandler(
     ITenantRepository tenants,
     IUserAdminRepository users,
-    ITenantSeedService tenantSeedService) : IRequestHandler<CreateTenantCommand, int>
+    ITenantSeedService tenantSeedService) : IRequestHandler<CreateTenantCommand, Guid>
 {
     private readonly ITenantRepository _tenants = tenants;
     private readonly IUserAdminRepository _users = users;
@@ -25,7 +25,7 @@ public sealed class CreateTenantHandler(
     /// Executa a criação do tenant: valida unicidade de nome e e-mail, persiste o tenant
     /// e delega a criação do admin inicial ao <see cref="ITenantSeedService"/>.
     /// </summary>
-    public async Task<int> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
         var name = request.Name.Trim();
         var email = request.AdminEmail.Trim();

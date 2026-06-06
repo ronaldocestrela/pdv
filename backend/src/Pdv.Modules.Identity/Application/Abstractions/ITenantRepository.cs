@@ -3,7 +3,7 @@ using Pdv.Modules.Identity.Domain.Entities;
 namespace Pdv.Modules.Identity.Application.Abstractions;
 
 /// <summary>DTO de leitura de tenant para listagens administrativas.</summary>
-public sealed record TenantAdminDto(int Id, string Name, bool IsActive, DateTime CreatedAtUtc);
+public sealed record TenantAdminDto(Guid Id, string Name, bool IsActive, DateTime CreatedAtUtc);
 
 /// <summary>
 /// Contrato de acesso a dados da entidade Tenant, operando de forma cross-tenant
@@ -21,7 +21,7 @@ public interface ITenantRepository
     Task<IReadOnlyList<TenantAdminDto>> GetAllAsync(CancellationToken ct = default);
 
     /// <summary>Retorna um tenant rastreável pelo ID, ou null se não encontrado.</summary>
-    Task<Tenant?> GetTrackedByIdAsync(int id, CancellationToken ct = default);
+    Task<Tenant?> GetTrackedByIdAsync(Guid id, CancellationToken ct = default);
 
     /// <summary>Persiste todas as alterações pendentes no contexto.</summary>
     Task SaveChangesAsync(CancellationToken ct = default);

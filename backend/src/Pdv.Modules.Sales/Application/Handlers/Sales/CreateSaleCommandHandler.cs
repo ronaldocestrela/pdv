@@ -104,9 +104,9 @@ public sealed class CreateSaleCommandHandler(
         return new CreateSaleResultDto(sale.Id, total);
     }
 
-    private static List<(int ProductVariationId, int Quantity)> MergeQuantities(IReadOnlyList<CreateSaleLineDto> items)
+    private static List<(Guid ProductVariationId, int Quantity)> MergeQuantities(IReadOnlyList<CreateSaleLineDto> items)
     {
-        var map = new Dictionary<int, int>();
+        var map = new Dictionary<Guid, int>();
         foreach (var i in items)
             map[i.ProductVariationId] = map.GetValueOrDefault(i.ProductVariationId, 0) + i.Quantity;
 

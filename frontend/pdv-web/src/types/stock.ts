@@ -1,7 +1,7 @@
 /** DTO from GET /api/stock/movements (camelCase JSON). */
 export interface StockMovementDto {
-  id: number;
-  productVariationId: number;
+  id: string;
+  productVariationId: string;
   productName: string;
   variationName: string;
   type: string;

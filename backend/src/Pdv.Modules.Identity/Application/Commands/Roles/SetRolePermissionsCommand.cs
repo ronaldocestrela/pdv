@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Pdv.Modules.Identity.Application.Commands.Roles;
 
-public sealed record SetRolePermissionsCommand(int RoleId, IReadOnlyList<string> PermissionNames) : IRequest<Unit>;
+public sealed record SetRolePermissionsCommand(Guid RoleId, IReadOnlyList<string> PermissionNames) : IRequest<Unit>;

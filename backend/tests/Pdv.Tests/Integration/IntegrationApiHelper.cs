@@ -10,7 +10,7 @@ namespace Pdv.Tests.Integration;
 
 internal static class IntegrationApiHelper
 {
-    internal sealed record IdDto(int Id);
+    internal sealed record IdDto(Guid Id);
 
     public static void SetBearer(this HttpClient client, string accessToken)
     {
@@ -36,7 +36,7 @@ internal static class IntegrationApiHelper
         return body;
     }
 
-    public static async Task<int> CreateProductAndVariationAsync(
+    public static async Task<Guid> CreateProductAndVariationAsync(
         HttpClient authorizedClient,
         int stockQuantity,
         decimal unitPrice = 12.50m)
@@ -64,7 +64,7 @@ internal static class IntegrationApiHelper
         return (await variationRes.Content.ReadFromJsonAsync<IdDto>(WebJson.Options))!.Id;
     }
 
-    public static async Task SyncVariationAsync(WebApplicationFactory<Program> factory, int variationId)
+    public static async Task SyncVariationAsync(WebApplicationFactory<Program> factory, Guid variationId)
     {
         using var scope = factory.Services.CreateScope();
         var catalogDb = scope.ServiceProvider.GetRequiredService<Pdv.Modules.Catalog.Infrastructure.Persistence.CatalogDbContext>();

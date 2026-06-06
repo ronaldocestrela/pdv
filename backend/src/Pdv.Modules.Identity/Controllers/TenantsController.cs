@@ -85,10 +85,10 @@ public sealed class TenantsController(ISender mediator) : ControllerBase
     /// <param name="cancellationToken">Token de cancelamento.</param>
     /// <returns>204 No Content se a operação for bem-sucedida; 404 se o tenant não for encontrado.</returns>
     [Authorize(Policy = KnownPermissions.TenantManage)]
-    [HttpPut("{id:int}/activate")]
+    [HttpPut("{id:guid}/activate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SetActive(int id, [FromBody] SetTenantActiveRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> SetActive(Guid id, [FromBody] SetTenantActiveRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SetTenantActiveCommand(id, request.IsActive), cancellationToken);
         return NoContent();
