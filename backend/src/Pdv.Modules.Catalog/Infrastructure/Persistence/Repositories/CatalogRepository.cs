@@ -107,6 +107,60 @@ public sealed class CatalogRepository(CatalogDbContext db) : ICatalogRepository
     }
 
     /// <summary>
+    /// Retrieves a list of DTO summaries of all active/inactive suppliers.
+    /// </summary>
+    public async Task<IReadOnlyList<SupplierSummaryDto>> ListSuppliersAsync(CancellationToken cancellationToken = default)
+    {
+        return await _db.Suppliers.AsNoTracking()
+            .OrderBy(s => s.Name)
+            .Select(s => new SupplierSummaryDto(s.Id, s.Name, s.Document, s.Email, s.Phone, s.IsActive))
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets a supplier by its ID, tracking it for edits.
+    /// </summary>
+    public Task<Supplier?> GetTrackedSupplierByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return _db.Suppliers.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets a supplier's detail DTO by its ID.
+    /// </summary>
+    public async Task<SupplierSummaryDto?> GetSupplierDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _db.Suppliers.AsNoTracking()
+            .Where(s => s.Id == id)
+            .Select(s => new SupplierSummaryDto(s.Id, s.Name, s.Document, s.Email, s.Phone, s.IsActive))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds a new supplier.
+    /// </summary>
+    public void AddSupplier(Supplier supplier) =>
+        _db.Suppliers.Add(supplier);
+
+    /// <summary>
+    /// Removes a supplier.
+    /// </summary>
+    public void RemoveSupplier(Supplier supplier) =>
+        _db.Suppliers.Remove(supplier);
+
+    /// <summary>
+    /// Checks if a document (CNPJ/CPF) is already taken by another supplier in the same tenant.
+    /// </summary>
+    public async Task<bool> IsSupplierDocumentTakenAsync(string document, Guid? excludeSupplierId, CancellationToken cancellationToken = default)
+    {
+        var trimmed = document.Trim();
+        var q = _db.Suppliers.Where(s => s.Document != null && s.Document == trimmed);
+        if (excludeSupplierId.HasValue)
+            q = q.Where(s => s.Id != excludeSupplierId.Value);
+        return await q.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Persists all tracked changes in this database context.
     /// </summary>
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>

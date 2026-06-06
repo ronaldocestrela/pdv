@@ -23,6 +23,11 @@ public static class KnownPermissions
     public const string RoleManage = "role.manage";
     public const string TenantManage = "tenant.manage";
 
+    public const string SupplierCreate = "supplier.create";
+    public const string SupplierUpdate = "supplier.update";
+    public const string SupplierDelete = "supplier.delete";
+    public const string SupplierView = "supplier.view";
+
     public static readonly IReadOnlyList<string> All = new[]
     {
         ProductCreate,
@@ -42,5 +47,9 @@ public static class KnownPermissions
         UserManage,
         RoleManage,
         TenantManage,
+        SupplierCreate,
+        SupplierUpdate,
+        SupplierDelete,
+        SupplierView,
     };
 }

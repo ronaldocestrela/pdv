@@ -15,6 +15,7 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 - Venda simples (produto → pagamento → finaliza)
 - Controle de estoque (entrada/saída automática)
 - Produtos com variações (estoque por variação)
+- Cadastro de Fornecedores (CRUD completo com isolamento por tenant)
 - Relatórios básicos
 - Sistema de permissões granular por ação
 
@@ -136,6 +137,15 @@ Dentro de cada módulo, a organização segue os princípios de Clean Architectu
 - Description
 - CreatedAt
 
+#### Supplier
+- Id
+- TenantId
+- Name (obrigatório, máx. 256)
+- Document (opcional, CNPJ/CPF, único por tenant, máx. 32)
+- Email (opcional, máx. 256)
+- Phone (opcional, máx. 20)
+- IsActive
+
 #### Tenant
 - Id
 - Name (único, máx. 100 chars)
@@ -240,6 +250,13 @@ Erros: respostas **Problem Details** (`application/problem+json`); ver [`docs/ap
 - `POST /api/users` — `{ email, password, isActive? }` cria usuário com senha hasheada; senha mín. 6 caracteres (policy `user.manage`)
 - `PUT /api/users/{id}/roles` — `{ roleIds: number[] }` substitui roles do usuário (policy `user.manage`)
 
+### Suppliers (Fase 11)
+- `GET /api/suppliers` — listagem de fornecedores (policy `supplier.view`)
+- `GET /api/suppliers/{id}` — detalhe do fornecedor (policy `supplier.view`)
+- `POST /api/suppliers` — `{ name, document | null, email | null, phone | null, isActive }` (policy `supplier.create`); `document` deve ser único por tenant quando informado
+- `PUT /api/suppliers/{id}` — `{ name, document | null, email | null, phone | null, isActive }` (policy `supplier.update`)
+- `DELETE /api/suppliers/{id}` — (policy `supplier.delete`)
+
 ### Tenants — cadastro e gestão (Fase 10)
 - `POST /api/tenants/register` — `{ name, adminEmail, adminPassword }` auto-registro público (sem auth); cria tenant + role Super Admin + usuário admin
 - `POST /api/tenants` — mesma payload; requer `tenant.manage` (criação via painel Super Admin)
@@ -266,6 +283,7 @@ Erros: respostas **Problem Details** (`application/problem+json`); ver [`docs/ap
 - **Produtos** (`/products`) — Fase 2; catálogo + CRUD; link para variações
 - **Variações do produto** (`/products/:productId/variations`) — Fase 2; CRUD de variações (preço unitário, estoque, barcode opcional)
 - **Estoque** (`/stock`) — Fase 3; entrada de estoque + histórico; `stock.adjust` / `stock.view`
+- **Fornecedores** (`/suppliers`) — Fase 11; CRUD de fornecedores (nome, CNPJ/CPF, e-mail, telefone, ativo); `supplier.view`, `supplier.create`, `supplier.update`, `supplier.delete`
 - **PDV** (`/pdv`) — Fase 4; busca, carrinho, pagamento (dinheiro/cartão/PIX); `sale.create` / `sale.view`; requer `product.view` para catálogo
 - **Relatórios** (`/reports`) — Fase 5; vendas por período, top produtos, fluxo de caixa, estoque atual; `report.view` / `cashflow.view` conforme seções visíveis
 - **Usuários** (`/users`) — Fase 6; criar usuário (e-mail, senha, ativo), listagem e atribuição de roles; `user.manage`
@@ -290,6 +308,7 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 - Relatórios (Fase 5): `report.view`, `cashflow.view`
 - Administração (Fase 6): `user.manage`, `role.manage` (policy extra no backend: `admin.roles.read` para `GET /api/permissions`, `GET /api/roles`, `GET /api/roles/{id}` quando o usuário tem `user.manage` ou `role.manage`)
 - Tenants (Fase 10): `tenant.manage` (Super Admin global)
+- Fornecedores (Fase 11): `supplier.create`, `supplier.update`, `supplier.delete`, `supplier.view`
 - Helpers: `usePermission` / `can('product.create')` etc.
 
 ---

@@ -11,6 +11,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { RolesPage } from './pages/RolesPage';
 import { UsersPage } from './pages/UsersPage';
 import { RegisterTenantPage } from './pages/RegisterTenantPage';
+import { SuppliersPage } from './pages/SuppliersPage';
 import './App.css';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         >
           <Route index element={<HomePage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="suppliers" element={<SuppliersPage />} />
           <Route path="products/:productId/variations" element={<ProductVariationsPage />} />
           <Route path="stock" element={<StockAdjustPage />} />
           <Route path="pdv" element={<PdvPage />} />

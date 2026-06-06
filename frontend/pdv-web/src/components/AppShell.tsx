@@ -24,6 +24,7 @@ export function AppShell() {
   const sidebarId = useId();
 
   const showStock = can(PERMISSIONS.stockView) || can(PERMISSIONS.stockAdjust);
+  const showSuppliers = can(PERMISSIONS.supplierView);
   const showPdv = can(PERMISSIONS.saleCreate) || can(PERMISSIONS.saleView);
   const showReports = can(PERMISSIONS.reportView) || can(PERMISSIONS.cashflowView);
   const showUsers = can(PERMISSIONS.userManage);
@@ -85,6 +86,11 @@ export function AppShell() {
           <NavLink className={linkClass} to="/products" onClick={onNavClick}>
             Produtos
           </NavLink>
+          {showSuppliers && (
+            <NavLink className={linkClass} to="/suppliers" onClick={onNavClick}>
+              Fornecedores
+            </NavLink>
+          )}
           {showPdv && (
             <NavLink className={linkClass} to="/pdv" onClick={onNavClick}>
               PDV

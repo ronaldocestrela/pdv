@@ -18,6 +18,7 @@ public sealed class CatalogDbContext : DbContext
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
