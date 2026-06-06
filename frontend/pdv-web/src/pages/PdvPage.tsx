@@ -8,7 +8,7 @@ import type { PaymentMethodDto, SaleListItemDto } from '../types/sales';
 import { getApiErrorMessage } from '../utils/apiError';
 
 type CartLine = {
-  productVariationId: number;
+  productVariationId: string;
   productName: string;
   variationName: string;
   quantity: number;
@@ -31,9 +31,9 @@ export function PdvPage() {
 
   const [products, setProducts] = useState<ProductSummaryDto[]>([]);
   const [search, setSearch] = useState('');
-  const [selectedProductId, setSelectedProductId] = useState<number | ''>('');
+  const [selectedProductId, setSelectedProductId] = useState<string | ''>('');
   const [detail, setDetail] = useState<ProductDetailDto | null>(null);
-  const [variationId, setVariationId] = useState<number | ''>('');
+  const [variationId, setVariationId] = useState<string | ''>('');
   const [qtyToAdd, setQtyToAdd] = useState(1);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodDto>('cash');
@@ -70,7 +70,7 @@ export function PdvPage() {
     }
   }, []);
 
-  const loadDetail = useCallback(async (id: number) => {
+  const loadDetail = useCallback(async (id: string) => {
     setLoadingDetail(true);
     setError(null);
     try {
@@ -136,7 +136,7 @@ export function PdvPage() {
       setNotice(`Venda #${result.saleId} registrada — total ${formatBRL(result.totalAmount)}.`);
       setCart([]);
       await loadProducts();
-      if (typeof selectedProductId === 'number') {
+      if (typeof selectedProductId === 'string' && selectedProductId !== '') {
         await loadDetail(selectedProductId);
       }
       await loadRecentSales();
@@ -245,7 +245,7 @@ export function PdvPage() {
     setQtyToAdd(1);
   };
 
-  const updateQty = (variationKey: number, delta: number) => {
+  const updateQty = (variationKey: string, delta: number) => {
     if (!canFinalize) return;
     const line = cart.find((l) => l.productVariationId === variationKey);
     if (!line) return;
@@ -267,7 +267,7 @@ export function PdvPage() {
     );
   };
 
-  const removeLine = (variationKey: number) => {
+  const removeLine = (variationKey: string) => {
     if (!canFinalize) return;
     setCart((prev) => prev.filter((l) => l.productVariationId !== variationKey));
   };
@@ -349,7 +349,7 @@ export function PdvPage() {
               disabled={loadingProducts}
               onChange={(e) => {
                 const v = e.target.value;
-                setSelectedProductId(v === '' ? '' : Number(v));
+                setSelectedProductId(v);
               }}
             >
               <option value="">Selecione…</option>
@@ -369,7 +369,7 @@ export function PdvPage() {
               disabled={detail === null || loadingDetail || (detail?.variations.length ?? 0) === 0}
               onChange={(e) => {
                 const v = e.target.value;
-                setVariationId(v === '' ? '' : Number(v));
+                setVariationId(v);
               }}
             >
               <option value="">Selecione…</option>

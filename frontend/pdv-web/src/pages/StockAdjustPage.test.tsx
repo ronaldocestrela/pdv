@@ -25,7 +25,7 @@ function setSessionWithStockPerms() {
   useAuthStore.getState().setSession({
     accessToken: 't',
     refreshToken: 'r',
-    userId: 1,
+    userId: '1',
     email: 'a@b.com',
     permissions: [PERMISSIONS.stockAdjust, PERMISSIONS.stockView, PERMISSIONS.productView],
     expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -43,7 +43,7 @@ describe('StockAdjustPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -62,13 +62,13 @@ describe('StockAdjustPage', () => {
 
   it('registra entrada e chama adjustStock', async () => {
     setSessionWithStockPerms();
-    listProductsMock.mockResolvedValue([{ id: 1, name: 'Produto X', isActive: true, variationCount: 1 }]);
+    listProductsMock.mockResolvedValue([{ id: '1', name: 'Produto X', isActive: true, variationCount: 1 }]);
     getProductMock.mockResolvedValue({
-      id: 1,
+      id: '1',
       name: 'Produto X',
       isActive: true,
       variations: [
-        { id: 90, productId: 1, name: 'V-Única', barcode: null, stockQuantity: 4, unitPrice: 10 },
+        { id: '90', productId: '1', name: 'V-Única', barcode: null, stockQuantity: 4, unitPrice: 10 },
       ],
     });
     listStockMovementsMock.mockResolvedValue([]);
@@ -86,7 +86,7 @@ describe('StockAdjustPage', () => {
 
     fireEvent.change(screen.getByLabelText(/^produto$/i), { target: { value: '1' } });
 
-    await waitFor(() => expect(getProductMock).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(getProductMock).toHaveBeenCalledWith('1'));
 
     fireEvent.change(screen.getByLabelText(/^variação$/i), { target: { value: '90' } });
     fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: '2' } });
@@ -94,7 +94,7 @@ describe('StockAdjustPage', () => {
 
     await waitFor(() => {
       expect(adjustStockMock).toHaveBeenCalledWith({
-        productVariationId: 90,
+        productVariationId: '90',
         quantity: 2,
         reason: null,
       });
@@ -107,8 +107,8 @@ describe('StockAdjustPage', () => {
     listProductsMock.mockResolvedValue([]);
     listStockMovementsMock.mockResolvedValue([
       {
-        id: 1,
-        productVariationId: 1,
+        id: '1',
+        productVariationId: '1',
         productName: 'P',
         variationName: 'V',
         type: 'IN',

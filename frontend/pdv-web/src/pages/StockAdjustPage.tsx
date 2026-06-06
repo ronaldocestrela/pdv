@@ -18,9 +18,9 @@ export function StockAdjustPage() {
   const canListProducts = can(PERMISSIONS.productView);
 
   const [products, setProducts] = useState<ProductSummaryDto[]>([]);
-  const [productId, setProductId] = useState<number | ''>('');
+  const [productId, setProductId] = useState<string | ''>('');
   const [detail, setDetail] = useState<ProductDetailDto | null>(null);
-  const [variationId, setVariationId] = useState<number | ''>('');
+  const [variationId, setVariationId] = useState<string | ''>('');
   const [movements, setMovements] = useState<StockMovementDto[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -47,7 +47,7 @@ export function StockAdjustPage() {
     }
   }, [canListProducts]);
 
-  const loadDetail = useCallback(async (id: number) => {
+  const loadDetail = useCallback(async (id: string) => {
     setLoadingDetail(true);
     setError(null);
     try {
@@ -67,7 +67,7 @@ export function StockAdjustPage() {
     setLoadingMovements(true);
     setError(null);
     try {
-      const vid = typeof variationId === 'number' ? variationId : undefined;
+      const vid = typeof variationId === 'string' && variationId !== '' ? variationId : undefined;
       const rows = await stockApi.listStockMovements({
         variationId: vid,
         take: 100,
@@ -125,7 +125,7 @@ export function StockAdjustPage() {
       });
       setNotice('Entrada registrada com sucesso.');
       form.reset({ quantity: 1, reason: '' });
-      if (typeof productId === 'number') {
+      if (typeof productId === 'string' && productId !== '') {
         await loadDetail(productId);
       }
       await loadMovements();
@@ -166,11 +166,11 @@ export function StockAdjustPage() {
               <label htmlFor="stock-product">Produto</label>
               <select
                 id="stock-product"
-                value={productId === '' ? '' : String(productId)}
+                value={productId}
                 disabled={!canListProducts || loadingProducts}
                 onChange={(e) => {
                   const v = e.target.value;
-                  setProductId(v === '' ? '' : Number(v));
+                  setProductId(v);
                   setNotice(null);
                 }}
               >
@@ -187,11 +187,11 @@ export function StockAdjustPage() {
               <label htmlFor="stock-variation">Variação</label>
               <select
                 id="stock-variation"
-                value={variationId === '' ? '' : String(variationId)}
+                value={variationId}
                 disabled={detail === null || loadingDetail || (detail?.variations.length ?? 0) === 0}
                 onChange={(e) => {
                   const v = e.target.value;
-                  setVariationId(v === '' ? '' : Number(v));
+                  setVariationId(v);
                   setNotice(null);
                 }}
               >

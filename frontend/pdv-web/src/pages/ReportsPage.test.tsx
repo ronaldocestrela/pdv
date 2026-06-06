@@ -23,7 +23,7 @@ describe('ReportsPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -44,7 +44,7 @@ describe('ReportsPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.reportView, PERMISSIONS.cashflowView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),

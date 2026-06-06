@@ -14,7 +14,7 @@ vi.mock('../services/reports', () => ({
   getSalesReport: vi.fn(async () => ({ saleCount: 2, totalAmount: 99.5 })),
   getTopProductsReport: vi.fn(async () => [
     {
-      productVariationId: 1,
+      productVariationId: '1',
       productName: 'Produto A',
       variationName: 'Único',
       quantitySold: 5,
@@ -34,7 +34,7 @@ describe('HomePage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -57,7 +57,7 @@ describe('HomePage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.reportView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -99,7 +99,7 @@ describe('HomePage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.reportView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),

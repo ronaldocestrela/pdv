@@ -2,7 +2,7 @@ import { api } from './api';
 import type { StockMovementDto } from '../types/stock';
 
 export async function adjustStock(body: {
-  productVariationId: number;
+  productVariationId: string;
   quantity: number;
   reason: string | null;
 }): Promise<void> {
@@ -14,7 +14,7 @@ export async function adjustStock(body: {
 }
 
 export async function listStockMovements(params?: {
-  variationId?: number;
+  variationId?: string;
   take?: number;
 }): Promise<StockMovementDto[]> {
   const { data } = await api.get<StockMovementDto[]>('/api/stock/movements', {

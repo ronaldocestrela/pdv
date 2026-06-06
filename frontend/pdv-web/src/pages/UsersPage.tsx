@@ -14,8 +14,8 @@ export function UsersPage() {
 
   const [users, setUsers] = useState<UserAdminDto[]>([]);
   const [roles, setRoles] = useState<RoleAdminDto[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [roleChecks, setRoleChecks] = useState<Record<number, boolean>>({});
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [roleChecks, setRoleChecks] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export function UsersPage() {
       setRoleChecks({});
       return;
     }
-    const next: Record<number, boolean> = {};
+    const next: Record<string, boolean> = {};
     for (const r of roles) next[r.id] = selected.roleIds.includes(r.id);
     setRoleChecks(next);
   }, [selected, roles]);
@@ -62,7 +62,7 @@ export function UsersPage() {
     if (!selected) return;
     const roleIds = Object.entries(roleChecks)
       .filter(([, v]) => v)
-      .map(([id]) => Number(id));
+      .map(([id]) => id);
     setError(null);
     setSavedMsg(null);
     try {

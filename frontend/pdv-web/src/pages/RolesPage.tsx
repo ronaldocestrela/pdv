@@ -16,7 +16,7 @@ export function RolesPage() {
 
   const [roles, setRoles] = useState<RoleAdminDto[]>([]);
   const [catalog, setCatalog] = useState<string[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [editName, setEditName] = useState('');
   const [permSelections, setPermSelections] = useState<Record<string, boolean>>({});

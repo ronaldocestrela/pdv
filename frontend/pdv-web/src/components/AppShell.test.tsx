@@ -31,7 +31,7 @@ describe('AppShell', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.stockView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -55,7 +55,7 @@ describe('AppShell', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -79,7 +79,7 @@ describe('AppShell', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.reportView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -103,7 +103,7 @@ describe('AppShell', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.userManage],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -129,7 +129,7 @@ describe('AppShell', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.roleManage],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),

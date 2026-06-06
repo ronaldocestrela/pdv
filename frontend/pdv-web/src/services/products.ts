@@ -6,7 +6,7 @@ export async function listProducts(): Promise<ProductSummaryDto[]> {
   return data;
 }
 
-export async function getProduct(id: number): Promise<ProductDetailDto | null> {
+export async function getProduct(id: string): Promise<ProductDetailDto | null> {
   try {
     const { data } = await api.get<ProductDetailDto>(`/api/products/${id}`);
     return data;
@@ -19,37 +19,37 @@ export async function getProduct(id: number): Promise<ProductDetailDto | null> {
   }
 }
 
-export async function createProduct(body: { name: string; isActive: boolean }): Promise<number> {
-  const { data } = await api.post<{ id: number }>('/api/products', body);
+export async function createProduct(body: { name: string; isActive: boolean }): Promise<string> {
+  const { data } = await api.post<{ id: string }>('/api/products', body);
   return data.id;
 }
 
-export async function updateProduct(id: number, body: { name: string; isActive: boolean }): Promise<void> {
+export async function updateProduct(id: string, body: { name: string; isActive: boolean }): Promise<void> {
   await api.put(`/api/products/${id}`, body);
 }
 
-export async function deleteProduct(id: number): Promise<void> {
+export async function deleteProduct(id: string): Promise<void> {
   await api.delete(`/api/products/${id}`);
 }
 
 export async function createVariation(body: {
-  productId: number;
+  productId: string;
   name: string;
   barcode: string | null;
   stockQuantity: number;
   unitPrice: number;
-}): Promise<number> {
-  const { data } = await api.post<{ id: number }>('/api/variations', body);
+}): Promise<string> {
+  const { data } = await api.post<{ id: string }>('/api/variations', body);
   return data.id;
 }
 
 export async function updateVariation(
-  id: number,
+  id: string,
   body: { name: string; barcode: string | null; stockQuantity: number; unitPrice: number },
 ): Promise<void> {
   await api.put(`/api/variations/${id}`, body);
 }
 
-export async function deleteVariation(id: number): Promise<void> {
+export async function deleteVariation(id: string): Promise<void> {
   await api.delete(`/api/variations/${id}`);
 }

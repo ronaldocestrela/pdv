@@ -13,8 +13,8 @@ const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:5190';
  * Registra um novo tenant via endpoint público (sem autenticação).
  * Cria a empresa, a role Super Admin local e o primeiro usuário administrador.
  */
-export async function registerTenant(payload: RegisterTenantPayload): Promise<number> {
-  const { data } = await axios.post<{ id: number }>(
+export async function registerTenant(payload: RegisterTenantPayload): Promise<string> {
+  const { data } = await axios.post<{ id: string }>(
     `${baseURL}/api/tenants/register`,
     payload,
     { headers: { 'Content-Type': 'application/json' } },
@@ -35,6 +35,6 @@ export async function listTenants(): Promise<TenantAdminDto[]> {
  * Ativa ou desativa um tenant pelo ID.
  * Requer token JWT com permissão `tenant.manage`.
  */
-export async function setTenantActive(tenantId: number, isActive: boolean): Promise<void> {
+export async function setTenantActive(tenantId: string, isActive: boolean): Promise<void> {
   await api.put(`/api/tenants/${tenantId}/activate`, { isActive });
 }

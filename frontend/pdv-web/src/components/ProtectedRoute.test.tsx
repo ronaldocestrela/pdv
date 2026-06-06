@@ -35,7 +35,7 @@ describe('ProtectedRoute', () => {
     useAuthStore.getState().setSession({
       accessToken: 'token',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'z@z.com',
       permissions: [],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),

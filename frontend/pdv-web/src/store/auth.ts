@@ -5,9 +5,9 @@ import type { AuthTokenResponse } from '../types/auth';
 export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  userId: number | null;
+  userId: string | null;
   email: string | null;
-  tenantId: number | null;
+  tenantId: string | null;
   permissions: string[];
   expiresAtUtc: string | null;
   setSession: (data: AuthTokenResponse) => void;

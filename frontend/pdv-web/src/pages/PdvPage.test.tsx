@@ -10,13 +10,13 @@ const createSaleMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../services/products', () => ({
   listProducts: vi.fn(async () => [
-    { id: 1, name: 'Produto A', isActive: true, variationCount: 1 },
+    { id: '1', name: 'Produto A', isActive: true, variationCount: 1 },
   ]),
   getProduct: vi.fn(async () => ({
-    id: 1,
+    id: '1',
     name: 'Produto A',
     isActive: true,
-    variations: [{ id: 10, productId: 1, name: 'Única', barcode: null, stockQuantity: 5, unitPrice: 29.9 }],
+    variations: [{ id: '10', productId: '1', name: 'Única', barcode: null, stockQuantity: 5, unitPrice: 29.9 }],
   })),
 }));
 
@@ -36,7 +36,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -56,12 +56,12 @@ describe('PdvPage', () => {
   });
 
   it('adiciona ao carrinho e chama createSale ao finalizar', async () => {
-    createSaleMock.mockResolvedValue({ saleId: 7, totalAmount: 59.8 });
+    createSaleMock.mockResolvedValue({ saleId: '7', totalAmount: 59.8 });
 
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -92,7 +92,7 @@ describe('PdvPage', () => {
 
     await waitFor(() => {
       expect(createSaleMock).toHaveBeenCalledWith({
-        items: [{ productVariationId: 10, quantity: 1 }],
+        items: [{ productVariationId: '10', quantity: 1 }],
         paymentMethod: 'card',
       });
     });
@@ -104,7 +104,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -130,12 +130,12 @@ describe('PdvPage', () => {
   });
 
   it('finaliza com Ctrl+Enter quando há itens no carrinho', async () => {
-    createSaleMock.mockResolvedValue({ saleId: 9, totalAmount: 29.9 });
+    createSaleMock.mockResolvedValue({ saleId: '9', totalAmount: 29.9 });
 
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -166,7 +166,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -207,7 +207,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -238,7 +238,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleCreate, PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
@@ -269,7 +269,7 @@ describe('PdvPage', () => {
     useAuthStore.getState().setSession({
       accessToken: 't',
       refreshToken: 'r',
-      userId: 1,
+      userId: '1',
       email: 'a@b.com',
       permissions: [PERMISSIONS.saleView, PERMISSIONS.productView],
       expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),

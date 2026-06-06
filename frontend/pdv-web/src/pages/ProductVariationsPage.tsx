@@ -26,7 +26,6 @@ function hasAnyVariationPermission(): boolean {
  */
 export function ProductVariationsPage() {
   const { productId } = useParams<{ productId: string }>();
-  const id = Number(productId);
   const navigate = useNavigate();
   const [detail, setDetail] = useState<ProductDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +34,7 @@ export function ProductVariationsPage() {
   const [deleting, setDeleting] = useState<ProductVariationDto | null>(null);
 
   const load = useCallback(async () => {
-    if (!Number.isFinite(id) || id <= 0) {
+    if (!productId || productId.trim() === '') {
       setError('Produto inválido.');
       setLoading(false);
       return;
@@ -43,7 +42,7 @@ export function ProductVariationsPage() {
     setError(null);
     setLoading(true);
     try {
-      const d = await productsApi.getProduct(id);
+      const d = await productsApi.getProduct(productId);
       setDetail(d);
       if (!d) {
         setError('Produto não encontrado.');
@@ -53,7 +52,7 @@ export function ProductVariationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [productId]);
 
   useEffect(() => {
     if (!hasAnyVariationPermission()) {
@@ -202,7 +201,7 @@ function VariationModal({
   onClose,
   onSaved,
 }: {
-  productId: number;
+  productId: string;
   mode: 'create' | 'edit';
   initial?: ProductVariationDto;
   onClose: () => void;
