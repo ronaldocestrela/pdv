@@ -1,6 +1,6 @@
 # PDV + Estoque (MVP)
 
-Sistema de PDV com estoque — [.NET 10](backend/) + [React + Vite](frontend/pdv-web/). Documentação de domínio: [`agents.md`](agents.md), roadmap: [`roadmap.md`](roadmap.md), erros HTTP: [`docs/api-errors.md`](docs/api-errors.md).
+Sistema de PDV com estoque — [.NET 10](backend/) + [Blazor WebAssembly](frontend/pdv-blazor/). Documentação de domínio: [`agents.md`](agents.md), roadmap: [`roadmap.md`](roadmap.md), erros HTTP: [`docs/api-errors.md`](docs/api-errors.md).
 
 ## Status atual de multitenancy
 
@@ -38,8 +38,7 @@ Na raiz do repositório:
    | `MSSQL_SA_PASSWORD` | Senha do usuário `sa` no SQL Server (política forte: maiúscula, minúscula, número e símbolo). Deve ser a mesma usada em `ConnectionStrings__DefaultConnection` (o Compose preenche a connection string com este valor). |
    | `JWT_KEY` | Chave simétrica do JWT (use valor longo; não compartilhe em produção). |
    | `SEED_SUPERADMIN_PASSWORD` | Senha inicial do usuário seed (`SEED_SUPERADMIN_EMAIL`). |
-   | `VITE_API_URL` | URL da API **como o navegador a alcança** (ex.: `http://localhost:5190`). É embutida no build do frontend. |
-   | `CORS_ORIGIN` | Origem do frontend permitida na API (ex.: `http://localhost:8080`). Se mudar `WEB_PORT`, atualize também `CORS_ORIGIN`. |
+   | `CORS_ORIGIN` | Origem do frontend permitida na API (ex.: `http://localhost:8080` ou `http://localhost:5006`). Se mudar `WEB_PORT` ou a porta de desenvolvimento, atualize também `CORS_ORIGIN`. |
 
    Portas padrão: API `5190`, web `8080`, SQL `1433` (`API_PORT`, `WEB_PORT`, `SQL_PORT`).
 
@@ -55,7 +54,7 @@ Na raiz do repositório:
    - API / health: `http://localhost:5190/api/health`
    - Na primeira subida a API aplica **migrations** e roda o **seed** (ver `backend/src/Pdv.API/Program.cs`).
 
-Arquivos relacionados: [`docker-compose.yml`](docker-compose.yml), [`backend/Dockerfile`](backend/Dockerfile), [`frontend/pdv-web/Dockerfile`](frontend/pdv-web/Dockerfile).
+Arquivos relacionados: [`docker-compose.yml`](docker-compose.yml), [`backend/Dockerfile`](backend/Dockerfile), [`frontend/pdv-blazor/Dockerfile`](frontend/pdv-blazor/Dockerfile).
 
 ## Backend
 
@@ -107,19 +106,18 @@ Inclui testes de comandos/handlers e integração HTTP da API (`WebApplicationFa
 ## Frontend
 
 ```bash
-cd frontend/pdv-web
-cp .env.example .env   # opcional — ajuste VITE_API_URL
-npm install
-npm run dev
+cd frontend/pdv-blazor
+dotnet run --launch-profile http
 ```
 
-Por padrão o Vite usa `http://localhost:1234`. O backend aceita CORS para essa origem (ver `appsettings.json`).
+Por padrão, o Blazor WebAssembly usa `http://localhost:5006`. O backend aceita CORS para essa origem (ver `appsettings.json`).
 
-### Testes (Vitest)
+### Build e Compilação
+
+O frontend é compilado junto com a solução ou individualmente:
 
 ```bash
-cd frontend/pdv-web
-npm test
+dotnet build frontend/pdv-blazor/Pdv.Web.csproj
 ```
 
 ### Autenticação (Fase 1)
@@ -142,9 +140,9 @@ npm test
 ## Fase 0 (entrega)
 
 - Solução em camadas com MediatR, FluentValidation, EF Core + migration inicial
-- Cliente HTTP (`axios`) + store (`zustand`) e hook de health check no frontend
+- Cliente HTTP (`HttpClient`) + estado persistente de autenticação no frontend Blazor
 
 ## Fase 1 (entrega)
 
 - Entidades User / Role / Permission, login JWT, refresh token, seed Super Admin
-- Frontend: tela de login (referência visual: [`frontend/pdv-web/docs/STITCH_LOGIN.md`](frontend/pdv-web/docs/STITCH_LOGIN.md)), rotas protegidas, `can()` / `usePermission()`, sessão com `zustand` persist
+- Frontend: tela de login (referência visual: [`frontend/pdv-blazor/Pages/Login.razor`](frontend/pdv-blazor/Pages/Login.razor)), rotas protegidas com `AuthorizeRouteView`, `PdvAuthStateProvider` para gerenciar permissões (`AuthProvider.Can()`) e sessão persistida no LocalStorage.

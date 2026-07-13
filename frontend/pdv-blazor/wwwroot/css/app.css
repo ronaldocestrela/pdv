@@ -1,0 +1,80 @@
+/* Reset mínimo — o design system está em pdvTheme.css e Login.css */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+#app { height: 100%; }
+
+/* Blazor error UI */
+#blazor-error-ui {
+    color-scheme: light only;
+    background: #fff3cd;
+    border-top: 2px solid #ffc107;
+    bottom: 0;
+    box-shadow: 0 -1px 4px rgba(0,0,0,.15);
+    box-sizing: border-box;
+    display: none;
+    font-size: 0.875rem;
+    left: 0;
+    padding: 0.6rem 2.5rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+/* Spinner de carregamento inicial do WASM */
+.loading-progress {
+    position: absolute;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    inset: 20vh 0 auto 0;
+    margin: 0 auto;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: #c5c6cd;
+    stroke-width: 0.6rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: #0058be;
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    position: absolute;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #45474c;
+    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+}
+
+.loading-progress-text::after {
+    content: var(--blazor-load-percentage-text, "Carregando…");
+}
+
+/* Blazor validation helpers */
+.valid.modified:not([type=checkbox]) { outline: 1px solid #0a7; }
+.invalid { outline: 1px solid #ba1a1a; }
+.validation-message { color: #ba1a1a; font-size: 0.875rem; margin: 0.25rem 0 0; }
+
+/* Classe utilitária usada na HomePage */
+.muted { color: #45474c; }

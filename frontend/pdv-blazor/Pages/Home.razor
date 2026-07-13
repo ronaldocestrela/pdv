@@ -1,0 +1,176 @@
+@* Porta fiel de Home.tsx — dashboard com resumo de vendas e top produtos *@
+@page "/"
+@attribute [Authorize]
+@inject ReportsService ReportsSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Início — PDV + Estoque</PageTitle>
+
+<header class="pdv-main__header" style="margin-bottom:0.5rem">
+    <h1>Início</h1>
+</header>
+<p class="muted" style="margin-top:0">
+    Fase 2 — produtos e variações disponíveis na barra lateral.
+</p>
+
+@if (AuthProvider.Can("product.view"))
+{
+    <p style="margin-top:0.75rem">
+        <a class="pdv-breadcrumb" style="font-size:1rem" href="/products">Ir para Produtos →</a>
+    </p>
+}
+
+@if (AuthProvider.Can("report.view"))
+{
+    <section class="pdv-card"
+             style="margin-top:1.25rem;padding:1rem 1.25rem"
+             aria-labelledby="home-metrics-heading">
+
+        <h2 id="home-metrics-heading"
+            style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">
+            Resumo do período
+        </h2>
+
+        @if (!string.IsNullOrEmpty(ReportError))
+        {
+            <p class="pdv-error">@ReportError</p>
+        }
+
+        <div class="pdv-toolbar" style="margin-bottom:1rem;flex-wrap:wrap">
+            <div class="pdv-field" style="margin-bottom:0;min-width:160px">
+                <label for="home-from">Data inicial</label>
+                <input id="home-from" type="date"
+                       @bind="FromDate" @bind:event="onchange" />
+            </div>
+            <div class="pdv-field" style="margin-bottom:0;min-width:160px">
+                <label for="home-to">Data final</label>
+                <input id="home-to" type="date"
+                       @bind="ToDate" @bind:event="onchange" />
+            </div>
+            <button type="button"
+                    class="pdv-btn pdv-btn--primary"
+                    style="align-self:flex-end"
+                    @onclick="LoadReportsAsync">
+                Atualizar período
+            </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1rem">
+            <div class="pdv-card" style="padding:1rem 1.25rem">
+                <h3 style="margin:0;font-size:0.875rem;font-weight:600;color:var(--pdv-muted)">Quantidade de vendas</h3>
+                @if (LoadingSales)
+                {
+                    <p class="pdv-empty" style="padding:1rem 0">Carregando…</p>
+                }
+                else if (Sales is not null)
+                {
+                    <p style="margin:0.5rem 0 0;font-size:1.75rem;font-weight:700">@Sales.SaleCount</p>
+                    <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.875rem">no período selecionado</p>
+                }
+                else
+                {
+                    <p class="pdv-empty" style="padding:1rem 0">Sem dados.</p>
+                }
+            </div>
+
+            <div class="pdv-card" style="padding:1rem 1.25rem">
+                <h3 style="margin:0;font-size:0.875rem;font-weight:600;color:var(--pdv-muted)">Faturamento</h3>
+                @if (LoadingSales)
+                {
+                    <p class="pdv-empty" style="padding:1rem 0">Carregando…</p>
+                }
+                else if (Sales is not null)
+                {
+                    <p style="margin:0.5rem 0 0;font-size:1.75rem;font-weight:600">@FormatBRL(Sales.TotalAmount)</p>
+                    <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.875rem">total faturado no período</p>
+                }
+                else
+                {
+                    <p class="pdv-empty" style="padding:1rem 0">Sem dados.</p>
+                }
+            </div>
+        </div>
+
+        <div class="pdv-card pdv-table-wrap" style="margin-bottom:0">
+            <h3 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Produtos mais vendidos (top 5)</h3>
+            @if (LoadingTop)
+            {
+                <p class="pdv-empty">Carregando…</p>
+            }
+            else if (!TopProducts.Any())
+            {
+                <p class="pdv-empty">Nenhuma venda no período.</p>
+            }
+            else
+            {
+                <table class="pdv-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Variação</th>
+                            <th class="num">Qtd vendida</th>
+                            <th class="num">Receita</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in TopProducts)
+                        {
+                            <tr>
+                                <td>@row.ProductName</td>
+                                <td>@row.VariationName</td>
+                                <td class="num">@row.QuantitySold</td>
+                                <td class="num">@FormatBRL(row.Revenue)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+}
+
+@code {
+    private DateOnly FromDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30));
+    private DateOnly ToDate   { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    private SalesReportDto?           Sales       { get; set; }
+    private List<TopProductReportDto> TopProducts { get; set; } = [];
+    private bool    LoadingSales { get; set; }
+    private bool    LoadingTop   { get; set; }
+    private string? ReportError  { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthProvider.Can("report.view"))
+            await LoadReportsAsync();
+    }
+
+    private async Task LoadReportsAsync()
+    {
+        ReportError  = null;
+        LoadingSales = LoadingTop = true;
+        StateHasChanged();
+
+        var fromUtc = $"{FromDate:yyyy-MM-dd}T00:00:00.000Z";
+        var toUtc   = $"{ToDate:yyyy-MM-dd}T23:59:59.999Z";
+
+        await Task.WhenAll(
+            ReportsSvc.GetSalesReportAsync(fromUtc, toUtc)
+                .ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully) Sales = t.Result;
+                    else ReportError = "Não foi possível carregar o resumo de vendas.";
+                    LoadingSales = false;
+                }),
+            ReportsSvc.GetTopProductsAsync(fromUtc, toUtc, 5)
+                .ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully) TopProducts = t.Result;
+                    else ReportError ??= "Não foi possível carregar produtos mais vendidos.";
+                    LoadingTop = false;
+                }));
+    }
+
+    private static string FormatBRL(decimal value)
+        => value.ToString("C", new System.Globalization.CultureInfo("pt-BR"));
+}

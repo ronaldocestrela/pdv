@@ -1,0 +1,20 @@
+@* Equivalente ao App.tsx do React — define roteamento e layout protegido *@
+<Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.AppShell)">
+            <NotAuthorized>
+                @* Redireciona para /login quando não autenticado *@
+                <RedirectToLogin />
+            </NotAuthorized>
+            <Authorizing>
+                <p class="pdv-empty">Verificando autenticação…</p>
+            </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(Layout.AppShell)">
+            <p class="pdv-empty">Página não encontrada.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

@@ -1,0 +1,143 @@
+@* Equivalente ao AppShell.tsx do React.
+   Implementa sidebar desktop + drawer mobile com as mesmas classes CSS do pdvTheme.css. *@
+
+@inherits LayoutComponentBase
+@inject PdvAuthStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject AuthService AuthSvc
+
+<div class="pdv-theme pdv-app" data-nav-open="@(IsDrawer && NavOpen ? "true" : null)">
+
+    @* Backdrop do drawer (mobile) — equivalente ao pdv-nav-backdrop do React *@
+    @if (IsDrawer && NavOpen)
+    {
+        <button type="button"
+                class="pdv-nav-backdrop"
+                aria-label="Fechar menu de navegação"
+                tabindex="-1"
+                @onclick="CloseNav" />
+    }
+
+    @* Sidebar *@
+    <aside id="pdv-sidebar"
+           class="pdv-sidebar"
+           aria-label="Navegação principal"
+           @attributes="InertAttr">
+
+        <div class="pdv-sidebar__brand">PDV + Estoque</div>
+
+        <nav class="pdv-sidebar__nav" aria-label="Principal">
+            <NavLink class="pdv-sidebar__link" href="" Match="NavLinkMatch.All" @onclick="OnNavClick">Início</NavLink>
+            <NavLink class="pdv-sidebar__link" href="products" @onclick="OnNavClick">Produtos</NavLink>
+
+            @if (ShowSuppliers)
+            {
+                <NavLink class="pdv-sidebar__link" href="suppliers" @onclick="OnNavClick">Fornecedores</NavLink>
+            }
+            @if (ShowPdv)
+            {
+                <NavLink class="pdv-sidebar__link" href="pdv" @onclick="OnNavClick">PDV</NavLink>
+            }
+            @if (ShowStock)
+            {
+                <NavLink class="pdv-sidebar__link" href="stock" @onclick="OnNavClick">Estoque</NavLink>
+            }
+            @if (ShowReports)
+            {
+                <NavLink class="pdv-sidebar__link" href="reports" @onclick="OnNavClick">Relatórios</NavLink>
+            }
+            @if (ShowUsers)
+            {
+                <NavLink class="pdv-sidebar__link" href="users" @onclick="OnNavClick">Usuários</NavLink>
+            }
+            @if (ShowRoles)
+            {
+                <NavLink class="pdv-sidebar__link" href="roles" @onclick="OnNavClick">Roles</NavLink>
+            }
+        </nav>
+
+        <div style="margin-top:auto;padding:1rem 1.25rem">
+            <button type="button"
+                    class="pdv-btn pdv-btn--ghost"
+                    style="width:100%;color:#fff;border-color:rgba(255,255,255,0.25)"
+                    @onclick="LogoutAsync">
+                Sair
+            </button>
+        </div>
+    </aside>
+
+    @* Área principal *@
+    <div class="pdv-main">
+        @* Topbar mobile *@
+        <header class="pdv-main__topbar">
+            <button type="button"
+                    class="pdv-nav-toggle"
+                    aria-expanded="@NavOpen"
+                    aria-controls="pdv-sidebar"
+                    @onclick="ToggleNav">
+                <span class="pdv-nav-toggle__icon" aria-hidden="true">
+                    <span class="pdv-nav-toggle__bar"></span>
+                    <span class="pdv-nav-toggle__bar"></span>
+                    <span class="pdv-nav-toggle__bar"></span>
+                </span>
+                <span class="pdv-nav-toggle__label">Menu</span>
+            </button>
+        </header>
+
+        <div class="pdv-main__body">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool NavOpen { get; set; }
+    private bool IsDrawer { get; set; }
+
+    // Permissões — equivalente ao usePermission() do React
+    private bool ShowStock    => AuthProvider.Can("stock.view")    || AuthProvider.Can("stock.adjust");
+    private bool ShowSuppliers => AuthProvider.Can("supplier.view");
+    private bool ShowPdv      => AuthProvider.Can("sale.create")   || AuthProvider.Can("sale.view");
+    private bool ShowReports  => AuthProvider.Can("report.view")   || AuthProvider.Can("cashflow.view");
+    private bool ShowUsers    => AuthProvider.Can("user.manage");
+    private bool ShowRoles    => AuthProvider.Can("role.manage")   || AuthProvider.Can("user.manage");
+
+    // data-inert equivalente: desabilita interação do sidebar enquanto fechado no mobile
+    private IReadOnlyDictionary<string, object>? InertAttr =>
+        IsDrawer && !NavOpen
+            ? new Dictionary<string, object> { ["inert"] = "" }
+            : null;
+
+    protected override void OnInitialized()
+    {
+        // Detecta viewport via JS não necessário em SSR — usamos CSS container queries
+        // como no React. Para drawer, o CSS já cuida da visibilidade.
+        // IsDrawer é gerenciado pelo evento de resize se necessário.
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        if (IsDrawer) CloseNav();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleNav() => NavOpen = !NavOpen;
+    private void CloseNav()  => NavOpen = false;
+
+    private void OnNavClick()
+    {
+        if (IsDrawer) CloseNav();
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthSvc.LogoutAsync();
+        Nav.NavigateTo("/login", replace: true);
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}

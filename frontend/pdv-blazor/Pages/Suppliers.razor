@@ -1,0 +1,179 @@
+@* Porta fiel de SuppliersPage.tsx *@
+@page "/suppliers"
+@attribute [Authorize]
+@inject SuppliersService SuppliersSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Fornecedores — PDV + Estoque</PageTitle>
+
+<div class="pdv-main__header">
+    <h1>Fornecedores</h1>
+    <div class="pdv-toolbar">
+        @if (AuthProvider.Can("supplier.create"))
+        {
+            <button type="button" class="pdv-btn pdv-btn--primary" @onclick="() => OpenModal(null)">
+                Novo fornecedor
+            </button>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Error)) { <p class="pdv-error">@Error</p> }
+
+<div class="pdv-card pdv-table-wrap">
+    @if (Loading)
+    {
+        <p class="pdv-empty">Carregando…</p>
+    }
+    else if (!Rows.Any())
+    {
+        <p class="pdv-empty">Nenhum fornecedor cadastrado.</p>
+    }
+    else
+    {
+        <table class="pdv-table">
+            <thead>
+                <tr>
+                    <th>Nome</th><th>Documento</th><th>E-mail</th><th>Telefone</th><th>Ativo</th>
+                    <th style="width:10rem">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Rows)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td>@(s.Document ?? "—")</td>
+                        <td>@(s.Email ?? "—")</td>
+                        <td>@(s.Phone ?? "—")</td>
+                        <td><span class="pdv-chip @(s.IsActive ? "pdv-chip--ok" : "pdv-chip--off")">@(s.IsActive ? "Sim" : "Não")</span></td>
+                        <td>
+                            @if (AuthProvider.Can("supplier.update"))
+                            {
+                                <button type="button" class="pdv-btn pdv-btn--ghost pdv-btn--sm" style="margin-right:6px"
+                                        @onclick="() => OpenModal(s)">Editar</button>
+                            }
+                            @if (AuthProvider.Can("supplier.delete"))
+                            {
+                                <button type="button" class="pdv-btn pdv-btn--danger pdv-btn--sm"
+                                        @onclick="() => DeletingSupplier = s">Excluir</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (ModalOpen)
+{
+    <div class="pdv-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="supplier-modal-title">
+        <div class="pdv-modal">
+            <h2 id="supplier-modal-title">@(ModalSupplier is null ? "Novo fornecedor" : "Editar fornecedor")</h2>
+            <EditForm Model="@ModalModel" OnValidSubmit="SaveAsync">
+                <div class="pdv-field"><label for="s-name">Nome / Razão Social</label>
+                    <InputText id="s-name" autocomplete="off" @bind-Value="ModalModel.Name" /></div>
+                <div class="pdv-field"><label for="s-doc">CNPJ / CPF</label>
+                    <InputText id="s-doc" autocomplete="off" @bind-Value="ModalModel.Document" /></div>
+                <div class="pdv-field"><label for="s-email">E-mail</label>
+                    <InputText id="s-email" type="email" autocomplete="off" @bind-Value="ModalModel.Email" /></div>
+                <div class="pdv-field"><label for="s-phone">Telefone</label>
+                    <InputText id="s-phone" autocomplete="off" @bind-Value="ModalModel.Phone" /></div>
+                <div class="pdv-field pdv-toggle">
+                    <InputCheckbox id="s-active" @bind-Value="ModalModel.IsActive" />
+                    <label for="s-active">Ativo</label>
+                </div>
+                @if (!string.IsNullOrEmpty(ModalError)) { <p class="pdv-error">@ModalError</p> }
+                <div class="pdv-modal__actions">
+                    <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="CloseModal">Cancelar</button>
+                    <button type="submit" class="pdv-btn pdv-btn--primary">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (DeletingSupplier is not null)
+{
+    <div class="pdv-modal-overlay">
+        <div class="pdv-modal">
+            <h2>Excluir fornecedor</h2>
+            <p style="margin:0;font-size:0.9rem">Excluir o fornecedor «@DeletingSupplier.Name»?</p>
+            <div class="pdv-modal__actions">
+                <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="() => DeletingSupplier = null">Cancelar</button>
+                <button type="button" class="pdv-btn pdv-btn--danger" @onclick="DeleteAsync">Excluir</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<SupplierSummaryDto> Rows     { get; set; } = [];
+    private bool                     Loading  { get; set; } = true;
+    private string?                  Error    { get; set; }
+    private bool                     ModalOpen { get; set; }
+    private SupplierSummaryDto?      ModalSupplier  { get; set; }
+    private SupplierModalModel       ModalModel     { get; set; } = new();
+    private string?                  ModalError     { get; set; }
+    private SupplierSummaryDto?      DeletingSupplier { get; set; }
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        Error   = null; Loading = true;
+        try   { Rows = await SuppliersSvc.ListSuppliersAsync(); }
+        catch { Error = "Não foi possível carregar os fornecedores."; }
+        finally { Loading = false; }
+    }
+
+    private void OpenModal(SupplierSummaryDto? s)
+    {
+        ModalSupplier = s;
+        ModalModel    = new SupplierModalModel
+        {
+            Name     = s?.Name     ?? "",
+            Document = s?.Document ?? "",
+            Email    = s?.Email    ?? "",
+            Phone    = s?.Phone    ?? "",
+            IsActive = s?.IsActive ?? true,
+        };
+        ModalError = null; ModalOpen = true;
+    }
+
+    private void CloseModal() => ModalOpen = false;
+
+    private async Task SaveAsync()
+    {
+        ModalError = null;
+        var doc   = string.IsNullOrWhiteSpace(ModalModel.Document) ? null : ModalModel.Document.Trim();
+        var email = string.IsNullOrWhiteSpace(ModalModel.Email)    ? null : ModalModel.Email.Trim();
+        var phone = string.IsNullOrWhiteSpace(ModalModel.Phone)    ? null : ModalModel.Phone.Trim();
+        try
+        {
+            if (ModalSupplier is null)
+                await SuppliersSvc.CreateSupplierAsync(ModalModel.Name, doc, email, phone, ModalModel.IsActive);
+            else
+                await SuppliersSvc.UpdateSupplierAsync(ModalSupplier.Id, ModalModel.Name, doc, email, phone, ModalModel.IsActive);
+            CloseModal(); await LoadAsync();
+        }
+        catch { ModalError = "Não foi possível salvar."; }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (DeletingSupplier is null) return;
+        try { await SuppliersSvc.DeleteSupplierAsync(DeletingSupplier.Id); DeletingSupplier = null; await LoadAsync(); }
+        catch { Error = "Falha ao excluir fornecedor."; DeletingSupplier = null; }
+    }
+
+    private class SupplierModalModel
+    {
+        public string Name     { get; set; } = "";
+        public string Document { get; set; } = "";
+        public string Email    { get; set; } = "";
+        public string Phone    { get; set; } = "";
+        public bool   IsActive { get; set; } = true;
+    }
+}

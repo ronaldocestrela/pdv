@@ -1,0 +1,183 @@
+@* Porta fiel de RolesPage.tsx *@
+@page "/roles"
+@attribute [Authorize]
+@inject RolesService RolesSvc
+@inject PermissionsService PermSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Roles e permissões — PDV + Estoque</PageTitle>
+
+@if (!AuthProvider.Can("role.manage") && !AuthProvider.Can("user.manage"))
+{
+    <div class="pdv-main__header"><h1>Roles e permissões</h1></div>
+    <p class="pdv-error">Você não tem permissão para acessar esta área.</p>
+}
+else
+{
+    <div class="pdv-main__header">
+        <div>
+            <h1>Roles e permissões</h1>
+            <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.9rem">Fase 6 — administrar roles e permissões.</p>
+        </div>
+        <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="LoadAllAsync" disabled="@Loading">Atualizar</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Error)) { <p class="pdv-error">@Error</p> }
+
+    @if (AuthProvider.Can("role.manage"))
+    {
+        <div class="pdv-card" style="margin-bottom:1rem;padding:1rem 1.25rem">
+            <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Nova role</h2>
+            <div class="pdv-toolbar" style="flex-wrap:wrap;gap:0.75rem;align-items:flex-end">
+                <div class="pdv-field" style="margin-bottom:0;flex:1 1 12rem;min-width:0">
+                    <label for="role-new-name">Nome</label>
+                    <input id="role-new-name" @bind="NewName" @bind:event="oninput" placeholder="Ex.: Caixa" />
+                </div>
+                <button type="button" class="pdv-btn pdv-btn--primary" @onclick="CreateRoleAsync">Criar role</button>
+            </div>
+        </div>
+    }
+
+    <div class="pdv-master-detail">
+        <div class="pdv-card pdv-table-wrap" style="margin-bottom:0">
+            <h2 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Roles</h2>
+            @if (Loading && !RoleList.Any()) { <p class="pdv-empty">Carregando…</p> }
+            else if (!RoleList.Any()) { <p class="pdv-empty">Nenhuma role.</p> }
+            else
+            {
+                <ul style="list-style:none;margin:0;padding:0.5rem 0">
+                    @foreach (var r in RoleList)
+                    {
+                        <li>
+                            <button type="button"
+                                    style="width:100%;text-align:left;border:none;background:@(SelectedId==r.Id?"rgba(0,88,190,0.12)":"transparent");cursor:pointer;padding:0.65rem 1.25rem;color:inherit;font:inherit"
+                                    @onclick="() => SelectRole(r.Id)">
+                                @r.Name
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="pdv-card" style="padding:1rem 1.25rem">
+            @if (SelectedRole is null) { <p class="pdv-empty">Selecione uma role.</p> }
+            else
+            {
+                <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Detalhe</h2>
+                @if (AuthProvider.Can("role.manage"))
+                {
+                    <div class="pdv-toolbar" style="flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;align-items:flex-end">
+                        <div class="pdv-field" style="margin-bottom:0;flex:1 1 12rem;min-width:0">
+                            <label for="role-edit-name">Nome</label>
+                            <input id="role-edit-name" @bind="EditName" @bind:event="oninput" disabled="@IsSuperAdmin" />
+                        </div>
+                        <button type="button" class="pdv-btn pdv-btn--primary" @onclick="SaveNameAsync" disabled="@IsSuperAdmin">Salvar nome</button>
+                        <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="DeleteRoleAsync" disabled="@IsSuperAdmin">Excluir</button>
+                    </div>
+                }
+                else
+                {
+                    <p style="color:var(--pdv-muted);font-size:0.9rem;margin-top:0">Somente leitura — sem permissão para alterar roles.</p>
+                }
+
+                <h3 style="font-size:0.95rem;font-weight:600;margin:1rem 0 0.75rem">Permissões</h3>
+                @if (IsSuperAdmin)
+                {
+                    <p class="pdv-empty" style="padding:0.5rem 0">Super Admin: permissões geridas automaticamente pelo sistema.</p>
+                }
+                else
+                {
+                    <div class="pdv-perm-grid">
+                        @foreach (var p in Catalog)
+                        {
+                            <label style="display:flex;gap:0.5rem;align-items:center;font-size:0.875rem">
+                                <input type="checkbox"
+                                       checked="@PermSelections.GetValueOrDefault(p)"
+                                       disabled="@(!AuthProvider.Can("role.manage"))"
+                                       @onchange="e => PermSelections[p] = (bool)(e.Value ?? false)" />
+                                <code style="font-size:0.8rem">@p</code>
+                            </label>
+                        }
+                    </div>
+                    @if (AuthProvider.Can("role.manage"))
+                    {
+                        <button type="button" class="pdv-btn pdv-btn--primary" style="margin-top:1rem" @onclick="SavePermissionsAsync">Salvar permissões</button>
+                    }
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<RoleAdminDto> RoleList     { get; set; } = [];
+    private List<string>       Catalog   { get; set; } = [];
+    private string?            SelectedId { get; set; }
+    private Dictionary<string, bool> PermSelections { get; set; } = [];
+    private string  NewName   { get; set; } = "";
+    private string  EditName  { get; set; } = "";
+    private bool    Loading   { get; set; }
+    private string? Error     { get; set; }
+
+    private RoleAdminDto? SelectedRole => RoleList.FirstOrDefault(r => r.Id == SelectedId);
+    private bool IsSuperAdmin => SelectedRole?.Name == "Super Admin";
+
+    protected override async Task OnInitializedAsync() => await LoadAllAsync();
+
+    private async Task LoadAllAsync()
+    {
+        Loading = true; Error = null;
+        try
+        {
+            var (r, c) = (await RolesSvc.ListRolesAsync(), await PermSvc.GetPermissionCatalogAsync());
+            RoleList = r; Catalog = c;
+            if (SelectedId is null && RoleList.Any()) SelectRole(RoleList[0].Id);
+        }
+        catch { Error = "Não foi possível carregar roles ou catálogo de permissões."; }
+        finally { Loading = false; }
+    }
+
+    private void SelectRole(string id)
+    {
+        SelectedId = id; EditName = SelectedRole?.Name ?? "";
+        PermSelections = Catalog.ToDictionary(p => p, p => SelectedRole?.Permissions.Contains(p) == true);
+    }
+
+    private async Task CreateRoleAsync()
+    {
+        if (!AuthProvider.Can("role.manage") || string.IsNullOrWhiteSpace(NewName)) return;
+        Error = null;
+        try { await RolesSvc.CreateRoleAsync(NewName.Trim()); NewName = ""; await LoadAllAsync(); }
+        catch { Error = "Não foi possível criar a role."; }
+    }
+
+    private async Task SaveNameAsync()
+    {
+        if (SelectedRole is null) return;
+        Error = null;
+        try { await RolesSvc.UpdateRoleAsync(SelectedRole.Id, EditName.Trim()); await LoadAllAsync(); }
+        catch { Error = "Não foi possível atualizar o nome da role."; }
+    }
+
+    private async Task DeleteRoleAsync()
+    {
+        if (SelectedRole is null || IsSuperAdmin) return;
+        Error = null;
+        try { await RolesSvc.DeleteRoleAsync(SelectedRole.Id); SelectedId = null; await LoadAllAsync(); }
+        catch { Error = "Não foi possível excluir a role."; }
+    }
+
+    private async Task SavePermissionsAsync()
+    {
+        if (SelectedRole is null || IsSuperAdmin) return;
+        Error = null;
+        try
+        {
+            var names = PermSelections.Where(kv => kv.Value).Select(kv => kv.Key).ToList();
+            await RolesSvc.SetRolePermissionsAsync(SelectedRole.Id, names);
+            await LoadAllAsync();
+        }
+        catch { Error = "Não foi possível salvar permissões."; }
+    }
+}

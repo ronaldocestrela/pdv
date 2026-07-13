@@ -1,0 +1,194 @@
+@* Porta fiel de ReportsPage.tsx *@
+@page "/reports"
+@attribute [Authorize]
+@inject ReportsService ReportsSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Relatórios — PDV + Estoque</PageTitle>
+
+@if (!AuthProvider.Can("report.view") && !AuthProvider.Can("cashflow.view"))
+{
+    <div class="pdv-main__header"><h1>Relatórios</h1></div>
+    <p class="pdv-error">Você não tem permissão para acessar relatórios.</p>
+}
+else
+{
+    <div class="pdv-main__header">
+        <div>
+            <h1>Relatórios</h1>
+            <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.9rem">
+                Visão gerencial (Fase 5).
+            </p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Error)) { <p class="pdv-error">@Error</p> }
+
+    <div class="pdv-card" style="margin-bottom:1rem;padding:1rem 1.25rem">
+        <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Período</h2>
+        <div class="pdv-toolbar pdv-toolbar--fluid" style="flex-wrap:wrap;align-items:flex-end;gap:0.75rem">
+            <div class="pdv-field">
+                <label for="rep-from">De (UTC)</label>
+                <input id="rep-from" type="datetime-local" @bind="FromUtc" @bind:event="onchange" />
+            </div>
+            <div class="pdv-field">
+                <label for="rep-to">Até (UTC)</label>
+                <input id="rep-to" type="datetime-local" @bind="ToUtc" @bind:event="onchange" />
+            </div>
+            <button type="button" class="pdv-btn pdv-btn--primary" style="align-self:flex-end" @onclick="LoadPeriodAsync">Atualizar período</button>
+            @if (AuthProvider.Can("report.view"))
+            {
+                <button type="button" class="pdv-btn pdv-btn--ghost" style="align-self:flex-end" @onclick="LoadStockAsync">Atualizar estoque</button>
+            }
+            <button type="button" class="pdv-btn pdv-btn--ghost" style="align-self:flex-end" @onclick="LoadAllAsync">Atualizar tudo</button>
+        </div>
+    </div>
+
+    @if (AuthProvider.Can("report.view"))
+    {
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1rem">
+            <div class="pdv-card" style="padding:1rem 1.25rem">
+                <h3 style="margin:0;font-size:0.875rem;font-weight:600;color:var(--pdv-muted)">Vendas no período</h3>
+                @if (LoadingSales) { <p class="pdv-empty" style="padding:1rem 0">Carregando…</p> }
+                else if (Sales is not null)
+                {
+                    <p style="margin:0.5rem 0 0;font-size:1.75rem;font-weight:700">@Sales.SaleCount</p>
+                    <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.875rem">quantidade de vendas</p>
+                    <p style="margin:0.75rem 0 0;font-size:1.25rem;font-weight:600">@FormatBRL(Sales.TotalAmount)</p>
+                    <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.875rem">faturamento</p>
+                }
+                else { <p class="pdv-empty" style="padding:1rem 0">Clique em atualizar.</p> }
+            </div>
+        </div>
+
+        <div class="pdv-card pdv-table-wrap" style="margin-bottom:1rem">
+            <h2 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Produtos mais vendidos</h2>
+            @if (LoadingTop) { <p class="pdv-empty">Carregando…</p> }
+            else if (!TopProducts.Any()) { <p class="pdv-empty">Nenhuma venda no período.</p> }
+            else
+            {
+                <table class="pdv-table">
+                    <thead><tr><th>Produto</th><th>Variação</th><th class="num">Qtd vendida</th><th class="num">Receita</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in TopProducts)
+                        {
+                            <tr>
+                                <td>@r.ProductName</td><td>@r.VariationName</td>
+                                <td class="num">@r.QuantitySold</td><td class="num">@FormatBRL(r.Revenue)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+
+    @if (AuthProvider.Can("cashflow.view"))
+    {
+        <div class="pdv-card pdv-table-wrap" style="margin-bottom:1rem">
+            <h2 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Fluxo de caixa</h2>
+            @if (LoadingCash) { <p class="pdv-empty">Carregando…</p> }
+            else if (!CashFlows.Any()) { <p class="pdv-empty">Nenhum lançamento no período.</p> }
+            else
+            {
+                <table class="pdv-table">
+                    <thead><tr><th>Data</th><th>Tipo</th><th class="num">Valor</th><th>Descrição</th><th class="num">Venda</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in CashFlows)
+                        {
+                            <tr>
+                                <td>@DateTime.Parse(r.CreatedAtUtc).ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td><span class="pdv-chip @(r.Type == 0 ? "pdv-chip--ok" : "pdv-chip--danger")">@(r.Type == 0 ? "Entrada" : "Saída")</span></td>
+                                <td class="num">@FormatBRL(r.Amount)</td>
+                                <td>@(string.IsNullOrEmpty(r.Description) ? "—" : r.Description)</td>
+                                <td class="num">@(r.SaleId ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+
+    @if (AuthProvider.Can("report.view"))
+    {
+        <div class="pdv-card pdv-table-wrap">
+            <h2 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Estoque atual</h2>
+            @if (LoadingStock) { <p class="pdv-empty">Carregando…</p> }
+            else if (Stock is null) { <p class="pdv-empty">Carregando estoque…</p> }
+            else if (!Stock.Any()) { <p class="pdv-empty">Nenhuma variação cadastrada.</p> }
+            else
+            {
+                <table class="pdv-table">
+                    <thead><tr><th>Produto</th><th>Variação</th><th class="num">Estoque</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in Stock)
+                        {
+                            <tr><td>@r.ProductName</td><td>@r.VariationName</td><td class="num">@r.StockQuantity</td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+}
+
+@code {
+    private DateTime FromUtc { get; set; } = DateTime.UtcNow.AddDays(-30);
+    private DateTime ToUtc   { get; set; } = DateTime.UtcNow;
+
+    private SalesReportDto?           Sales      { get; set; }
+    private List<TopProductReportDto> TopProducts { get; set; } = [];
+    private List<CashFlowReportRowDto> CashFlows { get; set; } = [];
+    private List<StockReportRowDto>?  Stock      { get; set; }
+
+    private bool    LoadingSales { get; set; }
+    private bool    LoadingTop   { get; set; }
+    private bool    LoadingCash  { get; set; }
+    private bool    LoadingStock { get; set; }
+    private string? Error        { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthProvider.Can("report.view") || AuthProvider.Can("cashflow.view"))
+            await LoadAllAsync();
+    }
+
+    private string FromIso => FromUtc.ToUniversalTime().ToString("o");
+    private string ToIso   => ToUtc.ToUniversalTime().ToString("o");
+
+    private async Task LoadPeriodAsync()
+    {
+        Error = null;
+        var tasks = new List<Task>();
+        if (AuthProvider.Can("report.view"))
+        {
+            LoadingSales = LoadingTop = true;
+            tasks.Add(ReportsSvc.GetSalesReportAsync(FromIso, ToIso).ContinueWith(t => { if (t.IsCompletedSuccessfully) Sales = t.Result; else Error = "Erro ao carregar vendas."; LoadingSales = false; }));
+            tasks.Add(ReportsSvc.GetTopProductsAsync(FromIso, ToIso, 20).ContinueWith(t => { if (t.IsCompletedSuccessfully) TopProducts = t.Result; LoadingTop = false; }));
+        }
+        if (AuthProvider.Can("cashflow.view"))
+        {
+            LoadingCash = true;
+            tasks.Add(ReportsSvc.GetCashFlowAsync(FromIso, ToIso, 100).ContinueWith(t => { if (t.IsCompletedSuccessfully) CashFlows = t.Result; LoadingCash = false; }));
+        }
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadStockAsync()
+    {
+        if (!AuthProvider.Can("report.view")) return;
+        LoadingStock = true; Error = null;
+        try   { Stock = await ReportsSvc.GetStockReportAsync(500); }
+        catch { Error = "Não foi possível carregar o estoque atual."; }
+        finally { LoadingStock = false; }
+    }
+
+    private async Task LoadAllAsync()
+    {
+        await Task.WhenAll(LoadPeriodAsync(), LoadStockAsync());
+    }
+
+    private static string FormatBRL(decimal v)
+        => v.ToString("C", new System.Globalization.CultureInfo("pt-BR"));
+}

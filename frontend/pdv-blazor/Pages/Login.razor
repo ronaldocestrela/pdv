@@ -1,0 +1,95 @@
+@* Porta fiel de Login.tsx — mesmas classes CSS de Login.css *@
+@page "/login"
+@layout EmptyLayout
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+
+<PageTitle>Login — PDV + Estoque</PageTitle>
+
+<div class="login-page">
+    <div class="login-card">
+        <h1 class="login-title">PDV + Estoque</h1>
+        <p class="login-subtitle">Acesso rápido ao sistema de vendas</p>
+
+        <EditForm Model="@Model" OnValidSubmit="OnSubmit" class="login-form" novalidate>
+            <label class="login-label" for="email">E-mail</label>
+            <InputText id="email"
+                       type="email"
+                       autocomplete="email"
+                       placeholder="seu@email.com"
+                       class="login-input"
+                       @bind-Value="Model.Email" />
+
+            <label class="login-label" for="password">Senha</label>
+            <div class="login-password-row">
+                <input id="password"
+                       type="@(ShowPassword ? "text" : "password")"
+                       autocomplete="current-password"
+                       class="login-input"
+                       @bind="Model.Password"
+                       @bind:event="oninput" />
+                <button type="button"
+                        class="login-toggle"
+                        aria-pressed="@ShowPassword"
+                        @onclick="() => ShowPassword = !ShowPassword">
+                    @(ShowPassword ? "Ocultar" : "Mostrar")
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(SubmitError))
+            {
+                <p class="login-error" role="alert">@SubmitError</p>
+            }
+
+            <button type="submit" class="login-submit" disabled="@Submitting">
+                @(Submitting ? "Entrando…" : "Entrar")
+            </button>
+        </EditForm>
+
+        <button type="button" class="login-forgot" disabled>Esqueci minha senha</button>
+
+        <p class="login-hint">
+            Não tem conta? <a href="/register">Criar conta gratuita</a>
+        </p>
+        <p class="login-hint" style="margin-top:0.5rem">Sistema MVP — Fase 1</p>
+    </div>
+</div>
+
+@code {
+    private LoginModel Model { get; set; } = new();
+    private bool ShowPassword { get; set; }
+    private bool Submitting { get; set; }
+    private string? SubmitError { get; set; }
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
+
+    private async Task OnSubmit()
+    {
+        SubmitError = null;
+        Submitting  = true;
+        try
+        {
+            await AuthSvc.LoginAsync(Model.Email.Trim(), Model.Password);
+            Nav.NavigateTo(ReturnUrl ?? "/", replace: true);
+        }
+        catch (HttpRequestException ex) when ((int?)ex.StatusCode == 401)
+        {
+            SubmitError = "E-mail ou senha inválidos.";
+        }
+        catch (Exception ex)
+        {
+            SubmitError = ex.Message.Length > 0 ? ex.Message : "Não foi possível entrar.";
+        }
+        finally
+        {
+            Submitting = false;
+        }
+    }
+
+    private class LoginModel
+    {
+        public string Email    { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

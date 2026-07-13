@@ -1,0 +1,443 @@
+@* Porta fiel de PdvPage.tsx — checkout, carrinho, finalização de venda *@
+@page "/pdv"
+@attribute [Authorize]
+@inject ProductsService ProductsSvc
+@inject SalesService SalesSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>PDV — PDV + Estoque</PageTitle>
+
+@if (!AuthProvider.Can("sale.create") && !AuthProvider.Can("sale.view"))
+{
+    <div class="pdv-main__header"><h1>PDV</h1></div>
+    <p class="pdv-error">Você não tem permissão para acessar o PDV.</p>
+}
+else if (!AuthProvider.Can("product.view"))
+{
+    <div class="pdv-main__header"><h1>PDV</h1></div>
+    <p class="pdv-error">É necessária a permissão de visualização de produtos para usar o catálogo no PDV.</p>
+}
+else
+{
+    <div class="pdv-main__header">
+        <div>
+            <h1>PDV — Checkout</h1>
+            <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.9rem">
+                Busca, carrinho e finalização. Atalhos: <kbd>/</kbd> foca a busca ·
+                <kbd>Ctrl</kbd>+<kbd>Enter</kbd> finaliza · <kbd>Esc</kbd> limpa a busca.
+            </p>
+        </div>
+    </div>
+
+    <div role="status" aria-live="polite" aria-atomic="true">
+        @if (!string.IsNullOrEmpty(Notice)) { <p class="pdv-empty" style="color:var(--pdv-action)">@Notice</p> }
+        @if (!string.IsNullOrEmpty(Error))  { <p class="pdv-error">@Error</p> }
+    </div>
+
+    <div class="pdv-pdv-layout">
+        @* Painel esquerdo — produtos *@
+        <div class="pdv-card" style="margin-bottom:0">
+            <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Produtos</h2>
+
+            <div class="pdv-field">
+                <label for="pdv-search">Buscar</label>
+                <input id="pdv-search" type="search" placeholder="Nome do produto…" autofocus
+                       @bind="Search" @bind:event="oninput" disabled="@LoadingProducts" />
+            </div>
+
+            <div class="pdv-field">
+                <label for="pdv-product">Produto</label>
+                <select id="pdv-product" disabled="@LoadingProducts"
+                        @onchange="OnProductChangeAsync">
+                    <option value="">Selecione…</option>
+                    @foreach (var p in FilteredProducts)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="pdv-field">
+                <label for="pdv-variation">Variação</label>
+                <select id="pdv-variation" disabled="@(Detail is null || LoadingDetail || !Detail.Variations.Any())"
+                        @bind="SelectedVariationId">
+                    <option value="">Selecione…</option>
+                    @if (Detail is not null)
+                    {
+                        @foreach (var v in Detail.Variations)
+                        {
+                            <option value="@v.Id">@v.Name — @FormatBRL(v.UnitPrice) — estoque: @v.StockQuantity</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="pdv-subgrid-price-qty">
+                <div class="pdv-field" style="margin-bottom:0">
+                    <span id="pdv-price-label">Preço unitário (catálogo)</span>
+                    <div id="pdv-price-display" role="status" aria-labelledby="pdv-price-label"
+                         style="padding:0.5rem 0.65rem;min-height:2.25rem;display:flex;align-items:center;font-weight:600;border:1px solid var(--pdv-border);border-radius:6px;background:var(--pdv-surface);color:@(SelectedVariation is not null ? "inherit" : "var(--pdv-muted)")">
+                        @(SelectedVariation is not null ? FormatBRL(SelectedVariation.UnitPrice) : "—")
+                    </div>
+                </div>
+                <div class="pdv-field" style="margin-bottom:0">
+                    <label for="pdv-qty-add">Qtd.</label>
+                    <InputNumber id="pdv-qty-add" min="1" step="1"
+                                 disabled="@(!AuthProvider.Can("sale.create"))"
+                                 @bind-Value="QtyToAdd" />
+                </div>
+            </div>
+
+            @if (SelectedVariation is not null)
+            {
+                <p style="margin:0.75rem 0 0;font-size:0.875rem;color:var(--pdv-muted)">
+                    Estoque disponível: <strong>@SelectedVariation.StockQuantity</strong>
+                </p>
+            }
+
+            <div style="margin-top:1rem">
+                <button type="button" class="pdv-btn pdv-btn--primary"
+                        disabled="@(!AuthProvider.Can("sale.create"))"
+                        @onclick="AddToCart">
+                    Adicionar ao carrinho
+                </button>
+            </div>
+
+            @if (FilteredProducts.Any())
+            {
+                <div class="pdv-table-wrap" style="margin-top:1.25rem">
+                    <p style="margin:0 0 0.5rem;font-size:0.875rem;font-weight:600">Resultados da busca</p>
+                    <table class="pdv-table">
+                        <thead><tr><th>Produto</th><th>Variações</th></tr></thead>
+                        <tbody>
+                            @foreach (var p in FilteredProducts.Take(25))
+                            {
+                                <tr>
+                                    <td>
+                                        <button type="button" class="pdv-btn pdv-btn--ghost"
+                                                style="padding:0.25rem 0.5rem;font-weight:600"
+                                                @onclick="() => SelectProductAsync(p.Id)">
+                                            @p.Name
+                                        </button>
+                                    </td>
+                                    <td>@p.VariationCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    @if (FilteredProducts.Count > 25)
+                    {
+                        <p class="pdv-empty" style="margin-top:0.5rem">Mostrando 25 de @FilteredProducts.Count resultados — refine a busca.</p>
+                    }
+                </div>
+            }
+        </div>
+
+        @* Painel direito — carrinho + vendas recentes *@
+        <div>
+            <div class="pdv-card" style="margin-bottom:1rem">
+                <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Carrinho</h2>
+
+                @if (!Cart.Any())
+                {
+                    <p class="pdv-empty">Carrinho vazio.</p>
+                }
+                else
+                {
+                    <div class="pdv-table-wrap">
+                        <table class="pdv-table">
+                            <thead>
+                                <tr><th>Item</th><th class="num">Un.</th><th class="num">Qtd</th><th class="num">Subtotal</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var line in Cart)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight:600">@line.ProductName</div>
+                                            <div style="font-size:0.8rem;color:var(--pdv-muted)">@line.VariationName</div>
+                                        </td>
+                                        <td class="num">@FormatBRL(line.UnitPrice)</td>
+                                        <td class="num">
+                                            <div style="display:inline-flex;align-items:center;gap:6px">
+                                                <button type="button" class="pdv-btn pdv-btn--ghost"
+                                                        style="padding:0.15rem 0.45rem;min-width:0"
+                                                        disabled="@(!AuthProvider.Can("sale.create"))"
+                                                        @onclick="() => UpdateQty(line.ProductVariationId, -1)">−</button>
+                                                <span>@line.Quantity</span>
+                                                <button type="button" class="pdv-btn pdv-btn--ghost"
+                                                        style="padding:0.15rem 0.45rem;min-width:0"
+                                                        disabled="@(!AuthProvider.Can("sale.create"))"
+                                                        @onclick="() => UpdateQty(line.ProductVariationId, 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="num">@FormatBRL(line.Quantity * line.UnitPrice)</td>
+                                        <td>
+                                            <button type="button" class="pdv-btn pdv-btn--danger"
+                                                    style="padding:0.25rem 0.5rem"
+                                                    disabled="@(!AuthProvider.Can("sale.create"))"
+                                                    @onclick="() => RemoveLine(line.ProductVariationId)">Remover</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <div style="margin-top:1rem;display:flex;justify-content:space-between;align-items:baseline">
+                    <span style="font-weight:600">Total</span>
+                    <span style="font-size:1.35rem;font-weight:700">@FormatBRL(CartTotal)</span>
+                </div>
+
+                <div style="margin-top:1rem">
+                    <p style="margin:0 0 0.5rem;font-size:0.8rem;font-weight:600;color:var(--pdv-muted)">Pagamento</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        @foreach (var pm in new[] { "cash", "card", "pix" })
+                        {
+                            <button type="button"
+                                    class="pdv-btn @(PaymentMethod == pm ? "pdv-btn--primary" : "pdv-btn--ghost")"
+                                    disabled="@(!AuthProvider.Can("sale.create"))"
+                                    @onclick="() => PaymentMethod = pm">
+                                @PaymentLabel(pm)
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;display:flex;flex-direction:column;gap:8px">
+                    <button type="button" class="pdv-btn pdv-btn--primary" style="width:100%"
+                            disabled="@(!AuthProvider.Can("sale.create") || Submitting || !Cart.Any())"
+                            @onclick="FinalizeSaleAsync">
+                        @(Submitting ? "Finalizando…" : "Finalizar venda")
+                    </button>
+                    <button type="button" class="pdv-btn pdv-btn--ghost" style="width:100%;border:1px solid var(--pdv-border)"
+                            disabled="@(!AuthProvider.Can("sale.create") || !Cart.Any())"
+                            @onclick="ClearCart">
+                        Limpar carrinho
+                    </button>
+                </div>
+            </div>
+
+            @if (AuthProvider.Can("sale.view"))
+            {
+                <div class="pdv-card pdv-table-wrap">
+                    <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Últimas vendas</h2>
+                    @if (LoadingSales) { <p class="pdv-empty">Carregando…</p> }
+                    else if (!RecentSales.Any()) { <p class="pdv-empty">Nenhuma venda registrada.</p> }
+                    else
+                    {
+                        <table class="pdv-table">
+                            <thead><tr><th>Data</th><th class="num">Itens</th><th class="num">Total</th><th>Pagamento</th></tr></thead>
+                            <tbody>
+                                @foreach (var s in RecentSales)
+                                {
+                                    <tr>
+                                        <td>@DateTime.Parse(s.CreatedAtUtc).ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="num">@s.ItemCount</td>
+                                        <td class="num">@FormatBRL(s.TotalAmount)</td>
+                                        <td>@PaymentLabel(s.PaymentMethod)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    // ── Estado de catálogo ──────────────────────────────────────────────────
+    private List<ProductSummaryDto> Products { get; set; } = [];
+    private ProductDetailDto?       Detail   { get; set; }
+    private string                  Search   { get; set; } = "";
+    private string                  SelectedProductId  { get; set; } = "";
+    private string                  SelectedVariationId { get; set; } = "";
+    private int                     QtyToAdd { get; set; } = 1;
+    private bool LoadingProducts { get; set; }
+    private bool LoadingDetail   { get; set; }
+
+    // ── Estado do carrinho ──────────────────────────────────────────────────
+    private List<CartLine> Cart          { get; set; } = [];
+    private string         PaymentMethod { get; set; } = "cash";
+    private bool           Submitting    { get; set; }
+
+    // ── Vendas recentes ─────────────────────────────────────────────────────
+    private List<SaleListItemDto> RecentSales  { get; set; } = [];
+    private bool                  LoadingSales { get; set; }
+
+    // ── Mensagens ───────────────────────────────────────────────────────────
+    private string? Error  { get; set; }
+    private string? Notice { get; set; }
+
+    // ── Computed ─────────────────────────────────────────────────────────────
+    private List<ProductSummaryDto> FilteredProducts =>
+        string.IsNullOrWhiteSpace(Search)
+            ? Products
+            : Products.Where(p => p.Name.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private ProductVariationDto? SelectedVariation =>
+        !string.IsNullOrEmpty(SelectedVariationId) && Detail is not null
+            ? Detail.Variations.FirstOrDefault(v => v.Id == SelectedVariationId)
+            : null;
+
+    private decimal CartTotal => Cart.Sum(l => l.Quantity * l.UnitPrice);
+
+    // ── Inicialização ────────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        var tasks = new List<Task>();
+        if (AuthProvider.Can("product.view")) tasks.Add(LoadProductsAsync());
+        if (AuthProvider.Can("sale.view"))    tasks.Add(LoadRecentSalesAsync());
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        LoadingProducts = true; Error = null;
+        try   { Products = await ProductsSvc.ListProductsAsync(); }
+        catch { Error = "Não foi possível carregar o catálogo."; }
+        finally { LoadingProducts = false; }
+    }
+
+    private async Task LoadRecentSalesAsync()
+    {
+        if (!AuthProvider.Can("sale.view")) return;
+        LoadingSales = true;
+        try   { RecentSales = await SalesSvc.ListSalesAsync(15); }
+        catch { /* silent */ }
+        finally { LoadingSales = false; }
+    }
+
+    private async Task OnProductChangeAsync(ChangeEventArgs e)
+    {
+        var id = e.Value?.ToString() ?? "";
+        SelectedProductId = id;
+        if (string.IsNullOrEmpty(id)) { Detail = null; SelectedVariationId = ""; return; }
+        await LoadDetailAsync(id);
+    }
+
+    private async Task SelectProductAsync(string id)
+    {
+        SelectedProductId = id;
+        await LoadDetailAsync(id);
+    }
+
+    private async Task LoadDetailAsync(string id)
+    {
+        LoadingDetail = true; Error = null;
+        try   { Detail = await ProductsSvc.GetProductAsync(id); SelectedVariationId = ""; }
+        catch { Error = "Não foi possível carregar o produto."; Detail = null; }
+        finally { LoadingDetail = false; }
+    }
+
+    // ── Carrinho ─────────────────────────────────────────────────────────────
+    private void AddToCart()
+    {
+        if (!AuthProvider.Can("sale.create")) return;
+        if (string.IsNullOrEmpty(SelectedVariationId) || Detail is null) { Error = "Selecione uma variação."; return; }
+        if (QtyToAdd < 1) { Error = "Quantidade deve ser pelo menos 1."; return; }
+
+        var v = Detail.Variations.FirstOrDefault(x => x.Id == SelectedVariationId);
+        if (v is null) { Error = "Variação não encontrada."; return; }
+        if (v.UnitPrice < 0) { Error = "Preço da variação inválido — cadastre o preço nas variações do produto."; return; }
+        if (v.StockQuantity < QtyToAdd) { Error = $"Estoque insuficiente para \"{v.Name}\" (disponível: {v.StockQuantity})."; return; }
+
+        Error = null; Notice = null;
+
+        var existing = Cart.FirstOrDefault(l => l.ProductVariationId == SelectedVariationId);
+        if (existing is null)
+        {
+            Cart.Add(new CartLine
+            {
+                ProductVariationId = v.Id,
+                ProductName  = Detail.Name,
+                VariationName = v.Name,
+                Quantity     = QtyToAdd,
+                UnitPrice    = v.UnitPrice,
+                StockQuantity = v.StockQuantity,
+            });
+        }
+        else
+        {
+            var nextQty = existing.Quantity + QtyToAdd;
+            if (v.StockQuantity < nextQty) { Error = $"Estoque insuficiente para \"{v.Name}\" (disponível: {v.StockQuantity})."; return; }
+            existing.Quantity = nextQty;
+        }
+        QtyToAdd = 1;
+    }
+
+    private void UpdateQty(string variationId, int delta)
+    {
+        if (!AuthProvider.Can("sale.create")) return;
+        var line = Cart.FirstOrDefault(l => l.ProductVariationId == variationId);
+        if (line is null) return;
+        var nextQty = line.Quantity + delta;
+        if (nextQty <= 0) { Error = null; Cart.Remove(line); return; }
+        if (nextQty > line.StockQuantity) { Error = $"Estoque insuficiente para \"{line.VariationName}\" (disponível: {line.StockQuantity})."; return; }
+        Error = null;
+        line.Quantity = nextQty;
+    }
+
+    private void RemoveLine(string variationId)
+    {
+        if (!AuthProvider.Can("sale.create")) return;
+        Cart.RemoveAll(l => l.ProductVariationId == variationId);
+    }
+
+    private void ClearCart()
+    {
+        if (!AuthProvider.Can("sale.create")) return;
+        Cart.Clear(); Notice = null; Error = null;
+    }
+
+    private async Task FinalizeSaleAsync()
+    {
+        if (!AuthProvider.Can("sale.create")) return;
+        if (!Cart.Any()) { Error = "Adicione itens ao carrinho."; return; }
+
+        Submitting = true; Error = null; Notice = null;
+        try
+        {
+            var result = await SalesSvc.CreateSaleAsync(new CreateSalePayload
+            {
+                Items         = Cart.Select(l => new SaleLinePayload { ProductVariationId = l.ProductVariationId, Quantity = l.Quantity }).ToList(),
+                PaymentMethod = PaymentMethod,
+            });
+            Notice = $"Venda #{result.SaleId} registrada — total {FormatBRL(result.TotalAmount)}.";
+            Cart.Clear();
+            await Task.WhenAll(LoadProductsAsync(), LoadRecentSalesAsync());
+            if (!string.IsNullOrEmpty(SelectedProductId))
+                await LoadDetailAsync(SelectedProductId);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message.Length > 0 ? ex.Message : "Não foi possível finalizar a venda. Verifique estoque e tente novamente.";
+        }
+        finally { Submitting = false; }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    private static string FormatBRL(decimal v)
+        => v.ToString("C", new System.Globalization.CultureInfo("pt-BR"));
+
+    private static string PaymentLabel(string p) => p switch
+    {
+        "cash" => "Dinheiro",
+        "card" => "Cartão",
+        "pix"  => "PIX",
+        _      => p,
+    };
+
+    private class CartLine
+    {
+        public string  ProductVariationId { get; set; } = "";
+        public string  ProductName        { get; set; } = "";
+        public string  VariationName      { get; set; } = "";
+        public int     Quantity           { get; set; }
+        public decimal UnitPrice          { get; set; }
+        public int     StockQuantity      { get; set; }
+    }
+}

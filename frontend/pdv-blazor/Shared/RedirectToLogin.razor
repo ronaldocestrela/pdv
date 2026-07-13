@@ -1,0 +1,9 @@
+@* Componente auxiliar: redireciona para /login quando não autenticado.
+   Equivalente ao <ProtectedRoute> do React. *@
+@inject NavigationManager Nav
+@code {
+    protected override void OnInitialized()
+    {
+        Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Nav.Uri)}", replace: true);
+    }
+}

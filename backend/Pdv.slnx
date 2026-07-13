@@ -11,5 +11,9 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Pdv.Tests/Pdv.Tests.csproj" />
+    <Project Path="tests/Pdv.Web.Tests/Pdv.Web.Tests.csproj" />
+  </Folder>
+  <Folder Name="/frontend/">
+    <Project Path="../frontend/pdv-blazor/Pdv.Web.csproj" />
   </Folder>
 </Solution>

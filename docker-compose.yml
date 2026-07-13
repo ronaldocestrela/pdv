@@ -44,10 +44,8 @@ services:
 
   web:
     build:
-      context: ./frontend/pdv-web
+      context: ./frontend/pdv-blazor
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}
     depends_on:
       - api
     ports:

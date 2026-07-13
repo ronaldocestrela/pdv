@@ -1,0 +1,171 @@
+@* Porta fiel de UsersPage.tsx *@
+@page "/users"
+@attribute [Authorize]
+@inject UsersService UsersSvc
+@inject RolesService RolesSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Usuários — PDV + Estoque</PageTitle>
+
+@if (!AuthProvider.Can("user.manage"))
+{
+    <div class="pdv-main__header"><h1>Usuários</h1></div>
+    <p class="pdv-error">Você não tem permissão para gerenciar usuários.</p>
+}
+else
+{
+    <div class="pdv-main__header">
+        <div>
+            <h1>Usuários</h1>
+            <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.9rem">Criar usuários, atribuir roles (Fase 6).</p>
+        </div>
+        <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="LoadAllAsync" disabled="@Loading">Atualizar</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Error))   { <p class="pdv-error">@Error</p> }
+    @if (!string.IsNullOrEmpty(SavedMsg)) { <p style="color:var(--pdv-muted);font-size:0.9rem">@SavedMsg</p> }
+
+    <div class="pdv-card" style="margin-bottom:1rem;padding:1rem 1.25rem">
+        <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Novo usuário</h2>
+        <div class="pdv-toolbar" style="flex-wrap:wrap;gap:0.75rem;align-items:flex-end">
+            <div class="pdv-field" style="margin-bottom:0;flex:1 1 12rem;min-width:0">
+                <label for="user-new-email">E-mail</label>
+                <input id="user-new-email" type="email" autocomplete="off" placeholder="email@empresa.com"
+                       @bind="NewEmail" @bind:event="oninput" />
+            </div>
+            <div class="pdv-field" style="margin-bottom:0;flex:1 1 10rem;min-width:0">
+                <label for="user-new-password">Senha (mín. 6 caracteres)</label>
+                <input id="user-new-password" type="password" autocomplete="new-password"
+                       @bind="NewPassword" @bind:event="oninput" />
+            </div>
+            <label style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.35rem;font-size:0.9rem">
+                <input type="checkbox" @bind="NewIsActive" /> Ativo
+            </label>
+            <button type="button" class="pdv-btn pdv-btn--primary"
+                    @onclick="CreateUserAsync"
+                    disabled="@(string.IsNullOrWhiteSpace(NewEmail) || NewPassword.Length < 6)">
+                Criar usuário
+            </button>
+        </div>
+    </div>
+
+    <div class="pdv-master-detail">
+        <div class="pdv-card pdv-table-wrap">
+            <h2 style="margin:0;padding:1rem 1.25rem;font-size:1.05rem;font-weight:600">Usuários</h2>
+            @if (Loading && !UserList.Any()) { <p class="pdv-empty">Carregando…</p> }
+            else if (!UserList.Any()) { <p class="pdv-empty">Nenhum usuário.</p> }
+            else
+            {
+                <table class="pdv-table">
+                    <thead><tr><th>E-mail</th><th>Ativo</th></tr></thead>
+                    <tbody>
+                        @foreach (var u in UserList)
+                        {
+                            <tr style="cursor:pointer;background:@(SelectedId == u.Id ? "rgba(0,88,190,0.08)" : "transparent")"
+                                @onclick="() => SelectUser(u.Id)">
+                                <td>@u.Email</td>
+                                <td>@(u.IsActive ? "Sim" : "Não")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="pdv-card" style="padding:1rem 1.25rem">
+            @if (SelectedUser is null) { <p class="pdv-empty">Selecione um usuário.</p> }
+            else
+            {
+                <h2 style="margin-top:0;margin-bottom:0.5rem;font-size:1.05rem;font-weight:600">@SelectedUser.Email</h2>
+                <p style="margin:0 0 1rem;color:var(--pdv-muted);font-size:0.875rem">Marque as roles e salve.</p>
+                <div style="display:flex;flex-direction:column;gap:0.65rem">
+                    @foreach (var r in RoleList)
+                    {
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-size:0.9rem">
+                            <input type="checkbox"
+                                   checked="@RoleChecks.GetValueOrDefault(r.Id)"
+                                   @onchange="e => RoleChecks[r.Id] = (bool)(e.Value ?? false)" />
+                            <span>@r.Name</span>
+                        </label>
+                    }
+                </div>
+                <button type="button" class="pdv-btn pdv-btn--primary" style="margin-top:1.25rem" @onclick="SaveRolesAsync">
+                    Salvar roles
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<UserAdminDto> UserList { get; set; } = [];
+    private List<RoleAdminDto> RoleList  { get; set; } = [];
+    private string?            SelectedId   { get; set; }
+    private Dictionary<string, bool> RoleChecks { get; set; } = [];
+    private bool    Loading   { get; set; }
+    private string? Error     { get; set; }
+    private string? SavedMsg  { get; set; }
+    private string  NewEmail    { get; set; } = "";
+    private string  NewPassword { get; set; } = "";
+    private bool    NewIsActive { get; set; } = true;
+
+    private UserAdminDto? SelectedUser => UserList.FirstOrDefault(u => u.Id == SelectedId);
+
+    protected override async Task OnInitializedAsync() => await LoadAllAsync();
+
+    private async Task LoadAllAsync()
+    {
+        if (!AuthProvider.Can("user.manage")) return;
+        Loading = true; Error = null;
+        try
+        {
+            var (u, r) = (await UsersSvc.ListUsersAsync(), await RolesSvc.ListRolesAsync());
+            UserList = u; RoleList = r;
+            if (SelectedId is null && UserList.Any()) SelectedId = UserList[0].Id;
+            RefreshRoleChecks();
+        }
+        catch { Error = "Não foi possível carregar usuários ou roles."; }
+        finally { Loading = false; }
+    }
+
+    private void SelectUser(string id)
+    {
+        SelectedId = id; SavedMsg = null;
+        RefreshRoleChecks();
+    }
+
+    private void RefreshRoleChecks()
+    {
+        RoleChecks = RoleList.ToDictionary(r => r.Id, r => SelectedUser?.RoleIds.Contains(r.Id) == true);
+    }
+
+    private async Task SaveRolesAsync()
+    {
+        if (SelectedUser is null) return;
+        Error = null; SavedMsg = null;
+        try
+        {
+            var roleIds = RoleChecks.Where(kv => kv.Value).Select(kv => kv.Key).ToList();
+            await UsersSvc.SetUserRolesAsync(SelectedUser.Id, roleIds);
+            SavedMsg = "Roles atualizadas. O usuário precisa renovar o token (login ou refresh) para refletir novas permissões.";
+            await LoadAllAsync();
+        }
+        catch { Error = "Não foi possível salvar roles do usuário."; }
+    }
+
+    private async Task CreateUserAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewEmail) || NewPassword.Length < 6) return;
+        Error = null; SavedMsg = null;
+        try
+        {
+            var id = await UsersSvc.CreateUserAsync(NewEmail.Trim(), NewPassword, NewIsActive);
+            NewEmail = ""; NewPassword = ""; NewIsActive = true;
+            SavedMsg = "Usuário criado. Atribua roles e informe a senha ao usuário.";
+            await LoadAllAsync();
+            SelectedId = id;
+            RefreshRoleChecks();
+        }
+        catch { Error = "Não foi possível criar o usuário (e-mail duplicado ou dados inválidos)."; }
+    }
+}

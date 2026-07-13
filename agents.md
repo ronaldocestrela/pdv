@@ -5,7 +5,7 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 
 - Backend: .NET 10 (Controllers + CQRS com MediatR)
 - Banco: SQL Server
-- Frontend: React + Vite (Client-Server)
+- Frontend: Blazor WebAssembly (.NET 10)
 - Autenticação: JWT + Refresh Token
 - Modelo: Multi-tenant com isolamento lógico (em implantação)
 
@@ -385,7 +385,7 @@ Após a migração para a arquitetura modular, o código vive em:
   - `src/Pdv.Modules.Reports`
   - `src/Pdv.API` (Host)
   - testes em `tests/Pdv.Tests`
-- `frontend/pdv-web/` — React + Vite + TypeScript (`services/`, `hooks/`, `store/`)
+- `frontend/pdv-blazor/` — Blazor WebAssembly (.NET 10) (`Auth/`, `Models/`, `Services/`, `Pages/`)
 
 Execução e variáveis de ambiente: ver [`README.md`](README.md) na raiz do projeto.
 

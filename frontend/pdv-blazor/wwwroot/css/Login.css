@@ -1,0 +1,149 @@
+/* Tokens alinhados ao design Stitch — ver docs/STITCH_LOGIN.md */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--pdv-bg, #fbf8fa);
+  font-family: var(--pdv-font, 'Inter', system-ui, sans-serif);
+}
+
+.login-card {
+  width: min(420px, 100%);
+  background: #ffffff;
+  border: 1px solid #e4e2e3;
+  border-radius: 12px;
+  padding: 2rem 1.75rem;
+  box-shadow:
+    0 1px 3px rgb(15 23 42 / 6%),
+    0 20px 40px -12px rgb(15 23 42 / 8%);
+}
+
+.login-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #091426;
+}
+
+.login-subtitle {
+  margin: 0.35rem 0 1.5rem;
+  color: #45474c;
+  font-size: 0.95rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #45474c;
+  margin-top: 0.5rem;
+}
+
+.login-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #c5c6cd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f5f3f4;
+  color: #1b1b1d;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #2170e4;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgb(33 112 228 / 20%);
+}
+
+.login-password-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.login-password-row .login-input {
+  flex: 1;
+}
+
+.login-toggle {
+  flex-shrink: 0;
+  padding: 0 0.75rem;
+  border: 1px solid #c5c6cd;
+  border-radius: 6px;
+  background: #fff;
+  color: #0058be;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.login-toggle:hover {
+  background: #f0edef;
+}
+
+.login-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: #ba1a1a;
+}
+
+.login-submit {
+  margin-top: 1.25rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #091426 0%, #1e293b 100%);
+  cursor: pointer;
+}
+
+.login-submit:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.login-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.login-forgot {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  border: none;
+  background: none;
+  color: #75777d;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: not-allowed;
+}
+
+.login-hint {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.login-hint a {
+  color: #0058be;
+  text-decoration: none;
+}
+
+.login-hint a:hover {
+  text-decoration: underline;
+}

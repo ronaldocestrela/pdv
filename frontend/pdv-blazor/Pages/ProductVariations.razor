@@ -1,0 +1,235 @@
+@* Porta fiel de ProductVariationsPage.tsx *@
+@page "/products/{ProductId}/variations"
+@attribute [Authorize]
+@inject ProductsService ProductsSvc
+@inject NavigationManager Nav
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Variações — PDV + Estoque</PageTitle>
+
+@if (!HasAnyVariationPermission)
+{
+    <p class="pdv-error">Sem permissão para variações. <a href="/products">Voltar para produtos</a></p>
+}
+else if (Loading)
+{
+    <p class="pdv-empty">Carregando…</p>
+}
+else if (Detail is null)
+{
+    <p class="pdv-error">@(Error ?? "Produto não encontrado.") <a href="/products">Voltar para produtos</a></p>
+}
+else
+{
+    <nav class="pdv-breadcrumb" aria-label="Breadcrumb">
+        <a href="/products">Produtos</a> / <span>@Detail.Name</span> / <span>Variações</span>
+    </nav>
+    <button type="button" class="pdv-btn pdv-btn--ghost pdv-btn--sm" style="margin-bottom:12px" @onclick='() => Nav.NavigateTo("/products")'>
+        ← Voltar
+    </button>
+
+    <div class="pdv-main__header">
+        <h1>Variações</h1>
+        <div class="pdv-toolbar">
+            @if (AuthProvider.Can("variation.create"))
+            {
+                <button type="button" class="pdv-btn pdv-btn--primary" @onclick="() => OpenModal(null)">Nova variação</button>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Error))
+    {
+        <p class="pdv-error">@Error</p>
+    }
+
+    <div class="pdv-card pdv-table-wrap">
+        @if (!Detail.Variations.Any())
+        {
+            <p class="pdv-empty">Nenhuma variação cadastrada.</p>
+        }
+        else
+        {
+            <table class="pdv-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Código de barras</th>
+                        <th class="num" style="width:8rem">Preço</th>
+                        <th style="width:7rem">Estoque</th>
+                        <th style="width:10rem">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Detail.Variations)
+                    {
+                        <tr>
+                            <td>@v.Name</td>
+                            <td>@(v.Barcode ?? "—")</td>
+                            <td class="num">@FormatBRL(v.UnitPrice)</td>
+                            <td class="num">@v.StockQuantity</td>
+                            <td>
+                                @if (AuthProvider.Can("variation.update"))
+                                {
+                                    <button type="button" class="pdv-btn pdv-btn--ghost pdv-btn--sm" style="margin-right:6px"
+                                            @onclick="() => OpenModal(v)">Editar</button>
+                                }
+                                @if (AuthProvider.Can("variation.delete"))
+                                {
+                                    <button type="button" class="pdv-btn pdv-btn--danger pdv-btn--sm"
+                                            @onclick="() => DeletingVariation = v">Excluir</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+}
+
+@* Modal Criar/Editar *@
+@if (ModalOpen)
+{
+    <div class="pdv-modal-overlay" role="dialog" aria-modal="true">
+        <div class="pdv-modal">
+            <h2>@(ModalVariation is null ? "Nova variação" : "Editar variação")</h2>
+            <EditForm Model="@ModalModel" OnValidSubmit="SaveVariationAsync">
+                <div class="pdv-field">
+                    <label for="v-name">Nome</label>
+                    <InputText id="v-name" placeholder="ex: Verde GG" @bind-Value="ModalModel.Name" />
+                </div>
+                <div class="pdv-field">
+                    <label for="v-bc">Código de barras (opcional)</label>
+                    <InputText id="v-bc" @bind-Value="ModalModel.Barcode" />
+                </div>
+                <div class="pdv-field">
+                    <label for="v-price">Preço unitário (R$)</label>
+                    <InputNumber id="v-price" min="0" step="0.01" @bind-Value="ModalModel.UnitPrice" />
+                </div>
+                <div class="pdv-field">
+                    <label for="v-stock">Estoque</label>
+                    <InputNumber id="v-stock" min="0" step="1" @bind-Value="ModalModel.StockQuantity" />
+                </div>
+                @if (!string.IsNullOrEmpty(ModalError))
+                {
+                    <p class="pdv-error">@ModalError</p>
+                }
+                <div class="pdv-modal__actions">
+                    <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="CloseModal">Cancelar</button>
+                    <button type="submit" class="pdv-btn pdv-btn--primary">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@* Confirm delete *@
+@if (DeletingVariation is not null)
+{
+    <div class="pdv-modal-overlay">
+        <div class="pdv-modal">
+            <h2>Excluir variação</h2>
+            <p style="margin:0">Excluir «@DeletingVariation.Name»?</p>
+            <div class="pdv-modal__actions">
+                <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="() => DeletingVariation = null">Cancelar</button>
+                <button type="button" class="pdv-btn pdv-btn--danger" @onclick="DeleteVariationAsync">Excluir</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string ProductId { get; set; } = "";
+
+    private ProductDetailDto?     Detail           { get; set; }
+    private bool                  Loading          { get; set; } = true;
+    private string?               Error            { get; set; }
+    private bool                  ModalOpen        { get; set; }
+    private ProductVariationDto?  ModalVariation   { get; set; }
+    private VariationModalModel   ModalModel       { get; set; } = new();
+    private string?               ModalError       { get; set; }
+    private ProductVariationDto?  DeletingVariation { get; set; }
+
+    private bool HasAnyVariationPermission =>
+        new[] { "variation.view", "variation.create", "variation.update", "variation.delete" }
+            .Any(p => AuthProvider.Can(p));
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!HasAnyVariationPermission) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        Error   = null;
+        Loading = true;
+        try
+        {
+            Detail = await ProductsSvc.GetProductAsync(ProductId);
+            if (Detail is null) Error = "Produto não encontrado.";
+        }
+        catch { Error = "Não foi possível carregar o produto."; }
+        finally { Loading = false; }
+    }
+
+    private void OpenModal(ProductVariationDto? v)
+    {
+        ModalVariation = v;
+        ModalModel     = new VariationModalModel
+        {
+            Name          = v?.Name          ?? "",
+            Barcode       = v?.Barcode       ?? "",
+            UnitPrice     = v?.UnitPrice     ?? 0,
+            StockQuantity = v?.StockQuantity ?? 0,
+        };
+        ModalError = null;
+        ModalOpen  = true;
+    }
+
+    private void CloseModal() => ModalOpen = false;
+
+    private async Task SaveVariationAsync()
+    {
+        ModalError = null;
+        var barcode = string.IsNullOrWhiteSpace(ModalModel.Barcode) ? null : ModalModel.Barcode.Trim();
+        try
+        {
+            if (ModalVariation is null)
+                await ProductsSvc.CreateVariationAsync(Detail!.Id, ModalModel.Name, barcode, ModalModel.StockQuantity, ModalModel.UnitPrice);
+            else
+                await ProductsSvc.UpdateVariationAsync(ModalVariation.Id, ModalModel.Name, barcode, ModalModel.StockQuantity, ModalModel.UnitPrice);
+            CloseModal();
+            await LoadAsync();
+        }
+        catch { ModalError = "Não foi possível salvar (verifique duplicidade de código de barras)."; }
+    }
+
+    private async Task DeleteVariationAsync()
+    {
+        if (DeletingVariation is null) return;
+        try
+        {
+            await ProductsSvc.DeleteVariationAsync(DeletingVariation.Id);
+            DeletingVariation = null;
+            await LoadAsync();
+        }
+        catch
+        {
+            Error             = "Falha ao excluir variação.";
+            DeletingVariation = null;
+        }
+    }
+
+    private static string FormatBRL(decimal v)
+        => v.ToString("C", new System.Globalization.CultureInfo("pt-BR"));
+
+    private class VariationModalModel
+    {
+        public string  Name          { get; set; } = "";
+        public string  Barcode       { get; set; } = "";
+        public decimal UnitPrice     { get; set; }
+        public int     StockQuantity { get; set; }
+    }
+}

@@ -1,0 +1,215 @@
+@* Porta fiel de ProductsPage.tsx *@
+@page "/products"
+@attribute [Authorize]
+@inject ProductsService ProductsSvc
+@inject NavigationManager Nav
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Produtos — PDV + Estoque</PageTitle>
+
+<div class="pdv-main__header">
+    <h1>Produtos</h1>
+    <div class="pdv-toolbar">
+        @if (AuthProvider.Can("product.create"))
+        {
+            <button type="button" class="pdv-btn pdv-btn--primary" @onclick="() => OpenModal(null)">
+                Novo produto
+            </button>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Error))
+{
+    <p class="pdv-error">@Error</p>
+}
+
+<div class="pdv-card pdv-table-wrap">
+    @if (Loading)
+    {
+        <p class="pdv-empty">Carregando…</p>
+    }
+    else if (!Rows.Any())
+    {
+        <p class="pdv-empty">Nenhum produto cadastrado.</p>
+    }
+    else
+    {
+        <table class="pdv-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ativo</th>
+                    <th style="width:8rem">Variações</th>
+                    <th style="width:14rem">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Rows)
+                {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td>
+                            <span class="pdv-chip @(p.IsActive ? "pdv-chip--ok" : "pdv-chip--off")">
+                                @(p.IsActive ? "Sim" : "Não")
+                            </span>
+                        </td>
+                        <td class="num">@p.VariationCount</td>
+                        <td>
+                            @if (CanSeeVariations)
+                            {
+                                <button type="button"
+                                        class="pdv-btn pdv-btn--ghost pdv-btn--sm"
+                                        style="margin-right:6px"
+                                        @onclick='() => Nav.NavigateTo($"/products/{p.Id}/variations")'>
+                                    Variações
+                                </button>
+                            }
+                            @if (AuthProvider.Can("product.update"))
+                            {
+                                <button type="button"
+                                        class="pdv-btn pdv-btn--ghost pdv-btn--sm"
+                                        style="margin-right:6px"
+                                        @onclick="() => OpenModal(p)">
+                                    Editar
+                                </button>
+                            }
+                            @if (AuthProvider.Can("product.delete"))
+                            {
+                                <button type="button"
+                                        class="pdv-btn pdv-btn--danger pdv-btn--sm"
+                                        @onclick="() => DeletingProduct = p">
+                                    Excluir
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@* Modal Criar/Editar *@
+@if (ModalOpen)
+{
+    <div class="pdv-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
+        <div class="pdv-modal">
+            <h2 id="product-modal-title">@(ModalProduct is null ? "Novo produto" : "Editar produto")</h2>
+            <EditForm Model="@ModalModel" OnValidSubmit="SaveProductAsync">
+                <div class="pdv-field">
+                    <label for="p-name">Nome</label>
+                    <InputText id="p-name" autocomplete="off" @bind-Value="ModalModel.Name" />
+                </div>
+                <div class="pdv-field pdv-toggle">
+                    <InputCheckbox id="p-active" @bind-Value="ModalModel.IsActive" />
+                    <label for="p-active">Ativo</label>
+                </div>
+                @if (!string.IsNullOrEmpty(ModalError))
+                {
+                    <p class="pdv-error">@ModalError</p>
+                }
+                <div class="pdv-modal__actions">
+                    <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="CloseModal">Cancelar</button>
+                    <button type="submit" class="pdv-btn pdv-btn--primary">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@* Confirm delete *@
+@if (DeletingProduct is not null)
+{
+    <div class="pdv-modal-overlay">
+        <div class="pdv-modal">
+            <h2>Excluir produto</h2>
+            <p style="margin:0;font-size:0.9rem">Excluir «@DeletingProduct.Name» e todas as variações?</p>
+            <div class="pdv-modal__actions">
+                <button type="button" class="pdv-btn pdv-btn--ghost" @onclick="() => DeletingProduct = null">Cancelar</button>
+                <button type="button" class="pdv-btn pdv-btn--danger" @onclick="DeleteProductAsync">Excluir</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ProductSummaryDto> Rows    { get; set; } = [];
+    private bool                    Loading { get; set; } = true;
+    private string?                 Error   { get; set; }
+
+    private bool CanSeeVariations =>
+        new[] { "variation.view", "variation.create", "variation.update", "variation.delete" }
+            .Any(p => AuthProvider.Can(p));
+
+    // Modal state
+    private bool               ModalOpen    { get; set; }
+    private ProductSummaryDto? ModalProduct { get; set; }
+    private ProductModalModel  ModalModel   { get; set; } = new();
+    private string?            ModalError   { get; set; }
+
+    // Delete state
+    private ProductSummaryDto? DeletingProduct { get; set; }
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        Error   = null;
+        Loading = true;
+        try   { Rows = await ProductsSvc.ListProductsAsync(); }
+        catch { Error = "Não foi possível carregar os produtos."; }
+        finally { Loading = false; }
+    }
+
+    private void OpenModal(ProductSummaryDto? product)
+    {
+        ModalProduct = product;
+        ModalModel   = new ProductModalModel
+        {
+            Name     = product?.Name     ?? "",
+            IsActive = product?.IsActive ?? true,
+        };
+        ModalError = null;
+        ModalOpen  = true;
+    }
+
+    private void CloseModal() => ModalOpen = false;
+
+    private async Task SaveProductAsync()
+    {
+        ModalError = null;
+        try
+        {
+            if (ModalProduct is null)
+                await ProductsSvc.CreateProductAsync(ModalModel.Name, ModalModel.IsActive);
+            else
+                await ProductsSvc.UpdateProductAsync(ModalProduct.Id, ModalModel.Name, ModalModel.IsActive);
+            CloseModal();
+            await LoadAsync();
+        }
+        catch { ModalError = "Não foi possível salvar."; }
+    }
+
+    private async Task DeleteProductAsync()
+    {
+        if (DeletingProduct is null) return;
+        try
+        {
+            await ProductsSvc.DeleteProductAsync(DeletingProduct.Id);
+            DeletingProduct = null;
+            await LoadAsync();
+        }
+        catch
+        {
+            Error           = "Falha ao excluir produto.";
+            DeletingProduct = null;
+        }
+    }
+
+    private class ProductModalModel
+    {
+        public string Name     { get; set; } = "";
+        public bool   IsActive { get; set; } = true;
+    }
+}

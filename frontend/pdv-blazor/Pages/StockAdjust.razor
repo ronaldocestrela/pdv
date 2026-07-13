@@ -1,0 +1,217 @@
+@* Porta fiel de StockAdjustPage.tsx *@
+@page "/stock"
+@attribute [Authorize]
+@inject ProductsService ProductsSvc
+@inject StockService StockSvc
+@inject PdvAuthStateProvider AuthProvider
+
+<PageTitle>Estoque — PDV + Estoque</PageTitle>
+
+@if (!AuthProvider.Can("stock.adjust") && !AuthProvider.Can("stock.view"))
+{
+    <div class="pdv-main__header"><h1>Estoque</h1></div>
+    <p class="pdv-error">Você não tem permissão para acessar esta área.</p>
+}
+else
+{
+    <div class="pdv-main__header">
+        <div>
+            <h1>Movimentação de estoque</h1>
+            <p style="margin:0.25rem 0 0;color:var(--pdv-muted);font-size:0.9rem">Ajuste de estoque e histórico (Fase 3)</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Notice))
+    {
+        <p class="pdv-empty" style="color:var(--pdv-action)">@Notice</p>
+    }
+    @if (!string.IsNullOrEmpty(Error))
+    {
+        <p class="pdv-error">@Error</p>
+    }
+
+    @if (!AuthProvider.Can("product.view"))
+    {
+        <p class="pdv-error">É necessária a permissão de visualização de produtos para selecionar produto/variação aqui.</p>
+    }
+
+    @if (AuthProvider.Can("stock.adjust"))
+    {
+        <div class="pdv-card" style="margin-bottom:1rem;padding:1rem 1.25rem">
+            <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600">Registrar entrada de estoque</h2>
+            <EditForm Model="@AdjustModel" OnValidSubmit="SubmitAdjustAsync">
+                <div class="pdv-field">
+                    <label for="stock-product">Produto</label>
+                    <select id="stock-product" disabled="@(LoadingProducts || !AuthProvider.Can("product.view"))"
+                            @onchange="OnProductChangeAsync">
+                        <option value="">Selecione…</option>
+                        @foreach (var p in Products)
+                        {
+                            <option value="@p.Id">@p.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="pdv-field">
+                    <label for="stock-variation">Variação</label>
+                    <select id="stock-variation"
+                            disabled="@(Detail is null || LoadingDetail || !Detail.Variations.Any())"
+                            @bind="SelectedVariationId">
+                        <option value="">Selecione…</option>
+                        @if (Detail is not null)
+                        {
+                            @foreach (var v in Detail.Variations)
+                            {
+                                <option value="@v.Id">@v.Name — estoque: @v.StockQuantity</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="pdv-field">
+                    <label for="stock-qty">Quantidade</label>
+                    <InputNumber id="stock-qty" min="1" step="1"
+                                 disabled="@(!AuthProvider.Can("stock.adjust"))"
+                                 @bind-Value="AdjustModel.Quantity" />
+                </div>
+
+                <div class="pdv-field">
+                    <label for="stock-reason">Motivo / observação (opcional)</label>
+                    <InputText id="stock-reason" maxlength="512" @bind-Value="AdjustModel.Reason" />
+                </div>
+
+                <div>
+                    <button type="submit" class="pdv-btn pdv-btn--primary"
+                            disabled="@(Saving || !AuthProvider.Can("product.view"))">
+                        @(Saving ? "Salvando…" : "Registrar entrada")
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    @if (AuthProvider.Can("stock.view"))
+    {
+        <div class="pdv-card pdv-table-wrap">
+            <h2 style="margin-top:0;margin-bottom:1rem;font-size:1.05rem;font-weight:600;padding:1rem 1.25rem 0">Histórico de movimentações</h2>
+            @if (LoadingMovements)
+            {
+                <p class="pdv-empty">Carregando…</p>
+            }
+            else if (!Movements.Any())
+            {
+                <p class="pdv-empty">Nenhuma movimentação registrada ainda.</p>
+            }
+            else
+            {
+                <table class="pdv-table">
+                    <thead>
+                        <tr>
+                            <th>Data/hora</th><th>Produto</th><th>Variação</th>
+                            <th>Tipo</th><th class="num">Qtd</th><th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Movements)
+                        {
+                            <tr>
+                                <td>@DateTime.Parse(m.CreatedAtUtc).ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@m.ProductName</td>
+                                <td>@m.VariationName</td>
+                                <td><span class="pdv-chip @(m.Type == "IN" ? "pdv-chip--ok" : "pdv-chip--danger")">@m.Type</span></td>
+                                <td class="num">@m.Quantity</td>
+                                <td>@(m.Reason ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+}
+
+@code {
+    private List<ProductSummaryDto> Products    { get; set; } = [];
+    private ProductDetailDto?       Detail      { get; set; }
+    private List<StockMovementDto>  Movements   { get; set; } = [];
+
+    private bool    LoadingProducts { get; set; }
+    private bool    LoadingDetail   { get; set; }
+    private bool    LoadingMovements { get; set; }
+    private bool    Saving          { get; set; }
+    private string? Error           { get; set; }
+    private string? Notice          { get; set; }
+
+    private string SelectedVariationId { get; set; } = "";
+
+    private AdjustFormModel AdjustModel { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tasks = new List<Task>();
+        if (AuthProvider.Can("product.view")) tasks.Add(LoadProductsAsync());
+        if (AuthProvider.Can("stock.view"))   tasks.Add(LoadMovementsAsync());
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        LoadingProducts = true; Error = null;
+        try   { Products = await ProductsSvc.ListProductsAsync(); }
+        catch { Error = "Não foi possível carregar produtos."; }
+        finally { LoadingProducts = false; }
+    }
+
+    private async Task OnProductChangeAsync(ChangeEventArgs e)
+    {
+        var id = e.Value?.ToString() ?? "";
+        Notice = null;
+        if (string.IsNullOrEmpty(id)) { Detail = null; SelectedVariationId = ""; return; }
+        LoadingDetail = true; Error = null;
+        try
+        {
+            Detail = await ProductsSvc.GetProductAsync(id);
+            SelectedVariationId = "";
+        }
+        catch { Error = "Não foi possível carregar o produto."; Detail = null; }
+        finally { LoadingDetail = false; }
+    }
+
+    private async Task LoadMovementsAsync()
+    {
+        LoadingMovements = true; Error = null;
+        try
+        {
+            var vid = string.IsNullOrEmpty(SelectedVariationId) ? null : SelectedVariationId;
+            Movements = await StockSvc.ListMovementsAsync(vid, 100);
+        }
+        catch { Error = "Não foi possível carregar o histórico de movimentações."; }
+        finally { LoadingMovements = false; }
+    }
+
+    private async Task SubmitAdjustAsync()
+    {
+        if (!AuthProvider.Can("stock.adjust")) return;
+        if (string.IsNullOrEmpty(SelectedVariationId)) { Error = "Selecione uma variação."; return; }
+
+        Saving = true; Notice = null; Error = null;
+        try
+        {
+            var reason = string.IsNullOrWhiteSpace(AdjustModel.Reason) ? null : AdjustModel.Reason.Trim();
+            await StockSvc.AdjustStockAsync(SelectedVariationId, AdjustModel.Quantity, reason);
+            Notice = "Entrada registrada com sucesso.";
+            AdjustModel = new AdjustFormModel();
+            if (Detail is not null)
+                Detail = await ProductsSvc.GetProductAsync(Detail.Id);
+            await LoadMovementsAsync();
+        }
+        catch { Error = "Não foi possível registrar a entrada. Verifique os dados e tente novamente."; }
+        finally { Saving = false; }
+    }
+
+    private class AdjustFormModel
+    {
+        public int    Quantity { get; set; } = 1;
+        public string Reason   { get; set; } = "";
+    }
+}
