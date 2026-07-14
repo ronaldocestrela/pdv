@@ -285,6 +285,37 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 
 ---
 
+## 📱 Fase 11 — Aplicativo Desktop e Suporte Offline
+
+### Objetivo
+- Criar versão desktop instalável do sistema com funcionamento offline completo e sincronização automática ao reestabelecer conexão com a nuvem.
+
+### Desktop / MAUI
+- Criação do projeto `pdv-maui` usando **.NET MAUI Blazor Hybrid**.
+- Reuso de 100% da interface web Blazor através de links no arquivo `.csproj`.
+- Configuração de WebView nativa renderizando `Pdv.Web.App`.
+
+### Persistência Local
+- Serviço `LocalDbService` implementando banco **SQLite** local (`sqlite-net-pcl`).
+- Modelagem de cache local para produtos, variações, fornecedores e histórico de vendas.
+- Fila local `LocalPendingSync` para guardar operações realizadas offline.
+
+### Sincronização
+- Subclasses inteligentes dos serviços Blazor (`MauiProductsService`, `MauiSalesService`, etc.) gerenciando fallback offline.
+- Componente compartilhado `ConnectionStatus` indicando o estado atual da sincronização e conexão.
+- `SyncWorker` em segundo plano escutando alterações de conectividade e enviando em lote transações pendentes (vendas, ajustes de estoque, cadastros) em ordem cronológica.
+
+### Isolamento de Compilação
+- Solução `Pdv.Maui.slnx` isolada para desenvolvimento no Windows/Mac, mantendo a pipeline Docker e builds locais do Linux livres de workloads ausentes.
+
+### ✅ Entrega (**concluída**)
+- Estrutura de arquivos e código C# de banco e sync implementados.
+- Build do Blazor WASM bem-sucedido e todos os **51 testes** do backend integrados passando sem regressão.
+
+**Validação rápida (manual):** Abrir `Pdv.Maui.slnx` em ambiente Windows/Mac → compilar e rodar → desligar conexão local → cadastrar venda no PDV → constatar decremento imediato do estoque em tela e contagem pendente no badge → religar internet → aguardar sync automático.
+
+---
+
 ## 📌 Ordem Recomendada
 
 1. Fundação
@@ -295,6 +326,9 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 6. Relatórios
 7. Usuários/Roles
 8. Testes + Refino
+9. Multitenancy
+10. Cadastro de Tenants
+11. Desktop + Offline
 
 ---
 
@@ -304,7 +338,6 @@ Construir um sistema de vendas (PDV) com controle de estoque, permissões granul
 - Impressão térmica
 - Multi-tenant avançado (troca de tenant em sessão, gestão cross-tenant por UI)
 - NFC-e
-- Offline-first
 
 ---
 

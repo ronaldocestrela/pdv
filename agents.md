@@ -5,8 +5,8 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 
 - Backend: .NET 10 (Controllers + CQRS com MediatR)
 - Banco: SQL Server
-- Frontend: Blazor WebAssembly (.NET 10)
-- Autenticação: JWT + Refresh Token
+- Frontend: Blazor WebAssembly (.NET 10) e .NET MAUI Blazor Hybrid (.NET 10) para Desktop
+- Autenticação: JWT + Refresh Token (sessão persistente offline)
 - Modelo: Multi-tenant com isolamento lógico (em implantação)
 
 ## 2. Escopo do MVP
@@ -23,7 +23,7 @@ Sistema de vendas de produtos físicos (PDV) com gestão de estoque.
 - NFC-e
 - Impressão
 - Tempo real
-- Offline
+- Offline (suportado offline-first com sincronização automática na versão desktop .NET MAUI)
 
 ---
 
@@ -296,6 +296,14 @@ Design de referência (Stitch MCP): [`docs/design/stitch-phase2-pdv-ui.md`](docs
 - Adição rápida ao carrinho
 - Seleção de variação
 - Finalização com método de pagamento
+
+### 8.1 Aplicativo Desktop (.NET MAUI Blazor Hybrid)
+
+- **Localização:** `frontend/pdv-maui/`
+- **Reutilização de UI:** Reutiliza integralmente as páginas, componentes e layouts do projeto `pdv-blazor` via links MSBuild, rodando localmente no runtime do dispositivo (não WebAssembly).
+- **Banco de Dados Local:** SQLite via `sqlite-net-pcl` para cache e funcionamento 100% offline de catálogo, vendas e fornecedores.
+- **Sincronização (SyncWorker):** Monitora rede via `Connectivity.Current`. Vendas e ajustes de estoque criados offline são enfileirados localmente (`LocalPendingSync`) e enviados à nuvem em ordem cronológica quando a conexão retorna, seguidos de downsync do catálogo.
+- **Solução de Desenvolvimento:** `Pdv.Maui.slnx` isolado para desenvolvimento em Windows/Mac.
 
 ---
 

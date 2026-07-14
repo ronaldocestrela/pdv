@@ -6,10 +6,10 @@ namespace Pdv.Web.Services;
 /// <summary>Equivalente a services/suppliers.ts.</summary>
 public class SuppliersService(HttpClient http)
 {
-    public async Task<List<SupplierSummaryDto>> ListSuppliersAsync()
+    public virtual async Task<List<SupplierSummaryDto>> ListSuppliersAsync()
         => await http.GetFromJsonAsync<List<SupplierSummaryDto>>("/api/suppliers") ?? [];
 
-    public async Task<SupplierSummaryDto?> GetSupplierAsync(string id)
+    public virtual async Task<SupplierSummaryDto?> GetSupplierAsync(string id)
     {
         var res = await http.GetAsync($"/api/suppliers/{id}");
         if (res.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
@@ -17,7 +17,7 @@ public class SuppliersService(HttpClient http)
         return await res.Content.ReadFromJsonAsync<SupplierSummaryDto>();
     }
 
-    public async Task<string> CreateSupplierAsync(string name, string? document, string? email, string? phone, bool isActive)
+    public virtual async Task<string> CreateSupplierAsync(string name, string? document, string? email, string? phone, bool isActive)
     {
         var res = await http.PostAsJsonAsync("/api/suppliers", new { name, document, email, phone, isActive });
         res.EnsureSuccessStatusCode();
@@ -25,13 +25,13 @@ public class SuppliersService(HttpClient http)
         return data.Id;
     }
 
-    public async Task UpdateSupplierAsync(string id, string name, string? document, string? email, string? phone, bool isActive)
+    public virtual async Task UpdateSupplierAsync(string id, string name, string? document, string? email, string? phone, bool isActive)
     {
         var res = await http.PutAsJsonAsync($"/api/suppliers/{id}", new { name, document, email, phone, isActive });
         res.EnsureSuccessStatusCode();
     }
 
-    public async Task DeleteSupplierAsync(string id)
+    public virtual async Task DeleteSupplierAsync(string id)
         => (await http.DeleteAsync($"/api/suppliers/{id}")).EnsureSuccessStatusCode();
 }
 

@@ -24,7 +24,10 @@
            aria-label="Navegação principal"
            @attributes="InertAttr">
 
-        <div class="pdv-sidebar__brand">PDV + Estoque</div>
+        <div class="pdv-sidebar__brand">
+            PDV + Estoque
+            <ConnectionStatus />
+        </div>
 
         <nav class="pdv-sidebar__nav" aria-label="Principal">
             <NavLink class="pdv-sidebar__link" href="" Match="NavLinkMatch.All" @onclick="OnNavClick">Início</NavLink>

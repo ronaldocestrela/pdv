@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Pdv.Maui.csproj" />
+  <Project Path="../pdv-blazor/Pdv.Web.csproj" />
+</Solution>

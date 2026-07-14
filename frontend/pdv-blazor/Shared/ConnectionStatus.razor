@@ -1,0 +1,58 @@
+@inject Services.ConnectionStatusService ConnService
+@implements IDisposable
+
+<div class="pdv-conn-status" style="margin-top: 0.5rem; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; color: #fff;">
+    <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="height: 8px; width: 8px; border-radius: 50%; display: inline-block; background-color: @(ConnService.IsOnline ? "#4ade80" : "#f87171");"></span>
+        <span>@(ConnService.IsOnline ? "Conectado (Nuvem)" : "Offline (Local)")</span>
+    </div>
+
+    @if (ConnService.PendingItemsCount > 0)
+    {
+        <div style="background: rgba(255,255,255,0.1); padding: 0.4rem; border-radius: 4px; font-size: 0.75rem;">
+            <span>Pendentes: <strong>@ConnService.PendingItemsCount</strong></span>
+            @if (ConnService.IsOnline && !isSyncing)
+            {
+                <button type="button" 
+                        class="pdv-btn pdv-btn--primary" 
+                        style="padding: 0.15rem 0.4rem; font-size: 0.7rem; margin-top: 0.25rem; width: 100%; border-radius: 3px;"
+                        @onclick="TriggerSync">
+                    Sincronizar
+                </button>
+            }
+            else if (isSyncing)
+            {
+                <div style="font-size: 0.7rem; margin-top: 0.25rem; color: var(--pdv-muted);">Sincronizando...</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool isSyncing = false;
+
+    protected override void OnInitialized()
+    {
+        ConnService.OnStatusChanged += StateHasChanged;
+    }
+
+    private async Task TriggerSync()
+    {
+        isSyncing = true;
+        StateHasChanged();
+        try
+        {
+            await ConnService.SyncAsync();
+        }
+        finally
+        {
+            isSyncing = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        ConnService.OnStatusChanged -= StateHasChanged;
+    }
+}

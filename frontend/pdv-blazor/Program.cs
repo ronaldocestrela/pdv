@@ -31,6 +31,7 @@ builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
 
 // ── Serviços de negócio ──────────────────────────────────────────────────────
+builder.Services.AddScoped<ConnectionStatusService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProductsService>();
 builder.Services.AddScoped<SalesService>();

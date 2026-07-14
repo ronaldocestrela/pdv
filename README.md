@@ -120,6 +120,32 @@ O frontend é compilado junto com a solução ou individualmente:
 dotnet build frontend/pdv-blazor/Pdv.Web.csproj
 ```
 
+## Aplicativo Desktop (Offline-first com .NET MAUI)
+
+Localizado em `frontend/pdv-maui/`, é um aplicativo **.NET MAUI Blazor Hybrid** que reaproveita a interface gráfica web e adiciona suporte offline-first. Ele usa um banco de dados local **SQLite** para cache e funcionamento offline, e conta com um sincronizador inteligente (`SyncWorker`) em segundo plano para propagar transações pendentes para a nuvem quando a conexão é restabelecida.
+
+### Como abrir e compilar (Desenvolvimento)
+
+A solução [**`frontend/pdv-maui/Pdv.Maui.slnx`**](frontend/pdv-maui/Pdv.Maui.slnx) agrupa os projetos desktop e web compartilhados para facilitar a abertura em IDEs como o Visual Studio ou VS Code em ambiente Windows ou macOS.
+
+**Comandos de Build por plataforma:**
+
+```bash
+# Restaurar dependências
+dotnet restore frontend/pdv-maui/Pdv.Maui.csproj
+
+# Compilar para Windows Desktop (executar em ambiente Windows)
+dotnet build frontend/pdv-maui/Pdv.Maui.csproj -f net10.0-windows10.0.19041.0
+
+# Compilar para macOS (executar em ambiente macOS)
+dotnet build frontend/pdv-maui/Pdv.Maui.csproj -f net10.0-maccatalyst
+
+# Compilar para Android (requer workload maui-android instalado)
+dotnet build frontend/pdv-maui/Pdv.Maui.csproj -f net10.0-android
+```
+
+> **Aviso (Compatibilidade Linux):** Por conta do .NET MAUI não possuir suporte oficial a Linux Desktop, o projeto MAUI está desacoplado da solução principal `backend/Pdv.slnx` para garantir que o seu fluxo Docker Compose e builds locais de CI no Linux continuem compilando com sucesso.
+
 ### Autenticação (Fase 1)
 
 - Endpoints: `POST /api/auth/login`, `POST /api/auth/refresh` (JWT + refresh token no banco).
